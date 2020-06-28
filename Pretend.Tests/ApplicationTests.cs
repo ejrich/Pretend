@@ -1,6 +1,5 @@
-using System;
-using System.IO;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 
 namespace Pretend.Tests
 {
@@ -9,24 +8,24 @@ namespace Pretend.Tests
     {
         private IApplication _target;
 
+        private Mock<ILog<Application>> _mockLog;
+
         [TestInitialize]
         public void TestInitialize()
         {
-            _target = new Application();
+            _mockLog = new Mock<ILog<Application>>(MockBehavior.Strict);
+
+            _target = new Application(_mockLog.Object);
         }
 
         [TestMethod]
         public void Run_ExecutesDesiredCode()
         {
-            using (var sw = new StringWriter())
-            {
-                Console.SetOut(sw);
+            _mockLog.Setup(_ => _.Info("Hello World"));
 
-                _target.Run();
+            _target.Run();
 
-                var expected = string.Format("Hello World{0}", Environment.NewLine);
-                Assert.AreEqual(expected, sw.ToString());
-            }
+            _mockLog.Verify(_ => _.Info("Hello World"), Times.Once);
         }
     }
 }

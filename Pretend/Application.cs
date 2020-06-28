@@ -1,4 +1,4 @@
-﻿using System;
+﻿using System.Threading.Tasks;
 
 namespace Pretend
 {
@@ -9,9 +9,16 @@ namespace Pretend
 
     public class Application : IApplication
     {
+        private readonly ILog<Application> _log;
+
+        public Application(ILog<Application> log)
+        {
+            _log = log;
+        }
+
         public void Run()
         {
-            Console.WriteLine("Hello World");
+            _log.Info("Hello World");
         }
     }
 }
