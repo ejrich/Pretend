@@ -1,7 +1,7 @@
 using System;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Engine
+namespace Pretend
 {
     public class Entrypoint
     {
