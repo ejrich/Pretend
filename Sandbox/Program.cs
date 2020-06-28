@@ -1,4 +1,5 @@
 ﻿using System;
+using Engine;
 
 namespace Sandbox
 {
@@ -6,7 +7,7 @@ namespace Sandbox
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Hello World!");
+            Entrypoint.Start<SandboxApp>();
         }
     }
 }
