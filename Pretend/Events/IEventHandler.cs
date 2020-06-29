@@ -7,7 +7,7 @@ namespace Pretend.Events
         void Handle(IEvent evnt);
     }
 
-    public abstract class IEventHandler<T> : IEventHandler where T : IEvent
+    public abstract class BaseEventHandler<T> : IEventHandler where T : IEvent
     {
         public abstract void Handle(T evnt);
         public void Handle(IEvent evnt) { Handle((T) evnt); }

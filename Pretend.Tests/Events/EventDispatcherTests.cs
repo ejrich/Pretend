@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Pretend.Events;
@@ -11,15 +12,12 @@ namespace Pretend.Tests.Events
     {
         private IEventDispatcher _target;
 
-        private Mock<TestEventHandler> _mockEventHandler;
-
         [TestInitialize]
         public void TestInitialize()
         {
-            _mockEventHandler = new Mock<TestEventHandler>{ CallBase = true };
             var eventHandlers = new List<IEventHandler>
             {
-                _mockEventHandler.Object
+                new TestEventHandler()
             };
 
             _target = new EventDispatcher(eventHandlers);
@@ -30,16 +28,23 @@ namespace Pretend.Tests.Events
         {
             var evnt = new TestEvent();
 
-            _target.DispatchEvent(evnt);
+            using (var sw = new StringWriter())
+            {
+                Console.SetOut(sw);
 
-            _mockEventHandler.Verify(_ => _.Handle(evnt), Times.Once);
+                _target.DispatchEvent(evnt);
+
+                var expected = string.Format("Hello World{0}", Environment.NewLine);
+                Assert.AreEqual(expected, sw.ToString());
+            }
         }
 
         public class TestEvent : IEvent
         {
+            public bool Processed { get; set; }
         }
 
-        public class TestEventHandler : IEventHandler<TestEvent>
+        public class TestEventHandler : BaseEventHandler<TestEvent>
         {
             public override void Handle(TestEvent evnt)
             {
