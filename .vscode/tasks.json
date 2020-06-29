@@ -19,6 +19,20 @@
                 "reveal": "silent"
             },
             "problemMatcher": "$msCompile"
-        }
+        },
+        {
+            "label": "test",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "test",
+                "${workspaceFolder}/Pretend.Tests/Pretend.Tests.csproj"
+            ],
+            "problemMatcher": "$msCompile",
+            "group": {
+                "kind": "test",
+                "isDefault": true
+            }
+        },
     ]
 }
