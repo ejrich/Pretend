@@ -15,7 +15,7 @@ namespace Pretend.Events
 
         public EventDispatcher(IEnumerable<IEventHandler> eventHandlers)
         {
-            _eventHandlers = eventHandlers.ToDictionary(GetEventType, _ => _);
+            _eventHandlers = eventHandlers.ToDictionary(GetEventType);
         }
 
         public void DispatchEvent(IEvent evnt)

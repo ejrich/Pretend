@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+using OpenToolkit;
 
 namespace Pretend
 {
@@ -19,6 +20,9 @@ namespace Pretend
         public void Run()
         {
             _log.Info("Hello World");
+            var window = new Window();
+
+            window.Show();
         }
     }
 }
