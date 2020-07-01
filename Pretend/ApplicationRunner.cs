@@ -21,14 +21,14 @@ namespace Pretend
         public void Run()
         {
             _log.Info("Hello World");
-            // var window = new Window();
+            var window = new Window();
 
             _application.Start();
 
             while (_running)
             {
-                // window.OnUpdate();
-                _running = false;
+                window.OnUpdate();
+                // _running = false;
             }
 
             _application.Stop();

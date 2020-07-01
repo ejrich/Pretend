@@ -1,5 +1,8 @@
-using OpenToolkit.Windowing.Common;
-using OpenToolkit.Windowing.Desktop;
+using System;
+using GLFW;
+// using OpenToolkit.Windowing.Common;
+// using OpenToolkit.Windowing.Desktop;
+// using OpenToolkit.Windowing.GraphicsLibraryFramework;
 
 namespace Pretend
 {
@@ -10,11 +13,23 @@ namespace Pretend
 
     public class Window : IWindow
     {
-        private INativeWindow _window;
+        // private INativeWindow _window;
 
-        public Window()
+        public unsafe Window()
         {
-            _window = new NativeWindow(NativeWindowSettings.Default);
+            var a = Glfw.Init();
+
+            // GLFW.WindowHint(WindowHintInt.ContextVersionMajor, 4);
+            // GLFW.WindowHint(WindowHintInt.ContextVersionMinor, 6);
+
+            // GLFW.WindowHint(WindowHintBool.Visible, true);
+            var window = Glfw.CreateWindow(800, 600, "Hello world", Monitor.None, GLFW.Window.None);
+            // GLFW.MakeContextCurrent(window);
+
+            // var settings = NativeWindowSettings.Default;
+            // settings.APIVersion = new Version(4, 0);
+
+            // _window = new NativeWindow(settings);
         }
 
         public void OnUpdate()
