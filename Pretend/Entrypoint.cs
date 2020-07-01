@@ -13,13 +13,14 @@ namespace Pretend
                 .AddDebug());
             services.AddTransient(typeof(ILog<>), typeof(Log<>));
 
+            services.AddTransient<IApplicationRunner, ApplicationRunner>();
             services.AddTransient(typeof(IApplication), typeof(TApp));
 
             var provider = services.BuildServiceProvider();
 
-            var application = provider.GetService<IApplication>();
+            var applicationRunner = provider.GetService<IApplicationRunner>();
 
-            application.Run();
+            applicationRunner.Run();
         }
     }
 }

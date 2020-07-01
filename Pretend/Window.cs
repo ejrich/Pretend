@@ -1,4 +1,3 @@
-using OpenToolkit;
 using OpenToolkit.Windowing.Common;
 using OpenToolkit.Windowing.Desktop;
 
@@ -6,7 +5,7 @@ namespace Pretend
 {
     public interface IWindow
     {
-        void Show();
+        void OnUpdate();
     }
 
     public class Window : IWindow
@@ -15,13 +14,11 @@ namespace Pretend
 
         public Window()
         {
-            // _window = new GameWindow(GameWindowSettings.Default, NativeWindowSettings.Default);
             _window = new NativeWindow(NativeWindowSettings.Default);
         }
 
-        public void Show()
+        public void OnUpdate()
         {
-            // _window.Run();
         }
     }
 }
