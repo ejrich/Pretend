@@ -9,7 +9,7 @@
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build",
-            "program": "${workspaceFolder}/Sandbox/bin/Debug/net5.0/Sandbox.dll",
+            "program": "${workspaceFolder}/Sandbox/bin/Debug/netcoreapp3.1/Sandbox.dll",
             "args": [],
             "cwd": "${workspaceFolder}/Sandbox",
             "console": "internalConsole",
