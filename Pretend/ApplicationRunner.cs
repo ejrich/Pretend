@@ -8,30 +8,30 @@ namespace Pretend
     public class ApplicationRunner : IApplicationRunner
     {
         private readonly IApplication _application;
+        private readonly IWindow _window;
         private readonly ILog<ApplicationRunner> _log;
 
-        private bool _running = true;
-
-        public ApplicationRunner(IApplication application, ILog<ApplicationRunner> log)
+        public ApplicationRunner(IApplication application, IWindow window, ILog<ApplicationRunner> log)
         {
             _application = application;
+            _window = window;
             _log = log;
         }
 
         public void Run()
         {
             _log.Info("Hello World");
-            var window = new Window();
 
+            _window.Init();
             _application.Start();
 
-            while (_running)
+            while (!_window.IsClosing)
             {
-                window.OnUpdate();
-                // _running = false;
+                _window.OnUpdate();
             }
 
             _application.Stop();
+            _window.Close();
         }
     }
 }

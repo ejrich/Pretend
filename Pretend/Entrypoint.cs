@@ -14,6 +14,7 @@ namespace Pretend
             services.AddTransient(typeof(ILog<>), typeof(Log<>));
 
             services.AddTransient<IApplicationRunner, ApplicationRunner>();
+            services.AddTransient<IWindow, Window>();
             services.AddTransient(typeof(IApplication), typeof(TApp));
 
             var provider = services.BuildServiceProvider();

@@ -9,15 +9,17 @@ namespace Pretend.Tests
         private IApplicationRunner _target;
 
         private Mock<IApplication> _mockApplication;
+        private Mock<IWindow> _mockWindow;
         private Mock<ILog<ApplicationRunner>> _mockLog;
 
         [TestInitialize]
         public void TestInitialize()
         {
             _mockApplication = new Mock<IApplication>(MockBehavior.Strict);
+            _mockWindow = new Mock<IWindow>(MockBehavior.Strict);
             _mockLog = new Mock<ILog<ApplicationRunner>>(MockBehavior.Strict);
 
-            _target = new ApplicationRunner(_mockApplication.Object, _mockLog.Object);
+            _target = new ApplicationRunner(_mockApplication.Object, _mockWindow.Object, _mockLog.Object);
         }
 
         [TestCleanup]
