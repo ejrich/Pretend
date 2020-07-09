@@ -1,7 +1,9 @@
 using System;
-using SDL2;
+using System.Runtime.InteropServices;
 using OpenToolkit;
 using OpenToolkit.Graphics.OpenGL4;
+using Pretend.Events;
+using SDL2;
 
 namespace Pretend
 {
@@ -10,14 +12,17 @@ namespace Pretend
         void Init();
         void OnUpdate();
         void Close();
-        bool IsClosing { get; }
     }
 
     public class Window : IWindow
     {
         private IntPtr _window;
+        private readonly IEventDispatcher _eventDispatcher;
 
-        public bool IsClosing { get; private set; }
+        public Window(IEventDispatcher eventDispatcher)
+        {
+            _eventDispatcher = eventDispatcher;
+        }
 
         public void Init()
         {
@@ -37,8 +42,6 @@ namespace Pretend
             {
                 if (evnt.type == SDL.SDL_EventType.SDL_QUIT)
                 {
-                    IsClosing = true;
-                    return;
                 }
             }
 

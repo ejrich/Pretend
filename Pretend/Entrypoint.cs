@@ -1,5 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Pretend.Events;
 
 namespace Pretend
 {
@@ -15,6 +16,7 @@ namespace Pretend
 
             services.AddTransient<IApplicationRunner, ApplicationRunner>();
             services.AddTransient<IWindow, Window>();
+            services.AddSingleton<IEventDispatcher, EventDispatcher>();
             services.AddTransient(typeof(IApplication), typeof(TApp));
 
             var provider = services.BuildServiceProvider();

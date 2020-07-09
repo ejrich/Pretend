@@ -1,5 +1,6 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using Pretend.Events;
 
 namespace Pretend.Tests
 {
@@ -10,6 +11,7 @@ namespace Pretend.Tests
 
         private Mock<IApplication> _mockApplication;
         private Mock<IWindow> _mockWindow;
+        private Mock<IEventDispatcher> _mockEventDispatcher;
         private Mock<ILog<ApplicationRunner>> _mockLog;
 
         [TestInitialize]
@@ -17,9 +19,11 @@ namespace Pretend.Tests
         {
             _mockApplication = new Mock<IApplication>(MockBehavior.Strict);
             _mockWindow = new Mock<IWindow>(MockBehavior.Strict);
+            _mockEventDispatcher = new Mock<IEventDispatcher>(MockBehavior.Strict);
             _mockLog = new Mock<ILog<ApplicationRunner>>(MockBehavior.Strict);
 
-            _target = new ApplicationRunner(_mockApplication.Object, _mockWindow.Object, _mockLog.Object);
+            _target = new ApplicationRunner(_mockApplication.Object, _mockWindow.Object, _mockEventDispatcher.Object,
+                _mockLog.Object);
         }
 
         [TestCleanup]
