@@ -1,6 +1,4 @@
-﻿using System;
-using Pretend;
-using SDL2;
+﻿using Pretend;
 
 namespace Sandbox
 {
