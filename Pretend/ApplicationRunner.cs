@@ -1,4 +1,3 @@
-using System;
 using Pretend.Events;
 
 namespace Pretend
