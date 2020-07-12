@@ -12,16 +12,18 @@ namespace Pretend
         private readonly IApplication _application;
         private readonly IWindow _window;
         private readonly IEventDispatcher _eventDispatcher;
+        private readonly ILayerContainer _layerContainer;
         private readonly ILog<ApplicationRunner> _log;
 
         private bool _running = true;
 
         public ApplicationRunner(IApplication application, IWindow window, IEventDispatcher eventDispatcher,
-            ILog<ApplicationRunner> log)
+            ILayerContainer layerContainer, ILog<ApplicationRunner> log)
         {
             _application = application;
             _window = window;
             _eventDispatcher = eventDispatcher;
+            _layerContainer = layerContainer;
             _log = log;
         }
 
@@ -36,6 +38,7 @@ namespace Pretend
 
             while (_running)
             {
+                _layerContainer.Update();
                 _window.OnUpdate();
             }
 

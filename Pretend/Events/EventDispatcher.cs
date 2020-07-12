@@ -12,13 +12,13 @@ namespace Pretend.Events
 
     public class EventDispatcher : IEventDispatcher
     {
-        private readonly IList<Action<IEvent>> _eventHandlers;
-        private readonly IDictionary<Type, IList<Action<IEvent>>> _typeEventHandlers;
+        private readonly List<Action<IEvent>> _eventHandlers;
+        private readonly IDictionary<Type, List<Action<IEvent>>> _typeEventHandlers;
 
         public EventDispatcher()
         {
             _eventHandlers = new List<Action<IEvent>>();
-            _typeEventHandlers = new Dictionary<Type, IList<Action<IEvent>>>();
+            _typeEventHandlers = new Dictionary<Type, List<Action<IEvent>>>();
         }
 
         public void Register<T>(Action<T> callback) where T : IEvent

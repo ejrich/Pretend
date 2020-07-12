@@ -20,6 +20,7 @@ namespace Pretend
             services.AddTransient<IWindow, SDLWindow>();
             services.AddTransient<IGraphicsContext, OpenGLContext>();
             services.AddSingleton<IEventDispatcher, EventDispatcher>();
+            services.AddSingleton<ILayerContainer, LayerContainer>();
             services.AddTransient(typeof(IApplication), typeof(TApp));
 
             var provider = services.BuildServiceProvider();
