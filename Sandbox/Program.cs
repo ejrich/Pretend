@@ -1,5 +1,4 @@
-﻿using System;
-using Pretend;
+﻿using Pretend;
 
 namespace Sandbox
 {

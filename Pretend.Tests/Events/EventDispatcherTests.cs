@@ -1,8 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Moq;
 using Pretend.Events;
 
 namespace Pretend.Tests.Events
@@ -15,41 +11,36 @@ namespace Pretend.Tests.Events
         [TestInitialize]
         public void TestInitialize()
         {
-            var eventHandlers = new List<IEventHandler>
-            {
-                new TestEventHandler()
-            };
-
-            _target = new EventDispatcher(eventHandlers);
+            _target = new EventDispatcher();
         }
 
         [TestMethod]
-        public void Dispatch_SendsToEventHandler()
+        public void Dispatch_SendsToRegisteredEventHandler()
         {
-            var evnt = new TestEvent();
+            var passed = false;
 
-            using (var sw = new StringWriter())
-            {
-                Console.SetOut(sw);
+            _target.Register(_ => passed = true);
 
-                _target.DispatchEvent(evnt);
+            _target.DispatchEvent(new TestEvent());
 
-                var expected = string.Format("Hello World{0}", Environment.NewLine);
-                Assert.AreEqual(expected, sw.ToString());
-            }
+            Assert.IsTrue(passed);
+        }
+
+        [TestMethod]
+        public void Dispatch_SendsToRegisteredTypeEventHandler()
+        {
+            var passed = false;
+
+            _target.Register<TestEvent>(_ => passed = true);
+
+            _target.DispatchEvent(new TestEvent());
+
+            Assert.IsTrue(passed);
         }
 
         public class TestEvent : IEvent
         {
             public bool Processed { get; set; }
-        }
-
-        public class TestEventHandler : BaseEventHandler<TestEvent>
-        {
-            public override void Handle(TestEvent evnt)
-            {
-                Console.WriteLine("Hello World");
-            }
         }
     }
 }

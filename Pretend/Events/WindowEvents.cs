@@ -1,6 +1,6 @@
 namespace Pretend.Events
 {
-    public class WindowResiveEvent : IEvent
+    public class WindowResizeEvent : IEvent
     {
         public bool Processed { get; set; }
         public int Width { get; set; }

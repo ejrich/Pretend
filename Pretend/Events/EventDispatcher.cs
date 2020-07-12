@@ -1,37 +1,56 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace Pretend.Events
 {
     public interface IEventDispatcher
     {
-        void DispatchEvent(IEvent @event);
+        void Register(Action<IEvent> callback);
+        void Register<T>(Action<T> callback) where T : IEvent;
+        void DispatchEvent<T>(T evnt) where T : IEvent;
     }
 
     public class EventDispatcher : IEventDispatcher
     {
-        private readonly IDictionary<Type, IEventHandler> _eventHandlers;
+        private readonly IList<Action<IEvent>> _eventHandlers;
+        private readonly IDictionary<Type, IList<Action<IEvent>>> _typeEventHandlers;
 
-        public EventDispatcher(IEnumerable<IEventHandler> eventHandlers)
+        public EventDispatcher()
         {
-            _eventHandlers = eventHandlers.ToDictionary(GetEventType, _ => _);
+            _eventHandlers = new List<Action<IEvent>>();
+            _typeEventHandlers = new Dictionary<Type, IList<Action<IEvent>>>();
         }
 
-        public void DispatchEvent(IEvent evnt)
+        public void Register<T>(Action<T> callback) where T : IEvent
         {
-            var type = evnt.GetType();
+            if (!_typeEventHandlers.TryGetValue(typeof(T), out var eventHandlers))
+            {
+                eventHandlers = new List<Action<IEvent>>();
+                _typeEventHandlers.Add(typeof(T), eventHandlers);
+            }
 
-            if (_eventHandlers.TryGetValue(type, out var handler))
-                handler.Handle(evnt);
+            eventHandlers.Add(evnt => callback((T) evnt));
         }
 
-        private static Type GetEventType(IEventHandler eventHandler)
+        public void Register(Action<IEvent> callback)
         {
-            return eventHandler.GetType()
-                .BaseType
-                .GetGenericArguments()
-                .First();
+            _eventHandlers.Add(callback);
+        }
+
+        public void DispatchEvent<T>(T evnt) where T : IEvent
+        {
+            HandleEvent(evnt, _eventHandlers);
+
+            if (_typeEventHandlers.TryGetValue(typeof(T), out var eventHandlers))
+                HandleEvent(evnt, eventHandlers);
+        }
+
+        private void HandleEvent(IEvent evnt, IEnumerable<Action<IEvent>> eventHandlers)
+        {
+            foreach (var eventHandler in eventHandlers)
+            {
+                eventHandler(evnt);
+            }
         }
     }
 }
