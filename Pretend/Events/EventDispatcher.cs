@@ -41,9 +41,7 @@ namespace Pretend.Events
         {
             HandleEvent(evnt, _eventHandlers);
 
-            var type = evnt.GetType();
-
-            if (_typeEventHandlers.TryGetValue(type, out var eventHandlers))
+            if (_typeEventHandlers.TryGetValue(typeof(T), out var eventHandlers))
                 HandleEvent(evnt, eventHandlers);
         }
 
