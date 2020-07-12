@@ -1,36 +1,28 @@
 using System;
-using OpenToolkit;
-using OpenToolkit.Graphics.OpenGL4;
 using Pretend.Events;
 using SDL2;
 
-namespace Pretend
+namespace Pretend.Windowing
 {
-    public interface IWindow
-    {
-        void Init();
-        void OnUpdate();
-        void Close();
-    }
-
-    public class Window : IWindow
+    public class SDLWindow : IWindow
     {
         private IntPtr _window;
         private readonly IEventDispatcher _eventDispatcher;
+        private readonly IGraphicsContext _context;
 
-        public Window(IEventDispatcher eventDispatcher)
+        public SDLWindow(IEventDispatcher eventDispatcher, IGraphicsContext context)
         {
             _eventDispatcher = eventDispatcher;
+            _context = context;
         }
 
-        public void Init()
+        public void Init(WindowAttributes attributes)
         {
             SDL.SDL_Init(SDL.SDL_INIT_VIDEO);
-            _window = SDL.SDL_CreateWindow("Hello", 0, 0, 800, 600, SDL.SDL_WindowFlags.SDL_WINDOW_OPENGL | SDL.SDL_WindowFlags.SDL_WINDOW_RESIZABLE);
+            _window = SDL.SDL_CreateWindow(attributes.Title, SDL.SDL_WINDOWPOS_CENTERED, SDL.SDL_WINDOWPOS_CENTERED,
+                attributes.Width, attributes.Height, SDL.SDL_WindowFlags.SDL_WINDOW_OPENGL | SDL.SDL_WindowFlags.SDL_WINDOW_RESIZABLE);
 
-            var context = SDL.SDL_GL_CreateContext(_window);
-
-            GL.LoadBindings(new SDLContext());
+            _context.CreateContext(_window);
 
             SDL.SDL_GL_SetSwapInterval(1);
         }
@@ -39,14 +31,13 @@ namespace Pretend
         {
             while (SDL.SDL_PollEvent(out var evnt) != 0) HandleEvent(evnt);
 
-            GL.ClearColor(0.2f, 0.4f, 0.4f, 1);
-            GL.Clear(ClearBufferMask.ColorBufferBit);
-
-            SDL.SDL_GL_SwapWindow(_window);
+            _context.UpdateWindow();
         }
 
         public void Close()
         {
+            _context.DeleteContext();
+
             SDL.SDL_DestroyWindow(_window);
             SDL.SDL_Quit();
         }
@@ -91,14 +82,6 @@ namespace Pretend
                     _eventDispatcher.DispatchEvent(new KeyReleasedEvent { KeyCode = (int) evnt.key.keysym.sym });
                     break;
             };
-        }
-    }
-
-    public class SDLContext : IBindingsContext
-    {
-        public IntPtr GetProcAddress(string procName)
-        {
-            return SDL.SDL_GL_GetProcAddress(procName);
         }
     }
 }

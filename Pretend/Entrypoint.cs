@@ -1,6 +1,8 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Pretend.Events;
+using Pretend.OpenGL;
+using Pretend.Windowing;
 
 namespace Pretend
 {
@@ -15,7 +17,8 @@ namespace Pretend
             services.AddTransient(typeof(ILog<>), typeof(Log<>));
 
             services.AddTransient<IApplicationRunner, ApplicationRunner>();
-            services.AddTransient<IWindow, Window>();
+            services.AddTransient<IWindow, SDLWindow>();
+            services.AddTransient<IGraphicsContext, OpenGLContext>();
             services.AddSingleton<IEventDispatcher, EventDispatcher>();
             services.AddTransient(typeof(IApplication), typeof(TApp));
 

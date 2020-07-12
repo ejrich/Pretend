@@ -31,7 +31,7 @@ namespace Pretend
 
             _log.Info("Hello World");
 
-            _window.Init();
+            _window.Init(_application.Attributes);
             _application.Start();
 
             while (_running)
