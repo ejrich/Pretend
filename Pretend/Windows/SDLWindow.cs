@@ -1,8 +1,9 @@
 using System;
 using Pretend.Events;
+using Pretend.Graphics;
 using SDL2;
 
-namespace Pretend.Windowing
+namespace Pretend.Windows
 {
     public class SDLWindow : IWindow
     {

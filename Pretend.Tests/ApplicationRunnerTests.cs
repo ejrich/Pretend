@@ -1,6 +1,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Pretend.Events;
+using Pretend.Layers;
 
 namespace Pretend.Tests
 {

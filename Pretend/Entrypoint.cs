@@ -1,8 +1,10 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Pretend.Events;
-using Pretend.OpenGL;
-using Pretend.Windowing;
+using Pretend.Graphics;
+using Pretend.Graphics.OpenGL;
+using Pretend.Layers;
+using Pretend.Windows;
 
 namespace Pretend
 {

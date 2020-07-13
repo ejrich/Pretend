@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using Pretend.Events;
 
-namespace Pretend
+namespace Pretend.Layers
 {
     public interface ILayerContainer
     {
