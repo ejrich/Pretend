@@ -3,7 +3,7 @@ using OpenToolkit;
 using OpenToolkit.Graphics.OpenGL4;
 using SDL2;
 
-namespace Pretend.OpenGL
+namespace Pretend.Graphics.OpenGL
 {
     public class OpenGLContext : IGraphicsContext
     {

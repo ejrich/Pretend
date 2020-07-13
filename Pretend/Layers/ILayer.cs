@@ -1,6 +1,6 @@
 using Pretend.Events;
 
-namespace Pretend
+namespace Pretend.Layers
 {
     public interface ILayer
     {

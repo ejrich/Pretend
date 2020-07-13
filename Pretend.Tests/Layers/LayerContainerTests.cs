@@ -2,8 +2,9 @@ using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Pretend.Events;
+using Pretend.Layers;
 
-namespace Pretend.Tests
+namespace Pretend.Tests.Layers
 {
     [TestClass]
     public class LayerContainerTests
