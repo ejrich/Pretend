@@ -1,13 +1,7 @@
 using OpenToolkit.Graphics.OpenGL4;
 
-namespace Pretend.OpenGL
+namespace Pretend.Graphics.OpenGL
 {
-    public interface IVertexArray : IBuffer
-    {
-        IVertexBuffer VertexBuffer { get; set; }
-        IIndexBuffer IndexBuffer { get; set; }
-    }
-
     public class VertexArray : IVertexArray
     {
         private int _id;

@@ -1,4 +1,4 @@
-namespace Pretend.OpenGL
+namespace Pretend.Graphics
 {
     public interface IBuffer
     {

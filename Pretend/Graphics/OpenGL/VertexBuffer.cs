@@ -1,6 +1,6 @@
 using OpenToolkit.Graphics.OpenGL4;
 
-namespace Pretend.OpenGL
+namespace Pretend.Graphics.OpenGL
 {
     public class VertexBuffer : IVertexBuffer
     {
