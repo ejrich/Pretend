@@ -17,12 +17,12 @@ namespace Pretend.Events
     public class MouseButtonPressedEvent : IEvent
     {
         public bool Processed { get; set; }
-        public int Button { get; set; }
+        public MouseButton Button { get; set; }
     }
 
     public class MouseButtonReleasedEvent : IEvent
     {
         public bool Processed { get; set; }
-        public int Button { get; set; }
+        public MouseButton Button { get; set; }
     }
 }

@@ -1,6 +1,6 @@
 using System;
 
-namespace Pretend
+namespace Pretend.Graphics
 {
     public interface IGraphicsContext
     {

@@ -1,8 +1,9 @@
 using System;
 using Pretend.Events;
+using Pretend.Graphics;
 using SDL2;
 
-namespace Pretend.Windowing
+namespace Pretend.Windows
 {
     public class SDLWindow : IWindow
     {
@@ -68,18 +69,18 @@ namespace Pretend.Windowing
                     _eventDispatcher.DispatchEvent(new MouseScrollEvent { XOffset = evnt.wheel.x, YOffset = evnt.wheel.y });
                     break;
                 case SDL.SDL_EventType.SDL_MOUSEBUTTONDOWN:
-                    _eventDispatcher.DispatchEvent(new MouseButtonPressedEvent { Button = evnt.button.button });
+                    _eventDispatcher.DispatchEvent(new MouseButtonPressedEvent { Button = (MouseButton) evnt.button.button });
                     break;
                 case SDL.SDL_EventType.SDL_MOUSEBUTTONUP:
-                    _eventDispatcher.DispatchEvent(new MouseButtonReleasedEvent { Button = evnt.button.button });
+                    _eventDispatcher.DispatchEvent(new MouseButtonReleasedEvent { Button = (MouseButton) evnt.button.button });
                     break;
 
                 // Key Events
                 case SDL.SDL_EventType.SDL_KEYDOWN:
-                    _eventDispatcher.DispatchEvent(new KeyPressedEvent { KeyCode = (int) evnt.key.keysym.sym });
+                    _eventDispatcher.DispatchEvent(new KeyPressedEvent { KeyCode = (KeyCode) evnt.key.keysym.sym });
                     break;
                 case SDL.SDL_EventType.SDL_KEYUP:
-                    _eventDispatcher.DispatchEvent(new KeyReleasedEvent { KeyCode = (int) evnt.key.keysym.sym });
+                    _eventDispatcher.DispatchEvent(new KeyReleasedEvent { KeyCode = (KeyCode) evnt.key.keysym.sym });
                     break;
             };
         }

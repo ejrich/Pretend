@@ -1,6 +1,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Pretend.Events;
+using Pretend.Layers;
 
 namespace Pretend.Tests
 {
@@ -12,6 +13,7 @@ namespace Pretend.Tests
         private Mock<IApplication> _mockApplication;
         private Mock<IWindow> _mockWindow;
         private Mock<IEventDispatcher> _mockEventDispatcher;
+        private Mock<ILayerContainer> _mockLayerContainer;
         private Mock<ILog<ApplicationRunner>> _mockLog;
 
         [TestInitialize]
@@ -20,10 +22,11 @@ namespace Pretend.Tests
             _mockApplication = new Mock<IApplication>(MockBehavior.Strict);
             _mockWindow = new Mock<IWindow>(MockBehavior.Strict);
             _mockEventDispatcher = new Mock<IEventDispatcher>(MockBehavior.Strict);
+            _mockLayerContainer = new Mock<ILayerContainer>(MockBehavior.Strict);
             _mockLog = new Mock<ILog<ApplicationRunner>>(MockBehavior.Strict);
 
             _target = new ApplicationRunner(_mockApplication.Object, _mockWindow.Object, _mockEventDispatcher.Object,
-                _mockLog.Object);
+                _mockLayerContainer.Object, _mockLog.Object);
         }
 
         [TestCleanup]
@@ -32,6 +35,7 @@ namespace Pretend.Tests
             _mockApplication.VerifyAll();
             _mockWindow.VerifyAll();
             _mockEventDispatcher.VerifyAll();
+            _mockLayerContainer.VerifyAll();
             _mockLog.VerifyAll();
         }
 
@@ -46,6 +50,7 @@ namespace Pretend.Tests
             _mockWindow.Setup(_ => _.Init(It.IsAny<WindowAttributes>()));
             _mockWindow.Setup(_ => _.Close());
             _mockWindow.Setup(_ => _.OnUpdate()).Callback(() => _target.OnClose(new WindowCloseEvent()));
+            _mockLayerContainer.Setup(_ => _.Update());
 
             _target.Run();
 
