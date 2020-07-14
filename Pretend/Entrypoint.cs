@@ -20,6 +20,7 @@ namespace Pretend
 
             services.AddTransient<IApplicationRunner, ApplicationRunner>();
             services.AddTransient<IWindow, SDLWindow>();
+            services.AddTransient<IInput, SDLInput>();
             services.AddTransient<IGraphicsContext, OpenGLContext>();
             services.AddSingleton<IEventDispatcher, EventDispatcher>();
             services.AddSingleton<ILayerContainer, LayerContainer>();
