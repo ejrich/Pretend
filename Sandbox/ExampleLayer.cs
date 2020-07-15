@@ -26,7 +26,9 @@ namespace Sandbox
             var vertexBuffer = new VertexBuffer(_vertices);
             var indexBuffer = new IndexBuffer(_indices);
             var vertexArray = new VertexArray();
+            var shader = new Shader("Assets/shader.vert", "Assets/shader.frag");
 
+            shader.Bind();
             vertexArray.Bind();
             vertexBuffer.Bind();
             indexBuffer.Bind();

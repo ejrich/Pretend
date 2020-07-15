@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.IO;
 using OpenToolkit.Graphics.OpenGL4;
 
@@ -9,9 +10,8 @@ namespace Pretend.Graphics.OpenGL
 
         public Shader(string vertexShader, string fragmentShader)
         {
-            var vertexSource = File.ReadAllText(vertexShader);
-            var fragmentSource = File.ReadAllText(fragmentShader);
-            Compile(vertexSource, fragmentSource);
+            _id = GL.CreateProgram();
+            Compile(vertexShader, fragmentShader);
         }
 
         ~Shader()
@@ -29,64 +29,56 @@ namespace Pretend.Graphics.OpenGL
             GL.UseProgram(0);
         }
 
-        private void Compile(string vertexSource, string fragmentSource)
+        public void Compile(string vertexFile, string fragmentFile)
         {
-            _id = GL.CreateProgram();
+            var shaders = new List<(ShaderType type, string file)>
+            {
+                (ShaderType.VertexShader, vertexFile), (ShaderType.FragmentShader, fragmentFile)
+            };
+            var compiledShaders = new List<int>();
 
-            var vertexShader = CreateShader(vertexSource, ShaderType.VertexShader);
-            if (vertexShader == null) return; // TODO Figure out how to handle this
+            foreach (var shader in shaders)
+            {
+                var compiledShader = CreateShader(shader.file, shader.type);
+                if (compiledShader == null) return; // TODO Figure out how to handle this
 
-            var fragmentShader = CreateShader(fragmentSource, ShaderType.FragmentShader);
-            if (fragmentShader == null) return; // TODO Figure out how to handle this
+                GL.AttachShader(_id, compiledShader.Value);
+                compiledShaders.Add(compiledShader.Value);
+            }
 
-            GL.AttachShader(_id, vertexShader.Value);
-            GL.AttachShader(_id, fragmentShader.Value);
-
-            // Link our program
             GL.LinkProgram(_id);
 
-            // Note the different functions here: glGetProgram* instead of glGetShader*.
-            // GLint isLinked = 0;
-            // glGetProgramiv(program, GL_LINK_STATUS, (int *)&isLinked);
-            // if (isLinked == GL_FALSE)
-            // {
-            //     GLint maxLength = 0;
-            //     glGetProgramiv(program, GL_INFO_LOG_LENGTH, &maxLength);
+            GL.GetProgram(_id, GetProgramParameterName.LinkStatus, out var isLinked);
+            if (isLinked == (int) All.False)
+            {
+                GL.GetProgram(_id, GetProgramParameterName.InfoLogLength, out var maxLength);
 
-            //     // The maxLength includes the NULL character
-            //     std::vector<GLchar> infoLog(maxLength);
-            //     glGetProgramInfoLog(program, maxLength, &maxLength, &infoLog[0]);
-                
-            //     // We don't need the program anymore.
-            //     glDeleteProgram(program);
-            //     // Don't leak shaders either.
-            //     glDeleteShader(vertexShader);
-            //     glDeleteShader(fragmentShader);
-            //     return;
-            // }
+                GL.GetProgramInfoLog(_id, maxLength, out var _, out var infoLog);
 
-            // Always detach shaders after a successful link.
-            GL.DetachShader(_id, vertexShader.Value);
-            GL.DetachShader(_id, fragmentShader.Value);
-            GL.DeleteShader(vertexShader.Value);
-            GL.DeleteShader(fragmentShader.Value);
+                // We don't need the program anymore.
+                GL.DeleteProgram(_id);
+                // Don't leak shaders either.
+                foreach (var shader in compiledShaders)
+                    GL.DeleteShader(shader);
+                return;
+            }
+
+            foreach (var shader in compiledShaders)
+            {
+                GL.DetachShader(_id, shader);
+                GL.DeleteShader(shader);;
+            }
         }
 
-        private int? CreateShader(string source, ShaderType shaderType)
+        private int? CreateShader(string file, ShaderType shaderType)
         {
-            // Create an empty vertex shader handle
+            var source = File.ReadAllText(file);
             var shader = GL.CreateShader(shaderType);
-
-            // Send the vertex shader source code to GL
-            GL.ShaderSource(shader, 1, new [] { source }, new [] { 0 });
-
-            // Compile the vertex shader
+            GL.ShaderSource(shader, source);
             GL.CompileShader(shader);
 
-            // GLint isCompiled = 0;
-            var parameters = new int[1];
-            GL.GetShader(shader, ShaderParameter.CompileStatus, parameters);
-            if(parameters[0] == (int) All.False)
+            GL.GetShader(shader, ShaderParameter.CompileStatus, out var statusCode);
+            if(statusCode == (int) All.False)
             {
                 GL.DeleteShader(shader);
                 return null;
