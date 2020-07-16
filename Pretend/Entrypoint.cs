@@ -12,23 +12,11 @@ namespace Pretend
     {
         public static void Start<TApp>() where TApp : IApplication
         {
-            var services = new ServiceCollection();
+            var factory = new Factory();
+            factory.RegisterServices<TApp>();
+            factory.BuildContainer();
 
-            services.AddLogging(configure => configure.AddConsole()
-                .AddDebug());
-            services.AddTransient(typeof(ILog<>), typeof(Log<>));
-
-            services.AddTransient<IApplicationRunner, ApplicationRunner>();
-            services.AddTransient<IWindow, SDLWindow>();
-            services.AddTransient<IInput, SDLInput>();
-            services.AddTransient<IGraphicsContext, OpenGLContext>();
-            services.AddSingleton<IEventDispatcher, EventDispatcher>();
-            services.AddSingleton<ILayerContainer, LayerContainer>();
-            services.AddTransient(typeof(IApplication), typeof(TApp));
-
-            var provider = services.BuildServiceProvider();
-
-            var applicationRunner = provider.GetService<IApplicationRunner>();
+            var applicationRunner = factory.Create<IApplicationRunner>();
 
             applicationRunner.Run();
         }

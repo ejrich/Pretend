@@ -6,19 +6,22 @@ using Pretend.Graphics.OpenGL;
 using Pretend.Layers;
 using Pretend.Windows;
 
+using System;
+using System.Linq;
+
 namespace Pretend
 {
-    public interface IContainer
+    public interface IFactory
     {
         T Create<T>();
     }
 
-    public class Container : IContainer
+    public class Factory : IFactory
     {
         private readonly IServiceCollection _services;
         private ServiceProvider _serviceProvider;
 
-        public Container() => _services = new ServiceCollection();
+        public Factory() => _services = new ServiceCollection();
 
         public void RegisterServices<TApp>()
         {
@@ -32,8 +35,14 @@ namespace Pretend
             _services.AddTransient<IGraphicsContext, OpenGLContext>();
             _services.AddSingleton<IEventDispatcher, EventDispatcher>();
             _services.AddSingleton<ILayerContainer, LayerContainer>();
-            _services.AddSingleton<IContainer, Container>(_ => this);
+            _services.AddSingleton<IFactory, Factory>(_ => this);
             _services.AddTransient(typeof(IApplication), typeof(TApp));
+
+            var assembly = typeof(TApp).Assembly;
+            foreach (var type in assembly.DefinedTypes.Where(_ => !_.IsAbstract))
+            {
+                Console.WriteLine($"{type.Name}: {type.IsClass}, {type.IsAbstract}, {type.IsInterface}");
+            }
         }
 
         public void BuildContainer()
