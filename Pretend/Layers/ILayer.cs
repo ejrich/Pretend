@@ -6,7 +6,7 @@ namespace Pretend.Layers
     {
         void Attach() {}
         void Detatch() {}
-        void Update();
+        void Update(float timeStep);
         void HandleEvent(IEvent evnt);
     }
 }

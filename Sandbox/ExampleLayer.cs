@@ -40,7 +40,7 @@ namespace Sandbox
             shader.Bind();
         }
 
-        public void Update()
+        public void Update(float timeStep)
         {
             // Do something
             GL.ClearColor(0.2f, 0.4f, 0.4f, 1);

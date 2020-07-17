@@ -48,9 +48,10 @@ namespace Pretend.Tests
             _mockApplication.Setup(_ => _.Stop());
             _mockApplication.SetupGet(_ => _.Attributes).Returns(new WindowAttributes());
             _mockWindow.Setup(_ => _.Init(It.IsAny<WindowAttributes>()));
+            _mockWindow.Setup(_ => _.GetTimestep()).Returns(0);
             _mockWindow.Setup(_ => _.Close());
             _mockWindow.Setup(_ => _.OnUpdate()).Callback(() => _target.OnClose(new WindowCloseEvent()));
-            _mockLayerContainer.Setup(_ => _.Update());
+            _mockLayerContainer.Setup(_ => _.Update(It.IsAny<float>()));
 
             _target.Run();
 

@@ -39,7 +39,9 @@ namespace Pretend
 
             while (_running)
             {
-                _layerContainer.Update();
+                var timeStep = _window.GetTimestep();
+
+                _layerContainer.Update(timeStep);
                 _window.OnUpdate();
             }
 
