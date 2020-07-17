@@ -5,7 +5,7 @@ namespace Sandbox
 {
     public class ExampleLayer : ILayer
     {
-        public void Update()
+        public void Update(float timeStep)
         {
             // Do something
         }
