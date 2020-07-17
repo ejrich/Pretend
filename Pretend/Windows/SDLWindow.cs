@@ -11,6 +11,8 @@ namespace Pretend.Windows
         private readonly IEventDispatcher _eventDispatcher;
         private readonly IGraphicsContext _context;
 
+        private ulong lastTime;
+
         public SDLWindow(IEventDispatcher eventDispatcher, IGraphicsContext context)
         {
             _eventDispatcher = eventDispatcher;
@@ -26,6 +28,17 @@ namespace Pretend.Windows
             _context.CreateContext(_window);
 
             SDL.SDL_GL_SetSwapInterval(1);
+        }
+
+        public float GetTimestep()
+        {
+            var now = SDL.SDL_GetPerformanceCounter();
+            if (lastTime == 0) lastTime = now;
+
+            var step = (now - lastTime) / (float) SDL.SDL_GetPerformanceFrequency();
+            lastTime = now;
+
+            return step;
         }
 
         public void OnUpdate()
