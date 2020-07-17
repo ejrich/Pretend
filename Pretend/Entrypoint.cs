@@ -14,8 +14,7 @@ namespace Pretend
         {
             var services = new ServiceCollection();
 
-            services.AddLogging(configure => configure.AddConsole()
-                .AddDebug());
+            services.AddLogging(configure => configure.AddDebug());
             services.AddTransient(typeof(ILog<>), typeof(Log<>));
 
             services.AddTransient<IApplicationRunner, ApplicationRunner>();
