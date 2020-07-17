@@ -8,11 +8,12 @@ namespace Pretend.Graphics
 
     public interface IVertexBuffer : IBuffer
     {
-        void SetData();
+        void SetData(float[] vertices);
     }
 
     public interface IIndexBuffer : IBuffer
     {
+        void AddData(uint[] indices);
         int Count { get; }
     }
 }

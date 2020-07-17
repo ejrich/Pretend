@@ -6,16 +6,20 @@ namespace Pretend.Graphics.OpenGL
     {
         private int _id;
 
-        public VertexBuffer(float[] vertices)
+        public VertexBuffer()
         {
             _id = GL.GenBuffer();
-            Bind();
-            GL.BufferData(BufferTarget.ArrayBuffer, vertices.Length * sizeof(float), vertices, BufferUsageHint.StaticDraw);
         }
 
         ~VertexBuffer()
         {
             GL.DeleteBuffer(_id);
+        }
+
+        public void SetData(float[] vertices)
+        {
+            Bind();
+            GL.BufferData(BufferTarget.ArrayBuffer, vertices.Length * sizeof(float), vertices, BufferUsageHint.StaticDraw);
         }
 
         public void Bind()
@@ -27,7 +31,5 @@ namespace Pretend.Graphics.OpenGL
         {
             GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
         }
-
-        public void SetData() {}
     }
 }

@@ -8,10 +8,9 @@ namespace Pretend.Graphics.OpenGL
     {
         private int _id;
 
-        public Shader(string vertexShader, string fragmentShader)
+        public Shader()
         {
             _id = GL.CreateProgram();
-            Compile(vertexShader, fragmentShader);
         }
 
         ~Shader()
@@ -66,7 +65,7 @@ namespace Pretend.Graphics.OpenGL
             foreach (var shader in compiledShaders)
             {
                 GL.DetachShader(_id, shader);
-                GL.DeleteShader(shader);;
+                GL.DeleteShader(shader);
             }
         }
 

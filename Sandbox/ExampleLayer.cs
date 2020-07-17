@@ -23,18 +23,21 @@ namespace Sandbox
 
         public void Attach()
         {
-            var vertexBuffer = new VertexBuffer(_vertices);
-            var indexBuffer = new IndexBuffer(_indices);
-            var vertexArray = new VertexArray();
-            var shader = new Shader("Assets/shader.vert", "Assets/shader.frag");
+            var vertexBuffer = new VertexBuffer();
+            vertexBuffer.SetData(_vertices);
 
+            var indexBuffer = new IndexBuffer();
+            indexBuffer.AddData(_indices);
+
+            var vertexArray = new VertexArray
+            {
+                VertexBuffer = vertexBuffer,
+                IndexBuffer = indexBuffer
+            };
+
+            var shader = new Shader();
+            shader.Compile("Assets/shader.vert", "Assets/shader.frag");
             shader.Bind();
-            vertexArray.Bind();
-            vertexBuffer.Bind();
-            indexBuffer.Bind();
-
-            GL.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, 3 * sizeof(float), 0);
-            GL.EnableVertexAttribArray(0);
         }
 
         public void Update()

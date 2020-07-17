@@ -6,11 +6,9 @@ namespace Pretend.Graphics.OpenGL
     {
         private int _id;
 
-        public IndexBuffer(uint[] indices)
+        public IndexBuffer()
         {
             _id = GL.GenBuffer();
-            Bind();
-            GL.BufferData(BufferTarget.ElementArrayBuffer, indices.Length * sizeof(uint), indices, BufferUsageHint.StaticDraw);
         }
 
         ~IndexBuffer()
@@ -19,6 +17,14 @@ namespace Pretend.Graphics.OpenGL
         }
 
         public int Count { get; private set; }
+
+        public void AddData(uint[] indices)
+        {
+            Bind();
+            GL.BufferData(BufferTarget.ElementArrayBuffer, indices.Length * sizeof(uint), indices, BufferUsageHint.StaticDraw);
+
+            Count += indices.Length;
+        }
 
         public void Bind()
         {
