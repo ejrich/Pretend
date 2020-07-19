@@ -27,6 +27,8 @@ namespace Sandbox
         {
             var vertexBuffer = new VertexBuffer();
             vertexBuffer.SetData(_vertices);
+            vertexBuffer.AddLayout<float>(3);
+            vertexBuffer.AddLayout<float>(2);
 
             var indexBuffer = new IndexBuffer();
             indexBuffer.AddData(_indices);
@@ -43,6 +45,7 @@ namespace Sandbox
 
             _texture = new Texture2D();
             _texture.SetData("Assets/picture.jpeg");
+            _texture.Bind();
         }
 
         public void Update(float timeStep)
@@ -51,7 +54,6 @@ namespace Sandbox
             GL.ClearColor(0.2f, 0.4f, 0.4f, 1);
             GL.Clear(ClearBufferMask.ColorBufferBit);
 
-            _texture.Bind();
             GL.DrawElements(PrimitiveType.Triangles, _indices.Length, DrawElementsType.UnsignedInt, 0);
         }
 
