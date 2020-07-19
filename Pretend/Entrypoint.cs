@@ -21,6 +21,8 @@ namespace Pretend
             services.AddTransient<IWindow, SDLWindow>();
             services.AddTransient<IInput, SDLInput>();
             services.AddTransient<IGraphicsContext, OpenGLContext>();
+            services.AddTransient<IRenderContext, RenderContext>();
+            services.AddTransient<IRenderer, Renderer>();
             services.AddSingleton<IEventDispatcher, EventDispatcher>();
             services.AddSingleton<ILayerContainer, LayerContainer>();
             services.AddTransient(typeof(IApplication), typeof(TApp));

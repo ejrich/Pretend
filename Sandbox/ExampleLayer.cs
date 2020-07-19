@@ -1,12 +1,14 @@
 using Pretend.Events;
 using Pretend.Layers;
+using Pretend.Graphics;
 using Pretend.Graphics.OpenGL;
-using OpenToolkit.Graphics.OpenGL4;
 
 namespace Sandbox
 {
     public class ExampleLayer : ILayer
     {
+        private readonly IRenderer _renderer;
+
         private readonly float[] _vertices =
         {
              0.5f,  0.5f, 0.0f, 1.0f, 1.0f, // top right
@@ -21,10 +23,18 @@ namespace Sandbox
             1, 2, 3  // Then the second will be the top-right half of the triangle
         };
 
-        private Texture2D _texture;
+        private IShader _shader;
+        private IVertexArray _vertexArray;
+
+        public ExampleLayer(IRenderer renderer)
+        {
+            _renderer = renderer;
+        }
 
         public void Attach()
         {
+            _renderer.Init();
+
             var vertexBuffer = new VertexBuffer();
             vertexBuffer.SetData(_vertices);
             vertexBuffer.AddLayout<float>(3);
@@ -33,28 +43,28 @@ namespace Sandbox
             var indexBuffer = new IndexBuffer();
             indexBuffer.AddData(_indices);
 
-            var vertexArray = new VertexArray
+            _vertexArray = new VertexArray
             {
                 VertexBuffer = vertexBuffer,
                 IndexBuffer = indexBuffer
             };
 
-            var shader = new Shader();
-            shader.Compile("Assets/shader.vert", "Assets/shader.frag");
-            shader.Bind();
+            _shader = new Shader();
+            _shader.Compile("Assets/shader.vert", "Assets/shader.frag");
 
-            _texture = new Texture2D();
-            _texture.SetData("Assets/picture.jpeg");
-            _texture.Bind();
+            var texture = new Texture2D();
+            texture.SetData("Assets/picture.png");
+            texture.Bind();
         }
 
         public void Update(float timeStep)
         {
             // Do something
-            GL.ClearColor(0.2f, 0.4f, 0.4f, 1);
-            GL.Clear(ClearBufferMask.ColorBufferBit);
+            _renderer.Begin();
 
-            GL.DrawElements(PrimitiveType.Triangles, _indices.Length, DrawElementsType.UnsignedInt, 0);
+            _renderer.Submit(_shader, _vertexArray);
+
+            _renderer.End();
         }
 
         public void HandleEvent(IEvent evnt)
