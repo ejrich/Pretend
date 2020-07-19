@@ -9,10 +9,10 @@ namespace Sandbox
     {
         private readonly float[] _vertices =
         {
-             0.5f,  0.5f, 0.0f, // top right
-             0.5f, -0.5f, 0.0f, // bottom right
-            -0.5f, -0.5f, 0.0f, // bottom left
-            -0.5f,  0.5f, 0.0f, // top left
+             0.5f,  0.5f, 0.0f, 1.0f, 1.0f, // top right
+             0.5f, -0.5f, 0.0f, 1.0f, 0.0f, // bottom right
+            -0.5f, -0.5f, 0.0f, 0.0f, 0.0f, // bottom left
+            -0.5f,  0.5f, 0.0f, 0.0f, 1.0f  // top left
         };
 
         private readonly uint[] _indices =
@@ -20,6 +20,8 @@ namespace Sandbox
             0, 1, 3, // The first triangle will be the bottom-right half of the triangle
             1, 2, 3  // Then the second will be the top-right half of the triangle
         };
+
+        private Texture2D _texture;
 
         public void Attach()
         {
@@ -38,6 +40,9 @@ namespace Sandbox
             var shader = new Shader();
             shader.Compile("Assets/shader.vert", "Assets/shader.frag");
             shader.Bind();
+
+            _texture = new Texture2D();
+            _texture.SetData("Assets/picture.jpeg");
         }
 
         public void Update(float timeStep)
@@ -46,6 +51,7 @@ namespace Sandbox
             GL.ClearColor(0.2f, 0.4f, 0.4f, 1);
             GL.Clear(ClearBufferMask.ColorBufferBit);
 
+            _texture.Bind();
             GL.DrawElements(PrimitiveType.Triangles, _indices.Length, DrawElementsType.UnsignedInt, 0);
         }
 

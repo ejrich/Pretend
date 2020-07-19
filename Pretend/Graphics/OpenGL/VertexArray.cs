@@ -17,8 +17,11 @@ namespace Pretend.Graphics.OpenGL
                 value.Bind();
 
                 // TODO Buffer layouts, this code will only support 3 element buffers
-                GL.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, 3 * sizeof(float), 0);
                 GL.EnableVertexAttribArray(0);
+                GL.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, 5 * sizeof(float), 0);
+
+                GL.EnableVertexAttribArray(1);
+                GL.VertexAttribPointer(1, 2, VertexAttribPointerType.Float, false, 5 * sizeof(float), 3 * sizeof(float));
 
                 _vertexBuffer = value;
             }
