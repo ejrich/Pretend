@@ -39,10 +39,15 @@ namespace Pretend.Graphics.OpenGL
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.Repeat);
         }
 
-        public void Bind(int slot = (int) TextureUnit.Texture0)
+        public void Bind(int slot = 0)
         {
-            GL.ActiveTexture((TextureUnit) slot);
+            GL.ActiveTexture(ConvertTextureUnit(slot));
             GL.BindTexture(TextureTarget.Texture2D, _id);
+        }
+
+        private TextureUnit ConvertTextureUnit(int slot)
+        {
+            return (TextureUnit) slot + 0x84C0;
         }
     }
 }

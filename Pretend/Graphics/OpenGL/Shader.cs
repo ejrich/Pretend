@@ -7,10 +7,12 @@ namespace Pretend.Graphics.OpenGL
     public class Shader : IShader
     {
         private int _id;
+        private IDictionary<string, int> _uniforms;
 
         public Shader()
         {
             _id = GL.CreateProgram();
+            _uniforms = new Dictionary<string, int>();
         }
 
         ~Shader()
@@ -67,6 +69,17 @@ namespace Pretend.Graphics.OpenGL
                 GL.DetachShader(_id, shader);
                 GL.DeleteShader(shader);
             }
+
+            GL.GetProgram(_id, GetProgramParameterName.ActiveUniforms, out var uniforms);
+
+            for (var i = 0; i < uniforms; i++)
+            {
+                var name = GL.GetActiveUniform(_id, i, out _, out _);
+
+                var location = GL.GetUniformLocation(_id, name);
+
+                _uniforms.Add(name, location);
+            }
         }
 
         private int? CreateShader(string file, ShaderType shaderType)
@@ -84,6 +97,18 @@ namespace Pretend.Graphics.OpenGL
             }
 
             return shader;
+        }
+
+        public void SetInt(string name, int value)
+        {
+            GL.UseProgram(_id);
+            GL.Uniform1(_uniforms[name], value);
+        }
+
+        public void SetFloat(string name, float value)
+        {
+            GL.UseProgram(_id);
+            GL.Uniform1(_uniforms[name], value);
         }
     }
 }

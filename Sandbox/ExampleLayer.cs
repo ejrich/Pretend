@@ -24,6 +24,7 @@ namespace Sandbox
         };
 
         private IShader _shader;
+        private ITexture2D _texture;
         private IVertexArray _vertexArray;
 
         public ExampleLayer(IRenderer renderer)
@@ -51,10 +52,10 @@ namespace Sandbox
 
             _shader = new Shader();
             _shader.Compile("Assets/shader.vert", "Assets/shader.frag");
+            _shader.SetInt("texture0", 0);
 
-            var texture = new Texture2D();
-            texture.SetData("Assets/picture.png");
-            texture.Bind();
+            _texture = new Texture2D();
+            _texture.SetData("Assets/picture.png");
         }
 
         public void Update(float timeStep)
@@ -62,6 +63,7 @@ namespace Sandbox
             // Do something
             _renderer.Begin();
 
+            _texture.Bind();
             _renderer.Submit(_shader, _vertexArray);
 
             _renderer.End();
