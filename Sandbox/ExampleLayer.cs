@@ -1,3 +1,5 @@
+using System;
+using Pretend;
 using Pretend.Events;
 using Pretend.Layers;
 using Pretend.Graphics;
@@ -27,6 +29,9 @@ namespace Sandbox
         private IShader _shader;
         private ITexture2D _texture;
         private IVertexArray _vertexArray;
+
+        private float x;
+        private float y;
 
         public ExampleLayer(IRenderer renderer)
         {
@@ -65,9 +70,7 @@ namespace Sandbox
             _renderer.Begin();
 
             var transform = Matrix4.Identity;
-            transform *= Matrix4.CreateRotationZ(MathHelper.DegreesToRadians(20f));
-            transform *= Matrix4.CreateScale(1.1f);
-            transform *= Matrix4.CreateTranslation(0.5f, 0.1f, 0.0f);
+            transform *= Matrix4.CreateTranslation(x, y, 0.0f);
 
             _shader.SetMat4("transform", transform);
 
@@ -80,6 +83,55 @@ namespace Sandbox
         public void HandleEvent(IEvent evnt)
         {
             // Handle an event
+            switch (evnt)
+            {
+                case KeyPressedEvent keyPressed:
+                    HandleKeyPress(keyPressed);
+                    break;
+                case KeyReleasedEvent keyReleased:
+                    HandleKeyRelease(keyReleased);
+                    break;
+            }
+        }
+
+        private void HandleKeyPress(KeyPressedEvent evnt)
+        {
+            Console.WriteLine($"Pressing {evnt.KeyCode}");
+            switch (evnt.KeyCode)
+            {
+                case KeyCode.W:
+                    y = 0.5f;
+                    break;
+                case KeyCode.S:
+                    y = -0.5f;
+                    break;
+                case KeyCode.A:
+                    x = -0.5f;
+                    break;
+                case KeyCode.D:
+                    x = 0.5f;
+                    break;
+            }
+        }
+
+        private void HandleKeyRelease(KeyReleasedEvent evnt)
+        {
+            Console.WriteLine($"Released {evnt.KeyCode}");
+            switch (evnt.KeyCode)
+            {
+                case KeyCode.W:
+                    y = 0f;
+                    break;
+                case KeyCode.S:
+                    y = -0f;
+                    break;
+                case KeyCode.A:
+                    x = -0f;
+                    break;
+                case KeyCode.D:
+                    x = 0f;
+                    break;
+            }
         }
     }
 }
