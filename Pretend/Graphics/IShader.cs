@@ -1,3 +1,5 @@
+using OpenToolkit.Mathematics;
+
 namespace Pretend.Graphics
 {
     public interface IShader
@@ -5,7 +7,8 @@ namespace Pretend.Graphics
         void Compile(string vertexFile, string fragmentFile);
         void Bind();
         void Unbind();
-        void SetInt(string name, int data);
-        void SetFloat(string name, float data);
+        void SetInt(string name, int value);
+        void SetFloat(string name, float value);
+        void SetMat4(string name, Matrix4 value);
     }
 }

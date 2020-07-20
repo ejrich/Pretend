@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.IO;
 using OpenToolkit.Graphics.OpenGL4;
+using OpenToolkit.Mathematics;
 
 namespace Pretend.Graphics.OpenGL
 {
@@ -109,6 +110,12 @@ namespace Pretend.Graphics.OpenGL
         {
             GL.UseProgram(_id);
             GL.Uniform1(_uniforms[name], value);
+        }
+
+        public void SetMat4(string name, Matrix4 value)
+        {
+            GL.UseProgram(_id);
+            GL.UniformMatrix4(_uniforms[name], true, ref value);
         }
     }
 }

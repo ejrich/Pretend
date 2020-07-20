@@ -2,6 +2,7 @@ using Pretend.Events;
 using Pretend.Layers;
 using Pretend.Graphics;
 using Pretend.Graphics.OpenGL;
+using OpenToolkit.Mathematics;
 
 namespace Sandbox
 {
@@ -62,6 +63,13 @@ namespace Sandbox
         {
             // Do something
             _renderer.Begin();
+
+            var transform = Matrix4.Identity;
+            transform *= Matrix4.CreateRotationZ(MathHelper.DegreesToRadians(20f));
+            transform *= Matrix4.CreateScale(1.1f);
+            transform *= Matrix4.CreateTranslation(0.5f, 0.1f, 0.0f);
+
+            _shader.SetMat4("transform", transform);
 
             _texture.Bind();
             _renderer.Submit(_shader, _vertexArray);
