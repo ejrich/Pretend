@@ -20,10 +20,6 @@ namespace Pretend.Graphics.OpenGL
 
         public void UpdateWindow()
         {
-            // TODO: Move these to the renderer
-            GL.ClearColor(0.2f, 0.4f, 0.4f, 1);
-            GL.Clear(ClearBufferMask.ColorBufferBit);
-
             SDL.SDL_GL_SwapWindow(_window);
         }
 

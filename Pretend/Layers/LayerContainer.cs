@@ -24,11 +24,13 @@ namespace Pretend.Layers
         public void PushLayer(ILayer layer)
         {
             _layers.Add(layer);
+            layer.Attach();
         }
 
         public void RemoveLayer(ILayer layer)
         {
             _layers.Remove(layer);
+            layer.Detatch();
         }
 
         public void Update(float timeStep)

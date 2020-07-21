@@ -14,14 +14,15 @@ namespace Pretend
         {
             var services = new ServiceCollection();
 
-            services.AddLogging(configure => configure.AddConsole()
-                .AddDebug());
+            services.AddLogging(configure => configure.AddDebug());
             services.AddTransient(typeof(ILog<>), typeof(Log<>));
 
             services.AddTransient<IApplicationRunner, ApplicationRunner>();
             services.AddTransient<IWindow, SDLWindow>();
             services.AddTransient<IInput, SDLInput>();
             services.AddTransient<IGraphicsContext, OpenGLContext>();
+            services.AddTransient<IRenderContext, RenderContext>();
+            services.AddTransient<IRenderer, Renderer>();
             services.AddSingleton<IEventDispatcher, EventDispatcher>();
             services.AddSingleton<ILayerContainer, LayerContainer>();
             services.AddTransient(typeof(IApplication), typeof(TApp));
