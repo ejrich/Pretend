@@ -34,7 +34,7 @@ namespace Pretend.Tests.Layers
             var layer = new TestLayer();
             _target.PushLayer(layer);
 
-            _target.Update();
+            _target.Update(0);
 
             Assert.IsTrue(layer.UpdateCalled);
         }
@@ -46,7 +46,7 @@ namespace Pretend.Tests.Layers
             _target.PushLayer(layer);
             _target.RemoveLayer(layer);
 
-            _target.Update();
+            _target.Update(0);
 
             Assert.IsFalse(layer.UpdateCalled);
         }
@@ -54,7 +54,7 @@ namespace Pretend.Tests.Layers
         private class TestLayer : ILayer
         {
             public bool UpdateCalled { get; private set; }
-            public void Update() => UpdateCalled = true;
+            public void Update(float timeStep) => UpdateCalled = true;
             public void HandleEvent(IEvent evnt) {}
         }
 

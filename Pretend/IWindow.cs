@@ -3,6 +3,7 @@ namespace Pretend
     public interface IWindow
     {
         void Init(WindowAttributes attributes);
+        float GetTimestep();
         void OnUpdate();
         void Close();
     }

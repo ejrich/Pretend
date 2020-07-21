@@ -33,6 +33,8 @@ namespace Pretend
             _services.AddTransient<IWindow, SDLWindow>();
             _services.AddTransient<IInput, SDLInput>();
             _services.AddTransient<IGraphicsContext, OpenGLContext>();
+            _services.AddTransient<IRenderContext, RenderContext>();
+            _services.AddTransient<IRenderer, Renderer>();
             _services.AddSingleton<IEventDispatcher, EventDispatcher>();
             _services.AddSingleton<ILayerContainer, LayerContainer>();
             _services.AddSingleton<IFactory, Factory>(_ => this);

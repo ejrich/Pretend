@@ -1,17 +1,19 @@
 using System.Collections.Generic;
 using System.IO;
 using OpenToolkit.Graphics.OpenGL4;
+using OpenToolkit.Mathematics;
 
 namespace Pretend.Graphics.OpenGL
 {
     public class Shader : IShader
     {
         private int _id;
+        private IDictionary<string, int> _uniforms;
 
-        public Shader(string vertexShader, string fragmentShader)
+        public Shader()
         {
             _id = GL.CreateProgram();
-            Compile(vertexShader, fragmentShader);
+            _uniforms = new Dictionary<string, int>();
         }
 
         ~Shader()
@@ -66,7 +68,18 @@ namespace Pretend.Graphics.OpenGL
             foreach (var shader in compiledShaders)
             {
                 GL.DetachShader(_id, shader);
-                GL.DeleteShader(shader);;
+                GL.DeleteShader(shader);
+            }
+
+            GL.GetProgram(_id, GetProgramParameterName.ActiveUniforms, out var uniforms);
+
+            for (var i = 0; i < uniforms; i++)
+            {
+                var name = GL.GetActiveUniform(_id, i, out _, out _);
+
+                var location = GL.GetUniformLocation(_id, name);
+
+                _uniforms.Add(name, location);
             }
         }
 
@@ -85,6 +98,24 @@ namespace Pretend.Graphics.OpenGL
             }
 
             return shader;
+        }
+
+        public void SetInt(string name, int value)
+        {
+            GL.UseProgram(_id);
+            GL.Uniform1(_uniforms[name], value);
+        }
+
+        public void SetFloat(string name, float value)
+        {
+            GL.UseProgram(_id);
+            GL.Uniform1(_uniforms[name], value);
+        }
+
+        public void SetMat4(string name, Matrix4 value)
+        {
+            GL.UseProgram(_id);
+            GL.UniformMatrix4(_uniforms[name], true, ref value);
         }
     }
 }

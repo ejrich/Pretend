@@ -1,18 +1,24 @@
+using System;
+using Pretend;
 using Pretend.Events;
 using Pretend.Layers;
+using Pretend.Graphics;
 using Pretend.Graphics.OpenGL;
-using OpenToolkit.Graphics.OpenGL4;
+using OpenToolkit.Mathematics;
 
 namespace Sandbox
 {
     public class ExampleLayer : ILayer
     {
+        private readonly IRenderer _renderer;
+        private readonly ICamera _camera;
+
         private readonly float[] _vertices =
         {
-             0.5f,  0.5f, 0.0f, // top right
-             0.5f, -0.5f, 0.0f, // bottom right
-            -0.5f, -0.5f, 0.0f, // bottom left
-            -0.5f,  0.5f, 0.0f, // top left
+             400f,  300f, 0.0f, 1.0f, 1.0f, // top right
+             400f, -300f, 0.0f, 1.0f, 0.0f, // bottom right
+            -400f, -300f, 0.0f, 0.0f, 0.0f, // bottom left
+            -400f,  300f, 0.0f, 0.0f, 1.0f  // top left
         };
 
         private readonly uint[] _indices =
@@ -21,34 +27,113 @@ namespace Sandbox
             1, 2, 3  // Then the second will be the top-right half of the triangle
         };
 
-        public void Attach()
+        private IShader _shader;
+        private ITexture2D _texture;
+        private IVertexArray _vertexArray;
+        private Vector3 _position;
+
+        public ExampleLayer(IRenderer renderer, ICamera camera)
         {
-            var vertexBuffer = new VertexBuffer(_vertices);
-            var indexBuffer = new IndexBuffer(_indices);
-            var vertexArray = new VertexArray();
-            var shader = new Shader("Assets/shader.vert", "Assets/shader.frag");
-
-            shader.Bind();
-            vertexArray.Bind();
-            vertexBuffer.Bind();
-            indexBuffer.Bind();
-
-            GL.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, 3 * sizeof(float), 0);
-            GL.EnableVertexAttribArray(0);
+            _renderer = renderer;
+            _camera = camera;
         }
 
-        public void Update()
+        public void Attach()
+        {
+            _renderer.Init();
+
+            var vertexBuffer = new VertexBuffer();
+            vertexBuffer.SetData(_vertices);
+            vertexBuffer.AddLayout<float>(3);
+            vertexBuffer.AddLayout<float>(2);
+
+            var indexBuffer = new IndexBuffer();
+            indexBuffer.AddData(_indices);
+
+            _vertexArray = new VertexArray
+            {
+                VertexBuffer = vertexBuffer,
+                IndexBuffer = indexBuffer
+            };
+
+            _shader = new Shader();
+            _shader.Compile("Assets/shader.vert", "Assets/shader.frag");
+            _shader.SetInt("texture0", 0);
+
+            _texture = new Texture2D();
+            _texture.SetData("Assets/picture.png");
+
+            _position = _camera.Position;
+        }
+
+        public void Update(float timeStep)
         {
             // Do something
-            GL.ClearColor(0.2f, 0.4f, 0.4f, 1);
-            GL.Clear(ClearBufferMask.ColorBufferBit);
+            _renderer.Begin(_camera);
 
-            GL.DrawElements(PrimitiveType.Triangles, _indices.Length, DrawElementsType.UnsignedInt, 0);
+            _texture.Bind();
+            _renderer.Submit(_shader, _vertexArray);
+
+            _renderer.End();
         }
 
         public void HandleEvent(IEvent evnt)
         {
             // Handle an event
+            switch (evnt)
+            {
+                case KeyPressedEvent keyPressed:
+                    HandleKeyPress(keyPressed);
+                    break;
+                case KeyReleasedEvent keyReleased:
+                    HandleKeyRelease(keyReleased);
+                    break;
+                // case WindowResizeEvent resize:
+                //     _camera.Resize(resize.Width, resize.Height);
+                //     break;
+            }
+        }
+
+        private void HandleKeyPress(KeyPressedEvent evnt)
+        {
+            Console.WriteLine($"Pressing {evnt.KeyCode}");
+            switch (evnt.KeyCode)
+            {
+                case KeyCode.W:
+                    _position.Y = 200f;
+                    break;
+                case KeyCode.S:
+                    _position.Y = -200f;
+                    break;
+                case KeyCode.A:
+                    _position.X = -200f;
+                    break;
+                case KeyCode.D:
+                    _position.X = 200f;
+                    break;
+            }
+            _camera.Position = _position;
+        }
+
+        private void HandleKeyRelease(KeyReleasedEvent evnt)
+        {
+            Console.WriteLine($"Released {evnt.KeyCode}");
+            switch (evnt.KeyCode)
+            {
+                case KeyCode.W:
+                    _position.Y = 0f;
+                    break;
+                case KeyCode.S:
+                    _position.Y = 0f;
+                    break;
+                case KeyCode.A:
+                    _position.X = 0f;
+                    break;
+                case KeyCode.D:
+                    _position.X = 0f;
+                    break;
+            }
+            _camera.Position = _position;
         }
     }
 }
