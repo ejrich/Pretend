@@ -11,13 +11,14 @@ namespace Sandbox
     public class ExampleLayer : ILayer
     {
         private readonly IRenderer _renderer;
+        private readonly ICamera _camera;
 
         private readonly float[] _vertices =
         {
-             0.5f,  0.5f, 0.0f, 1.0f, 1.0f, // top right
-             0.5f, -0.5f, 0.0f, 1.0f, 0.0f, // bottom right
-            -0.5f, -0.5f, 0.0f, 0.0f, 0.0f, // bottom left
-            -0.5f,  0.5f, 0.0f, 0.0f, 1.0f  // top left
+             400f,  300f, 0.0f, 1.0f, 1.0f, // top right
+             400f, -300f, 0.0f, 1.0f, 0.0f, // bottom right
+            -400f, -300f, 0.0f, 0.0f, 0.0f, // bottom left
+            -400f,  300f, 0.0f, 0.0f, 1.0f  // top left
         };
 
         private readonly uint[] _indices =
@@ -33,9 +34,10 @@ namespace Sandbox
         private float x;
         private float y;
 
-        public ExampleLayer(IRenderer renderer)
+        public ExampleLayer(IRenderer renderer, ICamera camera)
         {
             _renderer = renderer;
+            _camera = camera;
         }
 
         public void Attach()
@@ -67,7 +69,7 @@ namespace Sandbox
         public void Update(float timeStep)
         {
             // Do something
-            _renderer.Begin();
+            _renderer.Begin(_camera);
 
             var transform = Matrix4.Identity;
             transform *= Matrix4.CreateTranslation(x, y, 0.0f);
@@ -91,6 +93,9 @@ namespace Sandbox
                 case KeyReleasedEvent keyReleased:
                     HandleKeyRelease(keyReleased);
                     break;
+                // case WindowResizeEvent resize:
+                //     _camera.Resize(resize.Width, resize.Height);
+                //     break;
             }
         }
 

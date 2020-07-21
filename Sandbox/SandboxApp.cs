@@ -19,7 +19,7 @@ namespace Sandbox
 
         public void Start()
         {
-            var layer = new ExampleLayer(_renderer);
+            var layer = new ExampleLayer(_renderer, new OrthographicCamera(Attributes));
 
             _layerContainer.PushLayer(layer);
         }

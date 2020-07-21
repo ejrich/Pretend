@@ -1,9 +1,11 @@
+using OpenToolkit.Mathematics;
+
 namespace Pretend.Graphics
 {
     public interface IRenderer
     {
         void Init();
-        void Begin();
+        void Begin(ICamera camera);
         void End();
         void Submit(IShader shader, IVertexArray vertexArray);
     }
@@ -11,6 +13,7 @@ namespace Pretend.Graphics
     public class Renderer : IRenderer
     {
         private readonly IRenderContext _renderContext;
+        private Matrix4 _viewProjection;
 
         public Renderer(IRenderContext renderContext)
         {
@@ -22,9 +25,10 @@ namespace Pretend.Graphics
             _renderContext.Init();
         }
 
-        public void Begin()
+        public void Begin(ICamera camera)
         {
-            // TODO Add the camera
+            _viewProjection = camera.ViewProjection;
+
             _renderContext.BackgroundColor(1, 0, 1, 1);
             _renderContext.Clear();
         }
@@ -37,6 +41,8 @@ namespace Pretend.Graphics
         public void Submit(IShader shader, IVertexArray vertexArray)
         {
             shader.Bind();
+            shader.SetMat4("viewProjection", _viewProjection);
+
             vertexArray.Bind();
 
             _renderContext.Draw(vertexArray);
