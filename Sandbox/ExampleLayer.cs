@@ -30,9 +30,7 @@ namespace Sandbox
         private IShader _shader;
         private ITexture2D _texture;
         private IVertexArray _vertexArray;
-
-        private float x;
-        private float y;
+        private Vector3 _position;
 
         public ExampleLayer(IRenderer renderer, ICamera camera)
         {
@@ -64,17 +62,14 @@ namespace Sandbox
 
             _texture = new Texture2D();
             _texture.SetData("Assets/picture.png");
+
+            _position = _camera.Position;
         }
 
         public void Update(float timeStep)
         {
             // Do something
             _renderer.Begin(_camera);
-
-            var transform = Matrix4.Identity;
-            transform *= Matrix4.CreateTranslation(x, y, 0.0f);
-
-            _shader.SetMat4("transform", transform);
 
             _texture.Bind();
             _renderer.Submit(_shader, _vertexArray);
@@ -105,18 +100,19 @@ namespace Sandbox
             switch (evnt.KeyCode)
             {
                 case KeyCode.W:
-                    y = 0.5f;
+                    _position.Y = 200f;
                     break;
                 case KeyCode.S:
-                    y = -0.5f;
+                    _position.Y = -200f;
                     break;
                 case KeyCode.A:
-                    x = -0.5f;
+                    _position.X = -200f;
                     break;
                 case KeyCode.D:
-                    x = 0.5f;
+                    _position.X = 200f;
                     break;
             }
+            _camera.Position = _position;
         }
 
         private void HandleKeyRelease(KeyReleasedEvent evnt)
@@ -125,18 +121,19 @@ namespace Sandbox
             switch (evnt.KeyCode)
             {
                 case KeyCode.W:
-                    y = 0f;
+                    _position.Y = 0f;
                     break;
                 case KeyCode.S:
-                    y = -0f;
+                    _position.Y = 0f;
                     break;
                 case KeyCode.A:
-                    x = -0f;
+                    _position.X = 0f;
                     break;
                 case KeyCode.D:
-                    x = 0f;
+                    _position.X = 0f;
                     break;
             }
+            _camera.Position = _position;
         }
     }
 }
