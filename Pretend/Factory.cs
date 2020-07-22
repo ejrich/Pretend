@@ -1,3 +1,7 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Pretend.Events;
@@ -5,9 +9,6 @@ using Pretend.Graphics;
 using Pretend.Graphics.OpenGL;
 using Pretend.Layers;
 using Pretend.Windows;
-
-using System;
-using System.Linq;
 
 namespace Pretend
 {
@@ -57,10 +58,30 @@ namespace Pretend
             _services.AddTransient(typeof(IWindowAttributesProvider), typeof(TWA));
 
             var assembly = typeof(TApp).Assembly;
-            foreach (var type in assembly.DefinedTypes.Where(_ => !_.IsAbstract))
+            var classes = new HashSet<TypeInfo>();
+            var interfaces = new HashSet<TypeInfo>();
+            foreach (var type in assembly.DefinedTypes)
             {
-                _services.AddTransient(type);
-                Console.WriteLine($"{type.Name}: {type.IsClass}, {type.IsAbstract}, {type.IsInterface}");
+                if (type.IsClass) classes.Add(type);
+                else if (type.IsInterface) interfaces.Add(type);
+            }
+
+            foreach (var classType in classes)
+            {
+                if (IsSingleton(classType))
+                    _services.AddSingleton(classType);
+                else
+                    _services.AddTransient(classType);
+            }
+
+            foreach (var interfaceType in interfaces)
+            {
+                var classType = classes.FirstOrDefault(_ => _.ImplementedInterfaces.Contains(interfaceType));
+                if (classType == null) continue;
+                if (IsSingleton(classType))
+                    _services.AddSingleton(interfaceType, classType);
+                else
+                    _services.AddTransient(interfaceType, classType);
             }
         }
 
@@ -73,5 +94,15 @@ namespace Pretend
         {
             return _serviceProvider.GetService<T>();
         }
+
+        private bool IsSingleton(Type type)
+        {
+            return type.IsDefined(typeof(SingletonAttribute));
+        }
+    }
+
+    [AttributeUsage(AttributeTargets.Class)]
+    public class SingletonAttribute : Attribute
+    {
     }
 }
