@@ -6,7 +6,7 @@ namespace Sandbox
     {
         static void Main(string[] args)
         {
-            Entrypoint.Start<SandboxApp>();
+            Entrypoint.Start<SandboxApp, WindowAttributes>();
         }
     }
 }

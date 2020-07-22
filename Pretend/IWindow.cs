@@ -2,16 +2,16 @@ namespace Pretend
 {
     public interface IWindow
     {
-        void Init(WindowAttributes attributes);
+        void Init();
         float GetTimestep();
         void OnUpdate();
         void Close();
     }
 
-    public class WindowAttributes
+    public interface IWindowAttributesProvider
     {
-        public string Title { get; set; }
-        public int Width { get; set; } = 1280;
-        public int Height { get; set; } = 720;
+        string Title { get; }
+        int Width { get => 1280; }
+        int Height { get => 720; }
     }
 }

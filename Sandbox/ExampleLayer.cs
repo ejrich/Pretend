@@ -3,7 +3,6 @@ using Pretend;
 using Pretend.Events;
 using Pretend.Layers;
 using Pretend.Graphics;
-using Pretend.Graphics.OpenGL;
 using OpenToolkit.Mathematics;
 
 namespace Sandbox
@@ -12,6 +11,7 @@ namespace Sandbox
     {
         private readonly IRenderer _renderer;
         private readonly ICamera _camera;
+        private readonly IFactory _factory;
 
         private readonly float[] _vertices =
         {
@@ -32,35 +32,34 @@ namespace Sandbox
         private IVertexArray _vertexArray;
         private Vector3 _position;
 
-        public ExampleLayer(IRenderer renderer, ICamera camera)
+        public ExampleLayer(IRenderer renderer, ICamera camera, IFactory factory)
         {
             _renderer = renderer;
             _camera = camera;
+            _factory = factory;
         }
 
         public void Attach()
         {
             _renderer.Init();
 
-            var vertexBuffer = new VertexBuffer();
+            var vertexBuffer = _factory.Create<IVertexBuffer>();
             vertexBuffer.SetData(_vertices);
             vertexBuffer.AddLayout<float>(3);
             vertexBuffer.AddLayout<float>(2);
 
-            var indexBuffer = new IndexBuffer();
+            var indexBuffer = _factory.Create<IIndexBuffer>();
             indexBuffer.AddData(_indices);
 
-            _vertexArray = new VertexArray
-            {
-                VertexBuffer = vertexBuffer,
-                IndexBuffer = indexBuffer
-            };
+            _vertexArray = _factory.Create<IVertexArray>();
+            _vertexArray.VertexBuffer = vertexBuffer;
+            _vertexArray.IndexBuffer = indexBuffer;
 
-            _shader = new Shader();
+            _shader = _factory.Create<IShader>();
             _shader.Compile("Assets/shader.vert", "Assets/shader.frag");
             _shader.SetInt("texture0", 0);
 
-            _texture = new Texture2D();
+            _texture = _factory.Create<ITexture2D>();
             _texture.SetData("Assets/picture.png");
 
             _position = _camera.Position;
