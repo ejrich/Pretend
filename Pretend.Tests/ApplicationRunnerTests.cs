@@ -2,6 +2,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Pretend.Events;
 using Pretend.Layers;
+using Pretend.Graphics;
 
 namespace Pretend.Tests
 {
@@ -14,6 +15,7 @@ namespace Pretend.Tests
         private Mock<IWindow> _mockWindow;
         private Mock<IEventDispatcher> _mockEventDispatcher;
         private Mock<ILayerContainer> _mockLayerContainer;
+        private Mock<IRenderContext> _mockRenderContext;
         private Mock<ILog<ApplicationRunner>> _mockLog;
 
         [TestInitialize]
@@ -23,10 +25,11 @@ namespace Pretend.Tests
             _mockWindow = new Mock<IWindow>(MockBehavior.Strict);
             _mockEventDispatcher = new Mock<IEventDispatcher>(MockBehavior.Strict);
             _mockLayerContainer = new Mock<ILayerContainer>(MockBehavior.Strict);
+            _mockRenderContext = new Mock<IRenderContext>(MockBehavior.Strict);
             _mockLog = new Mock<ILog<ApplicationRunner>>(MockBehavior.Strict);
 
             _target = new ApplicationRunner(_mockApplication.Object, _mockWindow.Object, _mockEventDispatcher.Object,
-                _mockLayerContainer.Object, _mockLog.Object);
+                _mockLayerContainer.Object, _mockRenderContext.Object, _mockLog.Object);
         }
 
         [TestCleanup]
@@ -36,6 +39,7 @@ namespace Pretend.Tests
             _mockWindow.VerifyAll();
             _mockEventDispatcher.VerifyAll();
             _mockLayerContainer.VerifyAll();
+            _mockRenderContext.VerifyAll();
             _mockLog.VerifyAll();
         }
 

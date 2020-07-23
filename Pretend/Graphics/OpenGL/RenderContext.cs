@@ -8,6 +8,8 @@ namespace Pretend.Graphics.OpenGL
         {
             GL.Enable(EnableCap.Blend);
             GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
+
+            GL.Enable(EnableCap.DepthTest);
         }
 
         public void Clear()
@@ -24,6 +26,11 @@ namespace Pretend.Graphics.OpenGL
         {
             GL.DrawElements(PrimitiveType.Triangles, vertexArray.IndexBuffer.Count,
                 DrawElementsType.UnsignedInt, 0);
+        }
+
+        public void SetViewport(int width, int height)
+        {
+            GL.Viewport(0, 0, width, height);
         }
     }
 }
