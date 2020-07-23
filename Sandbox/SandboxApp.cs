@@ -1,27 +1,27 @@
 using Pretend;
 using Pretend.Layers;
-using Pretend.Graphics;
 
 namespace Sandbox
 {
     public class SandboxApp : IApplication
     {
         private readonly ILayerContainer _layerContainer;
-        private readonly IRenderer _renderer;
+        private readonly ILayer _exampleLayer;
 
-        public SandboxApp(ILayerContainer layerContainer, IRenderer renderer)
+        public SandboxApp(ILayerContainer layerContainer, ExampleLayer exampleLayer)
         {
             _layerContainer = layerContainer;
-            _renderer = renderer;
+            _exampleLayer = exampleLayer;
         }
-
-        public WindowAttributes Attributes => new WindowAttributes { Title = "Sandbox" };
 
         public void Start()
         {
-            var layer = new ExampleLayer(_renderer, new OrthographicCamera(Attributes));
-
-            _layerContainer.PushLayer(layer);
+            _layerContainer.PushLayer(_exampleLayer);
         }
+    }
+    
+    public class WindowAttributes : IWindowAttributesProvider
+    {
+        public string Title => "Sandbox";
     }
 }

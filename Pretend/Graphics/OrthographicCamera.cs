@@ -9,7 +9,7 @@ namespace Pretend.Graphics
         private Matrix4 _projection;
         private Vector3 _position;
 
-        public OrthographicCamera(WindowAttributes windowAttributes)
+        public OrthographicCamera(IWindowAttributesProvider windowAttributes)
         {
             Matrix4.CreateOrthographic((float) windowAttributes.Width, (float) windowAttributes.Height, -1f, 1f, out _projection);
             _view = Matrix4.Identity;

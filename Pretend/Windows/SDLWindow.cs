@@ -10,20 +10,23 @@ namespace Pretend.Windows
         private IntPtr _window;
         private readonly IEventDispatcher _eventDispatcher;
         private readonly IGraphicsContext _context;
+        private readonly IWindowAttributesProvider _windowAttributes;
 
         private ulong lastTime;
 
-        public SDLWindow(IEventDispatcher eventDispatcher, IGraphicsContext context)
+        public SDLWindow(IEventDispatcher eventDispatcher, IGraphicsContext context,
+            IWindowAttributesProvider windowAttributes)
         {
             _eventDispatcher = eventDispatcher;
             _context = context;
+            _windowAttributes = windowAttributes;
         }
 
-        public void Init(WindowAttributes attributes)
+        public void Init()
         {
             SDL.SDL_Init(SDL.SDL_INIT_VIDEO);
-            _window = SDL.SDL_CreateWindow(attributes.Title, SDL.SDL_WINDOWPOS_CENTERED, SDL.SDL_WINDOWPOS_CENTERED,
-                attributes.Width, attributes.Height, SDL.SDL_WindowFlags.SDL_WINDOW_OPENGL | SDL.SDL_WindowFlags.SDL_WINDOW_RESIZABLE);
+            _window = SDL.SDL_CreateWindow(_windowAttributes.Title, SDL.SDL_WINDOWPOS_CENTERED, SDL.SDL_WINDOWPOS_CENTERED,
+                _windowAttributes.Width, _windowAttributes.Height, SDL.SDL_WindowFlags.SDL_WINDOW_OPENGL | SDL.SDL_WindowFlags.SDL_WINDOW_RESIZABLE);
 
             _context.CreateContext(_window);
 
