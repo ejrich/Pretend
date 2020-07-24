@@ -1,5 +1,6 @@
 using Pretend.Events;
 using Pretend.Layers;
+using Pretend.Graphics;
 
 namespace Pretend
 {
@@ -14,17 +15,19 @@ namespace Pretend
         private readonly IWindow _window;
         private readonly IEventDispatcher _eventDispatcher;
         private readonly ILayerContainer _layerContainer;
+        private readonly IRenderContext _renderContext;
         private readonly ILog<ApplicationRunner> _log;
 
         private bool _running = true;
 
         public ApplicationRunner(IApplication application, IWindow window, IEventDispatcher eventDispatcher,
-            ILayerContainer layerContainer, ILog<ApplicationRunner> log)
+            ILayerContainer layerContainer, IRenderContext renderContext, ILog<ApplicationRunner> log)
         {
             _application = application;
             _window = window;
             _eventDispatcher = eventDispatcher;
             _layerContainer = layerContainer;
+            _renderContext = renderContext;
             _log = log;
         }
 
@@ -52,11 +55,17 @@ namespace Pretend
         private void RegisterEvents()
         {
             _eventDispatcher.Register<WindowCloseEvent>(OnClose);
+            _eventDispatcher.Register<WindowResizeEvent>(OnResize);
         }
 
         public void OnClose(WindowCloseEvent evnt)
         {
             _running = false;
+        }
+
+        public void OnResize(WindowResizeEvent evnt)
+        {
+            _renderContext.SetViewport(evnt.Width, evnt.Height);
         }
     }
 }

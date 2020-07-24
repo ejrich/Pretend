@@ -42,7 +42,7 @@ namespace Pretend.Graphics
 
         private void CalculateViewProjection()
         {
-            _viewProjection = _view * _projection;
+            _viewProjection = _projection * _view;
         }
     }
 }

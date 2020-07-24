@@ -1,4 +1,3 @@
-using System;
 using Pretend;
 using Pretend.Events;
 using Pretend.Layers;
@@ -31,6 +30,11 @@ namespace Sandbox
         private ITexture2D _texture;
         private IVertexArray _vertexArray;
         private Vector3 _position;
+
+        private float _leftSpeed;
+        private float _rightSpeed;
+        private float _upSpeed;
+        private float _downSpeed;
 
         public ExampleLayer(IRenderer renderer, ICamera camera, IFactory factory)
         {
@@ -67,7 +71,15 @@ namespace Sandbox
 
         public void Update(float timeStep)
         {
-            // Do something
+            // Calculate location by speed
+            var xSpeed = _rightSpeed - _leftSpeed;
+            var ySpeed = _upSpeed - _downSpeed;
+
+            _position.X += xSpeed * timeStep;
+            _position.Y += ySpeed * timeStep;
+
+            _camera.Position = _position;
+
             _renderer.Begin(_camera);
 
             _texture.Bind();
@@ -87,52 +99,48 @@ namespace Sandbox
                 case KeyReleasedEvent keyReleased:
                     HandleKeyRelease(keyReleased);
                     break;
-                // case WindowResizeEvent resize:
-                //     _camera.Resize(resize.Width, resize.Height);
-                //     break;
+                case WindowResizeEvent resize:
+                    _camera.Resize(resize.Width, resize.Height);
+                    break;
             }
         }
 
         private void HandleKeyPress(KeyPressedEvent evnt)
         {
-            Console.WriteLine($"Pressing {evnt.KeyCode}");
             switch (evnt.KeyCode)
             {
                 case KeyCode.W:
-                    _position.Y = 200f;
+                    _upSpeed = 1;
                     break;
                 case KeyCode.S:
-                    _position.Y = -200f;
+                    _downSpeed = 1;
                     break;
                 case KeyCode.A:
-                    _position.X = -200f;
+                    _leftSpeed = 1;
                     break;
                 case KeyCode.D:
-                    _position.X = 200f;
+                    _rightSpeed = 1;
                     break;
             }
-            _camera.Position = _position;
         }
 
         private void HandleKeyRelease(KeyReleasedEvent evnt)
         {
-            Console.WriteLine($"Released {evnt.KeyCode}");
             switch (evnt.KeyCode)
             {
                 case KeyCode.W:
-                    _position.Y = 0f;
+                    _upSpeed = 0;
                     break;
                 case KeyCode.S:
-                    _position.Y = 0f;
+                    _downSpeed = 0;
                     break;
                 case KeyCode.A:
-                    _position.X = 0f;
+                    _leftSpeed = 0;
                     break;
                 case KeyCode.D:
-                    _position.X = 0f;
+                    _rightSpeed = 0;
                     break;
             }
-            _camera.Position = _position;
         }
     }
 }
