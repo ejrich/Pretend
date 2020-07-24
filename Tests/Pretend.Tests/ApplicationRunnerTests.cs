@@ -48,6 +48,7 @@ namespace Pretend.Tests
         {
             _mockLog.Setup(_ => _.Info("Hello World"));
             _mockEventDispatcher.Setup(_ => _.Register<WindowCloseEvent>(_target.OnClose));
+            _mockEventDispatcher.Setup(_ => _.Register<WindowResizeEvent>(_target.OnResize));
             _mockApplication.Setup(_ => _.Start());
             _mockApplication.Setup(_ => _.Stop());
             _mockWindow.Setup(_ => _.Init());
