@@ -6,17 +6,19 @@ namespace Sandbox
     public class SandboxApp : IApplication
     {
         private readonly ILayerContainer _layerContainer;
-        private readonly ILayer _exampleLayer;
+        private readonly Layer2D _layer2D;
+        // private readonly ILayer _exampleLayer;
 
-        public SandboxApp(ILayerContainer layerContainer, ExampleLayer exampleLayer)
+        public SandboxApp(ILayerContainer layerContainer, Layer2D layer2D) //ExampleLayer exampleLayer)
         {
             _layerContainer = layerContainer;
-            _exampleLayer = exampleLayer;
+            _layer2D = layer2D;
+            // _exampleLayer = exampleLayer;
         }
 
         public void Start()
         {
-            _layerContainer.PushLayer(_exampleLayer);
+            _layerContainer.PushLayer(_layer2D);
         }
     }
     
