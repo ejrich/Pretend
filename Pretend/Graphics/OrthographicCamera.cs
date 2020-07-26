@@ -4,7 +4,6 @@ namespace Pretend.Graphics
 {
     public class OrthographicCamera : ICamera
     {
-        private Matrix4 _viewProjection;
         private Matrix4 _view;
         private Matrix4 _projection;
         private Vector3 _position;
@@ -18,7 +17,7 @@ namespace Pretend.Graphics
             CalculateViewProjection();
         }
 
-        public Matrix4 ViewProjection => _viewProjection;
+        public Matrix4 ViewProjection { get; private set; }
 
         public Vector3 Position
         {
@@ -42,7 +41,7 @@ namespace Pretend.Graphics
 
         private void CalculateViewProjection()
         {
-            _viewProjection = _projection * _view;
+            ViewProjection = _projection * _view;
         }
     }
 }

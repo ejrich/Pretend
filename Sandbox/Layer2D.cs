@@ -13,6 +13,7 @@ namespace Sandbox
         private readonly IFactory _factory;
 
         private IShader _shader;
+        private ITexture2D _texture;
         private Vector3 _position;
         
         private float _leftSpeed;
@@ -35,8 +36,8 @@ namespace Sandbox
             _shader.Compile("Assets/shader.vert", "Assets/shader.frag");
             _shader.SetInt("texture0", 0);
 
-            // _texture = _factory.Create<ITexture2D>();
-            // _texture.SetData("Assets/picture.png");
+            _texture = _factory.Create<ITexture2D>();
+            _texture.SetData("Assets/picture.png");
 
             _position = _camera.Position;
         }
@@ -54,11 +55,20 @@ namespace Sandbox
 
             _renderer.Begin(_camera);
 
-            _renderer.Draw(new Renderable2DObject
+            _renderer.Submit(new Renderable2DObject
             {
-                Width = 200,
-                Height = 300,
-                Shader = _shader
+                X = -100, Y = 400,
+                Width = 300, Height = 300,
+                Color = new Vector4(0.5f, 0.5f, 0.5f, 1f),
+                Shader = _shader,
+            });
+            _renderer.Submit(new Renderable2DObject
+            {
+                X = 400, Y = -100,
+                Width = 400, Height = 300,
+                Color = new Vector4(1, 0, 1, 1),
+                Shader = _shader,
+                Texture = _texture
             });
 
             _renderer.End();

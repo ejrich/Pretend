@@ -5,7 +5,7 @@ namespace Pretend.Graphics.OpenGL
 {
     public class VertexArray : IVertexArray
     {
-        private int _id;
+        private readonly int _id;
         private IVertexBuffer _vertexBuffer;
         private IIndexBuffer _indexBuffer;
 

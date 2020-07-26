@@ -7,8 +7,10 @@ namespace Pretend.Graphics
         void Compile(string vertexFile, string fragmentFile);
         void Bind();
         void Unbind();
+        void SetBool(string name, bool value);
         void SetInt(string name, int value);
         void SetFloat(string name, float value);
+        void SetVec4(string name, Vector4 value);
         void SetMat4(string name, Matrix4 value);
     }
 }

@@ -96,7 +96,7 @@ namespace Pretend
             return _serviceProvider.GetService<T>();
         }
 
-        private bool IsSingleton(Type type)
+        private static bool IsSingleton(Type type)
         {
             return type.IsDefined(typeof(SingletonAttribute));
         }

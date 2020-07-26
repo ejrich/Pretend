@@ -4,7 +4,7 @@ namespace Pretend.Graphics.OpenGL
 {
     public class IndexBuffer : IIndexBuffer
     {
-        private int _id;
+        private readonly int _id;
 
         public IndexBuffer()
         {

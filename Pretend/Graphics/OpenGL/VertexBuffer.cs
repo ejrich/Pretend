@@ -6,8 +6,8 @@ namespace Pretend.Graphics.OpenGL
 {
     public class VertexBuffer : IVertexBuffer
     {
-        private int _id;
-        private List<BufferLayout> _layouts;
+        private readonly int _id;
+        private readonly List<BufferLayout> _layouts;
 
         public IEnumerable<BufferLayout> Layouts => _layouts;
         public int Stride { get; private set; }

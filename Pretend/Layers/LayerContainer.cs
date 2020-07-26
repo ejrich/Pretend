@@ -30,7 +30,7 @@ namespace Pretend.Layers
         public void RemoveLayer(ILayer layer)
         {
             _layers.Remove(layer);
-            layer.Detatch();
+            layer.Detach();
         }
 
         public void Update(float timeStep)

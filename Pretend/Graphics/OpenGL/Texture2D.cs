@@ -5,7 +5,7 @@ namespace Pretend.Graphics.OpenGL
 {
     public class Texture2D : ITexture2D
     {
-        private int _id;
+        private readonly int _id;
 
         public Texture2D()
         {
@@ -45,7 +45,7 @@ namespace Pretend.Graphics.OpenGL
             GL.BindTexture(TextureTarget.Texture2D, _id);
         }
 
-        private TextureUnit ConvertTextureUnit(int slot)
+        private static TextureUnit ConvertTextureUnit(int slot)
         {
             return (TextureUnit) slot + 0x84C0;
         }

@@ -100,6 +100,12 @@ namespace Pretend.Graphics.OpenGL
             return shader;
         }
 
+        public void SetBool(string name, bool value)
+        {
+            GL.UseProgram(_id);
+            GL.Uniform1(_uniforms[name], value ? 1 : 0);
+        }
+
         public void SetInt(string name, int value)
         {
             GL.UseProgram(_id);
@@ -110,6 +116,12 @@ namespace Pretend.Graphics.OpenGL
         {
             GL.UseProgram(_id);
             GL.Uniform1(_uniforms[name], value);
+        }
+
+        public void SetVec4(string name, Vector4 value)
+        {
+            GL.UseProgram(_id);
+            GL.Uniform4(_uniforms[name], value);
         }
 
         public void SetMat4(string name, Matrix4 value)
