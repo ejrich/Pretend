@@ -31,7 +31,7 @@ namespace Sandbox
         public void Attach()
         {
             _renderer.Init();
-            
+ 
             _shader = _factory.Create<IShader>();
             _shader.Compile("Assets/shader.vert", "Assets/shader.frag");
             _shader.SetInt("texture0", 0);

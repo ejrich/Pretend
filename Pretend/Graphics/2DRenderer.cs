@@ -23,7 +23,7 @@ namespace Pretend.Graphics
     {
         private readonly IRenderContext _renderContext;
         private readonly IFactory _factory;
-        
+
         private Matrix4 _viewProjection;
         private IVertexArray _vertexArray;
 
@@ -86,7 +86,7 @@ namespace Pretend.Graphics
             var transform = Matrix4.Identity *
                 Matrix4.CreateScale(renderObject.Width, renderObject.Height, 1) *
                 Matrix4.CreateTranslation(renderObject.X, renderObject.Y, renderObject.Z);
-            
+
             renderObject.Shader.Bind();
             renderObject.Shader.SetMat4("transform", transform);
             renderObject.Shader.SetVec4("color", renderObject.Color);
