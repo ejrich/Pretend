@@ -11,7 +11,6 @@ namespace Pretend.Graphics
         public uint Height { get; set; }
         public Vector4 Color { get; set; } = Vector4.One;
         public ITexture2D Texture { get; set; }
-        public IShader Shader { get; set; }
     }
     
     public interface I2DRenderer : IRenderer
@@ -26,6 +25,7 @@ namespace Pretend.Graphics
 
         private Matrix4 _viewProjection;
         private IVertexArray _vertexArray;
+        private IShader _objectShader;
 
         public Renderer2D(IRenderContext renderContext, IFactory factory)
         {
@@ -57,6 +57,10 @@ namespace Pretend.Graphics
             _vertexArray = _factory.Create<IVertexArray>();
             _vertexArray.VertexBuffer = vertexBuffer;
             _vertexArray.IndexBuffer = indexBuffer;
+
+            _objectShader = _factory.Create<IShader>();
+            _objectShader.Compile("Pretend.Graphics.Shaders.2DObject.glsl");
+            _objectShader.SetInt("texture0", 0);
         }
 
         public void Begin(ICamera camera)
@@ -87,14 +91,14 @@ namespace Pretend.Graphics
                 Matrix4.CreateScale(renderObject.Width, renderObject.Height, 1) *
                 Matrix4.CreateTranslation(renderObject.X, renderObject.Y, renderObject.Z);
 
-            renderObject.Shader.Bind();
-            renderObject.Shader.SetMat4("transform", transform);
-            renderObject.Shader.SetVec4("color", renderObject.Color);
-            renderObject.Shader.SetBool("hasTexture", renderObject.Texture != null);
+            _objectShader.Bind();
+            _objectShader.SetMat4("transform", transform);
+            _objectShader.SetVec4("color", renderObject.Color);
+            _objectShader.SetBool("hasTexture", renderObject.Texture != null);
 
             renderObject.Texture?.Bind();
 
-            Submit(renderObject.Shader, _vertexArray);
+            Submit(_objectShader, _vertexArray);
         }
     }
 }

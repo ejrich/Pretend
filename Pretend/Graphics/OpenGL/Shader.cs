@@ -1,5 +1,8 @@
 using System.Collections.Generic;
 using System.IO;
+using System.Reflection;
+using System.Text;
+using System.Text.RegularExpressions;
 using OpenToolkit.Graphics.OpenGL4;
 using OpenToolkit.Mathematics;
 
@@ -7,8 +10,8 @@ namespace Pretend.Graphics.OpenGL
 {
     public class Shader : IShader
     {
-        private int _id;
-        private IDictionary<string, int> _uniforms;
+        private readonly int _id;
+        private readonly IDictionary<string, int> _uniforms;
 
         public Shader()
         {
@@ -31,17 +34,53 @@ namespace Pretend.Graphics.OpenGL
             GL.UseProgram(0);
         }
 
+        public void Compile(string path)
+        {
+            var vertexShader = new StringBuilder();
+            var fragmentShader = new StringBuilder();
+            StringBuilder currentShader = null;
+
+            var shaderFile = Assembly.GetExecutingAssembly().GetManifestResourceStream(path);
+            using (var reader = new StreamReader(shaderFile))
+            {
+                while (reader.Peek() >= 0)
+                {
+                    var line = reader.ReadLine();
+                    var match = Regex.Match(line, "#Region (?<shader>.*)");
+                    if (match.Success)
+                        currentShader = match.Groups["shader"].Value switch
+                        {
+                            "Vertex" => vertexShader,
+                            "Fragment" => fragmentShader,
+                            _ => currentShader
+                        };
+                    else
+                        currentShader?.AppendLine(line);
+                }
+            }
+
+            CompileShaders(vertexShader.ToString(), fragmentShader.ToString());
+        }
+
         public void Compile(string vertexFile, string fragmentFile)
         {
-            var shaders = new List<(ShaderType type, string file)>
+            var vertexSource = File.ReadAllText(vertexFile);
+            var fragmentSource = File.ReadAllText(fragmentFile);
+
+            CompileShaders(vertexSource, fragmentSource);
+        }
+
+        private void CompileShaders(string vertexSource, string fragmentSource)
+        {
+            var shaders = new List<(ShaderType type, string source)>
             {
-                (ShaderType.VertexShader, vertexFile), (ShaderType.FragmentShader, fragmentFile)
+                (ShaderType.VertexShader, vertexSource), (ShaderType.FragmentShader, fragmentSource)
             };
             var compiledShaders = new List<int>();
 
             foreach (var shader in shaders)
             {
-                var compiledShader = CreateShader(shader.file, shader.type);
+                var compiledShader = CreateShader(shader.source, shader.type);
                 if (compiledShader == null) return; // TODO Figure out how to handle this
 
                 GL.AttachShader(_id, compiledShader.Value);
@@ -83,9 +122,8 @@ namespace Pretend.Graphics.OpenGL
             }
         }
 
-        private int? CreateShader(string file, ShaderType shaderType)
+        private static int? CreateShader(string source, ShaderType shaderType)
         {
-            var source = File.ReadAllText(file);
             var shader = GL.CreateShader(shaderType);
             GL.ShaderSource(shader, source);
             GL.CompileShader(shader);
