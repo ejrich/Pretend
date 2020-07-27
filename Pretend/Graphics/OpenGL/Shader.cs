@@ -34,13 +34,13 @@ namespace Pretend.Graphics.OpenGL
             GL.UseProgram(0);
         }
 
-        public void Compile(string path)
+        public void Compile(string embeddedFile)
         {
             var vertexShader = new StringBuilder();
             var fragmentShader = new StringBuilder();
             StringBuilder currentShader = null;
 
-            var shaderFile = Assembly.GetExecutingAssembly().GetManifestResourceStream(path);
+            var shaderFile = Assembly.GetExecutingAssembly().GetManifestResourceStream(embeddedFile);
             using (var reader = new StreamReader(shaderFile))
             {
                 while (reader.Peek() >= 0)
@@ -131,6 +131,7 @@ namespace Pretend.Graphics.OpenGL
             GL.GetShader(shader, ShaderParameter.CompileStatus, out var statusCode);
             if(statusCode == (int) All.False)
             {
+                GL.GetShaderInfoLog(shader, out var info);
                 GL.DeleteShader(shader);
                 return null;
             }

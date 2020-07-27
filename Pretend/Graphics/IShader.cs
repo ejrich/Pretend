@@ -4,7 +4,7 @@ namespace Pretend.Graphics
 {
     public interface IShader
     {
-        void Compile(string path);
+        void Compile(string embeddedFile);
         void Compile(string vertexFile, string fragmentFile);
         void Bind();
         void Unbind();
