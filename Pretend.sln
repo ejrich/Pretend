@@ -25,6 +25,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{968D4678
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pretend.Tests", "Tests\Pretend.Tests\Pretend.Tests.csproj", "{EBAF8F18-669F-4A53-B874-F8C7846DBB5D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Game", "Game\Game.csproj", "{072B9F45-22AE-488C-B4FA-0AC6C7486208}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -86,6 +88,18 @@ Global
 		{EBAF8F18-669F-4A53-B874-F8C7846DBB5D}.Release|x64.Build.0 = Release|Any CPU
 		{EBAF8F18-669F-4A53-B874-F8C7846DBB5D}.Release|x86.ActiveCfg = Release|Any CPU
 		{EBAF8F18-669F-4A53-B874-F8C7846DBB5D}.Release|x86.Build.0 = Release|Any CPU
+		{072B9F45-22AE-488C-B4FA-0AC6C7486208}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{072B9F45-22AE-488C-B4FA-0AC6C7486208}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{072B9F45-22AE-488C-B4FA-0AC6C7486208}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{072B9F45-22AE-488C-B4FA-0AC6C7486208}.Debug|x64.Build.0 = Debug|Any CPU
+		{072B9F45-22AE-488C-B4FA-0AC6C7486208}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{072B9F45-22AE-488C-B4FA-0AC6C7486208}.Debug|x86.Build.0 = Debug|Any CPU
+		{072B9F45-22AE-488C-B4FA-0AC6C7486208}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{072B9F45-22AE-488C-B4FA-0AC6C7486208}.Release|Any CPU.Build.0 = Release|Any CPU
+		{072B9F45-22AE-488C-B4FA-0AC6C7486208}.Release|x64.ActiveCfg = Release|Any CPU
+		{072B9F45-22AE-488C-B4FA-0AC6C7486208}.Release|x64.Build.0 = Release|Any CPU
+		{072B9F45-22AE-488C-B4FA-0AC6C7486208}.Release|x86.ActiveCfg = Release|Any CPU
+		{072B9F45-22AE-488C-B4FA-0AC6C7486208}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{35D03F8F-E10E-4EDD-AD56-BAB94C228430} = {D7FE2836-3FF7-446D-A855-47353A80B9F3}
