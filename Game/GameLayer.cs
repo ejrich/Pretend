@@ -40,7 +40,7 @@ namespace Game
             if (_jumping)
             {
                 _jumpTime += timeStep;
-                var position = 300 * _jumpTime + -180 * _jumpTime * _jumpTime;
+                var position = 300 * _jumpTime + -400 * _jumpTime * _jumpTime;
                 
                 _object.Y = position < 0 ? 0 : position;
                 if (position <= 0)
