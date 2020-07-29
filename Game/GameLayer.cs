@@ -14,8 +14,6 @@ namespace Game
 
         private Renderable2DObject _playerObject;
         private Renderable2DObject _floor;
-        private bool _jumping;
-        private float _jumpTime;
 
         public GameLayer(I2DRenderer renderer, ICamera camera, IGame game)
         {
@@ -42,21 +40,9 @@ namespace Game
 
         public void Update(float timeStep)
         {
-            // Move the object
-            if (_jumping)
-            {
-                _jumpTime += timeStep;
-                var position = 300 * _jumpTime + -400 * _jumpTime * _jumpTime;
-
-                _playerObject.Y = position < 0 ? 0 : position;
-                if (position <= 0)
-                {
-                    _jumpTime = 0;
-                    _jumping = false;
-                }
-            }
-
+            // Update the game
             _game.Update(timeStep);
+            _playerObject.Y = _game.PlayerPosition;
 
             _renderer.Begin(_camera);
 
@@ -66,7 +52,7 @@ namespace Game
             {
                 _renderer.Submit(new Renderable2DObject
                 {
-                    X = obstaclePosition,
+                    X = obstaclePosition.X,
                     Width = 40, Height = 40
                 });
             }
@@ -92,7 +78,7 @@ namespace Game
             switch (evnt.KeyCode)
             {
                 case KeyCode.Space:
-                    _jumping = true;
+                    _game.Jump();
                     break;
             }
         }
