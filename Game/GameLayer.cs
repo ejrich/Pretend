@@ -10,39 +10,45 @@ namespace Game
     {
         private readonly I2DRenderer _renderer;
         private readonly ICamera _camera;
+        private readonly IGame _game;
 
-        private Renderable2DObject _object;
-        private float _speed = 100;
+        private Renderable2DObject _playerObject;
+        private Renderable2DObject _floor;
         private bool _jumping;
         private float _jumpTime;
 
-        public GameLayer(I2DRenderer renderer, ICamera camera)
+        public GameLayer(I2DRenderer renderer, ICamera camera, IGame game)
         {
             _renderer = renderer;
             _camera = camera;
+            _game = game;
         }
 
         public void Attach()
         {
             _renderer.Init();
 
-            _object = new Renderable2DObject
+            _playerObject = new Renderable2DObject
             {
                 Width = 30, Height = 30,
                 Color = new Vector4(1, 0, 0, 1)
+            };
+            _floor = new Renderable2DObject
+            {
+                Y = -25,
+                Width = 1280, Height = 20
             };
         }
 
         public void Update(float timeStep)
         {
             // Move the object
-            _object.X += _speed * timeStep;
             if (_jumping)
             {
                 _jumpTime += timeStep;
                 var position = 300 * _jumpTime + -400 * _jumpTime * _jumpTime;
-                
-                _object.Y = position < 0 ? 0 : position;
+
+                _playerObject.Y = position < 0 ? 0 : position;
                 if (position <= 0)
                 {
                     _jumpTime = 0;
@@ -50,9 +56,20 @@ namespace Game
                 }
             }
 
+            _game.Update(timeStep);
+
             _renderer.Begin(_camera);
 
-            _renderer.Submit(_object);
+            _renderer.Submit(_playerObject);
+            _renderer.Submit(_floor);
+            foreach (var obstaclePosition in _game.ObstaclePositions)
+            {
+                _renderer.Submit(new Renderable2DObject
+                {
+                    X = obstaclePosition,
+                    Width = 40, Height = 40
+                });
+            }
 
             _renderer.End();
         }
@@ -69,22 +86,15 @@ namespace Game
                     break;
             }
         }
-        
+
         private void HandleKeyPress(KeyPressedEvent evnt)
         {
             switch (evnt.KeyCode)
             {
                 case KeyCode.Space:
-                    Jump();
+                    _jumping = true;
                     break;
             }
-        }
-
-        private void Jump()
-        {
-            if (_jumping) return;
-
-            _jumping = true;
         }
     }
 }
