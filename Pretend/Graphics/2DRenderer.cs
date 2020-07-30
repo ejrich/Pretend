@@ -1,3 +1,4 @@
+using System.Runtime.InteropServices;
 using OpenToolkit.Mathematics;
 
 namespace Pretend.Graphics
@@ -20,9 +21,32 @@ namespace Pretend.Graphics
 
     public class Renderer2D : I2DRenderer
     {
+        [StructLayout(LayoutKind.Explicit, Size = 36)]
+        private struct Renderable2DBuffer
+        {
+            [FieldOffset(0)]
+            public readonly Vector4 Position;
+            [FieldOffset(16)]
+            public readonly Vector2 TextureLocation;
+            [FieldOffset(20)]
+            public readonly Vector4 Color;
+            // public bool HasTexture;
+
+            public Renderable2DBuffer(Vector4 position, Vector2 textureLocation, Vector4 color, bool hasTexture)
+            {
+                Position = position;
+                TextureLocation = textureLocation;
+                Color = color;
+                // HasTexture = hasTexture;
+            }
+        }
+
+        private const int BufferSize = 400;
+
         private readonly IRenderContext _renderContext;
         private readonly IFactory _factory;
 
+        private Vector4[] _vertices;
         private Matrix4 _viewProjection;
         private IVertexArray _vertexArray;
         private IShader _objectShader;
@@ -37,18 +61,19 @@ namespace Pretend.Graphics
         {
             _renderContext.Init();
 
-            var vertices = new float[]
+            _vertices = new Vector4[]
             {
-                 0.5f,  0.5f, 0.0f, 1.0f, 1.0f, // top right
-                 0.5f, -0.5f, 0.0f, 1.0f, 0.0f, // bottom right
-                -0.5f, -0.5f, 0.0f, 0.0f, 0.0f, // bottom left
-                -0.5f,  0.5f, 0.0f, 0.0f, 1.0f  // top left
+                new Vector4(0.5f, 0.5f, 0, 1), 
+                new Vector4(0.5f, -0.5f, 0, 1), 
+                new Vector4(-0.5f, -0.5f, 0, 1), 
+                new Vector4(-0.5f, 0.5f, 0, 1), 
             };
 
             var vertexBuffer = _factory.Create<IVertexBuffer>();
-            vertexBuffer.SetData(vertices);
+            vertexBuffer.SetSize<Renderable2DBuffer>(BufferSize);
             vertexBuffer.AddLayout<float>(3);
             vertexBuffer.AddLayout<float>(2);
+            vertexBuffer.AddLayout<float>(4);
 
             var indices = new uint[] { 0, 1, 3, 1, 2, 3 };
             var indexBuffer = _factory.Create<IIndexBuffer>();
@@ -91,10 +116,26 @@ namespace Pretend.Graphics
                 Matrix4.CreateScale(renderObject.Width, renderObject.Height, 1) *
                 Matrix4.CreateTranslation(renderObject.X, renderObject.Y, renderObject.Z);
 
-            _objectShader.Bind();
-            _objectShader.SetMat4("transform", transform);
-            _objectShader.SetVec4("color", renderObject.Color);
-            _objectShader.SetBool("hasTexture", renderObject.Texture != null);
+            var buffers = new Renderable2DBuffer[4];
+
+            buffers[0] = new Renderable2DBuffer(_vertices[0] * transform,
+                new Vector2(1,1),
+                renderObject.Color,
+                renderObject.Texture != null);
+            buffers[1] = new Renderable2DBuffer(_vertices[1] * transform,
+                new Vector2(1, 0),
+                renderObject.Color,
+                renderObject.Texture != null);
+            buffers[2] = new Renderable2DBuffer(_vertices[2] * transform,
+                new Vector2(0, 0),
+                renderObject.Color,
+                renderObject.Texture != null);
+            buffers[3] = new Renderable2DBuffer(_vertices[3] * transform,
+                new Vector2(0, 1),
+                renderObject.Color,
+                renderObject.Texture != null);
+
+            _vertexArray.VertexBuffer.AddData(buffers);
 
             renderObject.Texture?.Bind();
 
