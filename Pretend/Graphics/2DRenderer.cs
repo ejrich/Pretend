@@ -1,3 +1,6 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.InteropServices;
 using OpenToolkit.Mathematics;
 
@@ -13,7 +16,7 @@ namespace Pretend.Graphics
         public Vector4 Color { get; set; } = Vector4.One;
         public ITexture2D Texture { get; set; }
     }
-    
+
     public interface I2DRenderer : IRenderer
     {
         void Submit(Renderable2DObject renderObject);
@@ -41,12 +44,15 @@ namespace Pretend.Graphics
             }
         }
 
-        private const int BufferSize = 400;
+        private const int MaxSubmissions = 400;
+        private const int VerticesInSubmission = 4;
 
         private readonly IRenderContext _renderContext;
         private readonly IFactory _factory;
+        private readonly List<Renderable2DBuffer> _submissions = new List<Renderable2DBuffer>();
 
         private Vector4[] _vertices;
+        private Vector2[] _textureCoordinates;
         private Matrix4 _viewProjection;
         private IVertexArray _vertexArray;
         private IShader _objectShader;
@@ -61,21 +67,34 @@ namespace Pretend.Graphics
         {
             _renderContext.Init();
 
-            _vertices = new Vector4[]
+            _vertices = new[]
             {
-                new Vector4(0.5f, 0.5f, 0, 1), 
-                new Vector4(0.5f, -0.5f, 0, 1), 
-                new Vector4(-0.5f, -0.5f, 0, 1), 
-                new Vector4(-0.5f, 0.5f, 0, 1), 
+                new Vector4(0.5f, 0.5f, 0, 1),
+                new Vector4(0.5f, -0.5f, 0, 1),
+                new Vector4(-0.5f, -0.5f, 0, 1),
+                new Vector4(-0.5f, 0.5f, 0, 1)
+            };
+            _textureCoordinates = new[]
+            {
+                new Vector2(1, 1), new Vector2(1, 0), new Vector2(0, 0), new Vector2(0, 1)
             };
 
             var vertexBuffer = _factory.Create<IVertexBuffer>();
-            vertexBuffer.SetSize<Renderable2DBuffer>(BufferSize);
+            vertexBuffer.SetSize<Renderable2DBuffer>(MaxSubmissions * VerticesInSubmission);
             vertexBuffer.AddLayout<float>(3);
             vertexBuffer.AddLayout<float>(2);
             vertexBuffer.AddLayout<float>(4);
 
-            var indices = new uint[] { 0, 1, 3, 1, 2, 3 };
+            var indices = Enumerable.Range(0, MaxSubmissions)
+                .SelectMany(i =>
+                {
+                    var startingIndex = Convert.ToUInt32(i * VerticesInSubmission);
+                    return new[]
+                    {
+                        0 + startingIndex, 1 + startingIndex, 3 + startingIndex,
+                        1 + startingIndex, 2 + startingIndex, 3 + startingIndex
+                    };
+                }).ToArray();
             var indexBuffer = _factory.Create<IIndexBuffer>();
             indexBuffer.AddData(indices);
 
@@ -97,9 +116,10 @@ namespace Pretend.Graphics
 
         public void End()
         {
-            // Eventually this will batch render submitted content
+            Flush();
         }
 
+        [Obsolete("Only use this method if you want to immediately render something")]
         public void Submit(IShader shader, IVertexArray vertexArray)
         {
             shader.Bind();
@@ -116,30 +136,25 @@ namespace Pretend.Graphics
                 Matrix4.CreateScale(renderObject.Width, renderObject.Height, 1) *
                 Matrix4.CreateTranslation(renderObject.X, renderObject.Y, renderObject.Z);
 
-            var buffers = new Renderable2DBuffer[4];
+            if (_submissions.Count / VerticesInSubmission == MaxSubmissions)
+                Flush();
 
-            buffers[0] = new Renderable2DBuffer(_vertices[0] * transform,
-                new Vector2(1,1),
-                renderObject.Color,
-                renderObject.Texture != null);
-            buffers[1] = new Renderable2DBuffer(_vertices[1] * transform,
-                new Vector2(1, 0),
-                renderObject.Color,
-                renderObject.Texture != null);
-            buffers[2] = new Renderable2DBuffer(_vertices[2] * transform,
-                new Vector2(0, 0),
-                renderObject.Color,
-                renderObject.Texture != null);
-            buffers[3] = new Renderable2DBuffer(_vertices[3] * transform,
-                new Vector2(0, 1),
-                renderObject.Color,
-                renderObject.Texture != null);
+            foreach (var vertex in Enumerable.Range(0, VerticesInSubmission))
+            {
+                _submissions.Add(new Renderable2DBuffer(_vertices[vertex] * transform, _textureCoordinates[vertex],
+                    renderObject.Color, renderObject.Texture != null));
+            }
+        }
 
-            _vertexArray.VertexBuffer.AddData(buffers);
+        private void Flush()
+        {
+            _vertexArray.VertexBuffer.AddData(_submissions.ToArray());
+            _submissions.Clear();
 
-            renderObject.Texture?.Bind();
+            _objectShader.Bind();
+            _objectShader.SetMat4("viewProjection", _viewProjection);
 
-            Submit(_objectShader, _vertexArray);
+            _renderContext.Draw(_vertexArray);
         }
     }
 }
