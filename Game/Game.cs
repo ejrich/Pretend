@@ -15,99 +15,83 @@ namespace Game
     {
         List<Position> ObstaclePositions { get; }
         float PlayerPosition { get; }
+        bool Running { get; }
         void Update(float timeStep);
         void Jump();
+        void Reset();
     }
 
     [Singleton]
     public class Game : IGame
     {
-        private const float Speed = 100;
+        private const float Speed = 200;
         private const float Gravity = -800;
-        
-        private readonly Random _random;
-        private bool _jumping;
-        private float _jumpTime;
-        private bool _onObstacle;
-        private float _floorHeight;
-        private float _takeoffHeight;
-        private float _jumpVelocity;
 
-        public Game()
-        {
-            _random = new Random();
-        }
-        
+        private readonly Random _random;
+        private float _floorHeight;
+        private float _velocity;
+
+        public Game() => _random = new Random();
+
         public List<Position> ObstaclePositions { get; private set; } = new List<Position>
         {
             new Position { X = 250 }, new Position { X = 450 }
         };
-        public float PlayerPosition { get; private set; }
+        public float PlayerPosition { get; private set; } = 450;
+        public bool Running { get; private set; } = true;
 
         public void Update(float timeStep)
         {
-            Position currentObstacle = null;
+            if (!Running) return;
+
+            var obstacleInRange = false;
             foreach (var obstaclePosition in ObstaclePositions)
             {
                 obstaclePosition.X -= Speed * timeStep;
 
                 if (obstaclePosition.X > -35 && obstaclePosition.X < 35)
                 {
-                    currentObstacle = obstaclePosition;
+                    _floorHeight = 35;
+                    obstacleInRange = true;
                 }
             }
 
-            var previousPosition = PlayerPosition;
-            if (_jumping)
-            {
-                // if (_floorHeight > 0) { Console.WriteLine(); }
-                _jumpTime += timeStep;
-                var position = _takeoffHeight + _jumpVelocity * _jumpTime + -400 * _jumpTime * _jumpTime;
+            if (!obstacleInRange) _floorHeight = 0;
 
-                PlayerPosition = position < _floorHeight ? _floorHeight : position;
-                if (position <= _floorHeight)
-                {
-                    _jumpTime = 0;
-                    _jumpVelocity = 0;
-                    _jumping = false;
-                }
-            }
-            if (currentObstacle != null)
+            // Calculate delta y
+            var deltaY = _velocity * timeStep + 0.5f * Gravity * timeStep * timeStep;
+
+            if (obstacleInRange && PlayerPosition < _floorHeight)
             {
-                _floorHeight = 35;
-                if (previousPosition <= 0 || (previousPosition < PlayerPosition && previousPosition < 35))
-                {
-                    // Stop game here
-                    Console.WriteLine($"Collision {currentObstacle.X}, {previousPosition}");
-                }
-                else if (previousPosition > 35 && PlayerPosition < 35)
-                {
-                    // _onObstacle = true;
-                    // _jumpTime = 0;
-                    Console.WriteLine($"On obstacle {currentObstacle.X}, {previousPosition}");
-                }
+                Running = false;
+                return;
             }
-            else
-            {
-                _floorHeight = 0;
-                // _onObstacle = false;
-            }
+
+            // Calculate d1
+            PlayerPosition = PlayerPosition + deltaY > _floorHeight ? PlayerPosition + deltaY : _floorHeight;
+
+            // Recalculate velocity
+            var deltaV = Gravity * timeStep;
+            _velocity = PlayerPosition > _floorHeight ? _velocity + deltaV : 0;
 
             ObstaclePositions = ObstaclePositions.Where(pos => pos.X > -640).ToList();
 
-            if (timeStep > 0 && //ObstaclePositions.Last().X < 620 &&
-                _random.Next(Convert.ToInt32(1 / timeStep)) == 1) ObstaclePositions.Add(new Position { X = 640 });
+            if (timeStep > 0 && ObstaclePositions.Last().X < 620 &&
+                _random.Next(Convert.ToInt32(1 / timeStep)) == 1) ObstaclePositions.Add(new Position {X = 640});
         }
 
         public void Jump()
         {
-            if (!_jumping)
-            {
-                _takeoffHeight = _floorHeight;
-                _jumpVelocity = 300;
-            }
-            _jumping = true;
-            _onObstacle = false;
+            _velocity = 300;
+        }
+
+        public void Reset()
+        {
+            _velocity = 0;
+            _floorHeight = 0;
+            PlayerPosition = 450;
+            ObstaclePositions = new List<Position> {new Position {X = 250}, new Position {X = 450}};
+            Running = true;
         }
     }
 }

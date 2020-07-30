@@ -80,6 +80,9 @@ namespace Game
                 case KeyCode.Space:
                     _game.Jump();
                     break;
+                case KeyCode.Enter:
+                    if (!_game.Running) _game.Reset();
+                    break;
             }
         }
     }
