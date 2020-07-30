@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using OpenToolkit.Graphics.OpenGL4;
@@ -23,10 +24,22 @@ namespace Pretend.Graphics.OpenGL
             GL.DeleteBuffer(_id);
         }
 
+        public void SetSize<T>(int count) where T : struct
+        {
+            Bind();
+            GL.BufferData(BufferTarget.ArrayBuffer, Marshal.SizeOf<T>() * count, IntPtr.Zero, BufferUsageHint.DynamicDraw);
+        }
+
         public void SetData(float[] vertices)
         {
             Bind();
             GL.BufferData(BufferTarget.ArrayBuffer, vertices.Length * sizeof(float), vertices, BufferUsageHint.StaticDraw);
+        }
+
+        public void AddData<T>(T[] data) where T : struct
+        {
+            Bind();
+            GL.BufferSubData(BufferTarget.ArrayBuffer, IntPtr.Zero, Marshal.SizeOf<T>() * data.Length, data);
         }
 
         public void AddLayout<T>(int count, bool normalized = false) where T : struct
@@ -39,7 +52,7 @@ namespace Pretend.Graphics.OpenGL
                 Normalized = normalized
             });
 
-            Stride += Marshal.SizeOf(default(T)) * count;
+            Stride += Marshal.SizeOf<T>() * count;
         }
 
         public void Bind()
