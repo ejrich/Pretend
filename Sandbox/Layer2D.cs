@@ -20,6 +20,7 @@ namespace Sandbox
         private float _rightSpeed;
         private float _upSpeed;
         private float _downSpeed;
+        private float _rotation;
 
         public Layer2D(I2DRenderer renderer, ICamera camera, IFactory factory)
         {
@@ -50,6 +51,9 @@ namespace Sandbox
             _position.X += xSpeed * timeStep;
             _position.Y += ySpeed * timeStep;
 
+            _rotation += 100 * timeStep;
+            if (_rotation >= 360) _rotation = 0;
+
             _camera.Position = _position;
 
             _renderer.Begin(_camera);
@@ -63,7 +67,7 @@ namespace Sandbox
             _renderer.Submit(new Renderable2DObject
             {
                 X = 400, Y = -100,
-                Width = 400, Height = 300,
+                Width = 400, Height = 300, Rotation = _rotation,
                 Color = new Vector4(1, 0, 1, 1),
                 Texture = _texture
             });
