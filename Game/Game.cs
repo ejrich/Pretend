@@ -76,8 +76,8 @@ namespace Game
 
             ObstaclePositions = ObstaclePositions.Where(pos => pos.X > -640).ToList();
 
-            if (timeStep > 0 && ObstaclePositions.Last().X < 620 &&
-                _random.Next(Convert.ToInt32(1 / timeStep)) == 1) ObstaclePositions.Add(new Position {X = 640});
+            if (timeStep > 0 && _random.Next(Convert.ToInt32(1 / timeStep)) == 1)
+                ObstaclePositions.Add(new Position {X = 640});
         }
 
         public void Jump()
