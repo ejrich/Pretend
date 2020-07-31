@@ -7,18 +7,19 @@ namespace Sandbox
     {
         private readonly ILayerContainer _layerContainer;
         private readonly Layer2D _layer2D;
-        // private readonly ILayer _exampleLayer;
+        private readonly ILayer _exampleLayer;
 
-        public SandboxApp(ILayerContainer layerContainer, Layer2D layer2D) //ExampleLayer exampleLayer)
+        public SandboxApp(ILayerContainer layerContainer, ExampleLayer exampleLayer)
         {
             _layerContainer = layerContainer;
-            _layer2D = layer2D;
-            // _exampleLayer = exampleLayer;
+            // _layer2D = layer2D;
+            _exampleLayer = exampleLayer;
         }
 
         public void Start()
         {
-            _layerContainer.PushLayer(_layer2D);
+            // _layerContainer.PushLayer(_layer2D);
+            _layerContainer.PushLayer(_exampleLayer);
         }
     }
     

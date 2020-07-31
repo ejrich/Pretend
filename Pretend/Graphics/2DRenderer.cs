@@ -24,7 +24,7 @@ namespace Pretend.Graphics
 
     public class Renderer2D : I2DRenderer
     {
-        [StructLayout(LayoutKind.Explicit, Size = 36)]
+        [StructLayout(LayoutKind.Explicit, Size = 40)]
         private struct Renderable2DBuffer
         {
             [FieldOffset(0)]
@@ -33,14 +33,15 @@ namespace Pretend.Graphics
             public readonly Vector2 TextureLocation;
             [FieldOffset(20)]
             public readonly Vector4 Color;
-            // public bool HasTexture;
+            [FieldOffset(36)]
+            public readonly float Texture;
 
-            public Renderable2DBuffer(Vector4 position, Vector2 textureLocation, Vector4 color, bool hasTexture)
+            public Renderable2DBuffer(Vector4 position, Vector2 textureLocation, Vector4 color, float texture)
             {
                 Position = position;
                 TextureLocation = textureLocation;
                 Color = color;
-                // HasTexture = hasTexture;
+                Texture = texture;
             }
         }
 
@@ -51,6 +52,7 @@ namespace Pretend.Graphics
         private readonly IRenderContext _renderContext;
         private readonly IFactory _factory;
         private readonly List<Renderable2DBuffer> _submissions = new List<Renderable2DBuffer>();
+        private readonly IDictionary<ITexture2D, int> _textures = new Dictionary<ITexture2D, int>();
 
         private Vector4[] _vertices;
         private Vector2[] _textureCoordinates;
@@ -85,6 +87,7 @@ namespace Pretend.Graphics
             vertexBuffer.AddLayout<float>(3);
             vertexBuffer.AddLayout<float>(2);
             vertexBuffer.AddLayout<float>(4);
+            vertexBuffer.AddLayout<float>(1);
 
             var indices = Enumerable.Range(0, MaxSubmissions)
                 .SelectMany(i =>
@@ -105,6 +108,7 @@ namespace Pretend.Graphics
 
             _objectShader = _factory.Create<IShader>();
             _objectShader.Compile("Pretend.Graphics.Shaders.2DObject.glsl");
+            // _objectShader.SetIntArray("textures[0]", Enumerable.Range(0, 32).ToArray());
             _objectShader.SetInt("texture0", 0);
         }
 
@@ -139,11 +143,13 @@ namespace Pretend.Graphics
 
             if (_submissions.Count / VerticesInSubmission == MaxSubmissions)
                 Flush();
+            else if (_textures.Count == 32 && renderObject.Texture != null)
+                Flush(_submissions.Count / VerticesInSubmission);
 
             foreach (var vertex in Enumerable.Range(0, VerticesInSubmission))
             {
                 _submissions.Add(new Renderable2DBuffer(_vertices[vertex] * transform, _textureCoordinates[vertex],
-                    renderObject.Color, renderObject.Texture != null));
+                    renderObject.Color, GetTextureIndex(renderObject.Texture)));
             }
         }
 
@@ -154,8 +160,28 @@ namespace Pretend.Graphics
 
             _objectShader.Bind();
             _objectShader.SetMat4("viewProjection", _viewProjection);
+            // foreach (var (texture, slot) in _textures)
+            // {
+            //     texture.Bind(slot);
+            // }
+
+            // _textures.Clear();
 
             _renderContext.Draw(_vertexArray, submissionCount * IndicesInSubmission);
+        }
+
+        private float GetTextureIndex(ITexture2D texture)
+        {
+            if (texture == null) return -1;
+
+            texture.Bind();
+            return 2.5f;
+            // if (_textures.TryGetValue(texture, out var index))
+            //     return index;
+            //
+            // var slot = _textures.Count;
+            // _textures[texture] = slot;
+            // return slot;
         }
     }
 }

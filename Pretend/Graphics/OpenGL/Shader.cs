@@ -78,9 +78,9 @@ namespace Pretend.Graphics.OpenGL
             };
             var compiledShaders = new List<int>();
 
-            foreach (var shader in shaders)
+            foreach (var (type, source) in shaders)
             {
-                var compiledShader = CreateShader(shader.source, shader.type);
+                var compiledShader = CreateShader(source, type);
                 if (compiledShader == null) return; // TODO Figure out how to handle this
 
                 GL.AttachShader(_id, compiledShader.Value);
@@ -155,6 +155,12 @@ namespace Pretend.Graphics.OpenGL
         {
             GL.UseProgram(_id);
             GL.Uniform1(_uniforms[name], value);
+        }
+
+        public void SetIntArray(string name, int[] value)
+        {
+            GL.UseProgram(_id);
+            GL.Uniform1(_uniforms[name], value.Length, value);
         }
 
         public void SetVec4(string name, Vector4 value)
