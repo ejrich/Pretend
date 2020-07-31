@@ -24,8 +24,12 @@ namespace Pretend.Graphics.OpenGL
 
         public void Draw(IVertexArray vertexArray)
         {
-            GL.DrawElements(PrimitiveType.Triangles, vertexArray.IndexBuffer.Count,
-                DrawElementsType.UnsignedInt, 0);
+            Draw(vertexArray, vertexArray.IndexBuffer.Count);
+        }
+
+        public void Draw(IVertexArray vertexArray, int count)
+        {
+            GL.DrawElements(PrimitiveType.Triangles, count, DrawElementsType.UnsignedInt, 0);
         }
 
         public void SetViewport(int width, int height)
