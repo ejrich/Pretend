@@ -6,6 +6,7 @@ namespace Pretend.Graphics
         void Clear();
         void BackgroundColor(float r, float g, float b, float a);
         void Draw(IVertexArray vertexArray);
+        void Draw(IVertexArray vertexArray, int count);
         void SetViewport(int width, int height);
     }
 }

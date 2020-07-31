@@ -46,6 +46,7 @@ namespace Pretend.Graphics
 
         private const int MaxSubmissions = 400;
         private const int VerticesInSubmission = 4;
+        private const int IndicesInSubmission = 6;
 
         private readonly IRenderContext _renderContext;
         private readonly IFactory _factory;
@@ -116,7 +117,7 @@ namespace Pretend.Graphics
 
         public void End()
         {
-            Flush();
+            Flush(_submissions.Count / VerticesInSubmission);
         }
 
         [Obsolete("Only use this method if you want to immediately render something")]
@@ -146,7 +147,7 @@ namespace Pretend.Graphics
             }
         }
 
-        private void Flush()
+        private void Flush(int submissionCount = MaxSubmissions)
         {
             _vertexArray.VertexBuffer.AddData(_submissions.ToArray());
             _submissions.Clear();
@@ -154,7 +155,7 @@ namespace Pretend.Graphics
             _objectShader.Bind();
             _objectShader.SetMat4("viewProjection", _viewProjection);
 
-            _renderContext.Draw(_vertexArray);
+            _renderContext.Draw(_vertexArray, submissionCount * IndicesInSubmission);
         }
     }
 }
