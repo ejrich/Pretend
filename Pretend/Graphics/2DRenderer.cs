@@ -28,17 +28,17 @@ namespace Pretend.Graphics
         private struct Renderable2DBuffer
         {
             [FieldOffset(0)]
-            public readonly Vector4 Position;
-            [FieldOffset(16)]
+            public readonly Vector3 Position;
+            [FieldOffset(12)]
             public readonly Vector2 TextureLocation;
             [FieldOffset(20)]
             public readonly Vector4 Color;
             [FieldOffset(36)]
-            public readonly float Texture;
+            public readonly int Texture;
 
-            public Renderable2DBuffer(Vector4 position, Vector2 textureLocation, Vector4 color, float texture)
+            public Renderable2DBuffer(Vector4 position, Vector2 textureLocation, Vector4 color, int texture)
             {
-                Position = position;
+                Position = position.Xyz;
                 TextureLocation = textureLocation;
                 Color = color;
                 Texture = texture;
@@ -108,8 +108,7 @@ namespace Pretend.Graphics
 
             _objectShader = _factory.Create<IShader>();
             _objectShader.Compile("Pretend.Graphics.Shaders.2DObject.glsl");
-            // _objectShader.SetIntArray("textures[0]", Enumerable.Range(0, 32).ToArray());
-            _objectShader.SetInt("texture0", 0);
+            _objectShader.SetIntArray("textures[0]", Enumerable.Range(0, 32).ToArray());
         }
 
         public void Begin(ICamera camera)
@@ -143,7 +142,7 @@ namespace Pretend.Graphics
 
             if (_submissions.Count / VerticesInSubmission == MaxSubmissions)
                 Flush();
-            else if (_textures.Count == 32 && renderObject.Texture != null)
+            else if (_textures.Count == 32 && renderObject.Texture != null && !_textures.ContainsKey(renderObject.Texture))
                 Flush(_submissions.Count / VerticesInSubmission);
 
             foreach (var vertex in Enumerable.Range(0, VerticesInSubmission))
@@ -160,28 +159,28 @@ namespace Pretend.Graphics
 
             _objectShader.Bind();
             _objectShader.SetMat4("viewProjection", _viewProjection);
-            // foreach (var (texture, slot) in _textures)
-            // {
-            //     texture.Bind(slot);
-            // }
 
-            // _textures.Clear();
+            foreach (var (texture, slot) in _textures)
+            {
+                texture.Bind(slot);
+            }
+            _textures.Clear();
+
+            _vertexArray.Bind();
 
             _renderContext.Draw(_vertexArray, submissionCount * IndicesInSubmission);
         }
 
-        private float GetTextureIndex(ITexture2D texture)
+        private int GetTextureIndex(ITexture2D texture)
         {
             if (texture == null) return -1;
 
-            texture.Bind();
-            return 2.5f;
-            // if (_textures.TryGetValue(texture, out var index))
-            //     return index;
-            //
-            // var slot = _textures.Count;
-            // _textures[texture] = slot;
-            // return slot;
+            if (_textures.TryGetValue(texture, out var index))
+                return index;
+
+            var slot = _textures.Count;
+            _textures[texture] = slot;
+            return slot;
         }
     }
 }

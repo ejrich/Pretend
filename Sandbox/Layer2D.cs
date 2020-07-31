@@ -14,7 +14,7 @@ namespace Sandbox
 
         private ITexture2D _texture;
         private Vector3 _position;
-        
+
         private float _leftSpeed;
         private float _rightSpeed;
         private float _upSpeed;
