@@ -15,6 +15,7 @@ namespace Game
     {
         List<Position> ObstaclePositions { get; }
         float PlayerPosition { get; }
+        float PlayerRotation { get; }
         bool Running { get; }
         void Update(float timeStep);
         void Jump();
@@ -24,8 +25,9 @@ namespace Game
     [Singleton]
     public class Game : IGame
     {
-        private const float Speed = 200;
+        private const float ObstacleSpeed = 200;
         private const float Gravity = -800;
+        private const float RotationSpeed = 360;
 
         private readonly Random _random;
         private float _floorHeight;
@@ -38,16 +40,18 @@ namespace Game
             new Position { X = 250 }, new Position { X = 450 }
         };
         public float PlayerPosition { get; private set; } = 450;
+        public float PlayerRotation { get; private set; }
         public bool Running { get; private set; } = true;
 
         public void Update(float timeStep)
         {
             if (!Running) return;
 
+            // Recalculate obstacle positions and determine the floor height
             var obstacleInRange = false;
             foreach (var obstaclePosition in ObstaclePositions)
             {
-                obstaclePosition.X -= Speed * timeStep;
+                obstaclePosition.X -= ObstacleSpeed * timeStep;
 
                 if (obstaclePosition.X > -35 && obstaclePosition.X < 35)
                 {
@@ -55,27 +59,31 @@ namespace Game
                     obstacleInRange = true;
                 }
             }
-
             if (!obstacleInRange) _floorHeight = 0;
 
-            // Calculate delta y
-            var deltaY = _velocity * timeStep + 0.5f * Gravity * timeStep * timeStep;
-
+            // Stop the game if there is a collision with an obstacle
             if (obstacleInRange && PlayerPosition < _floorHeight)
             {
                 Running = false;
                 return;
             }
 
-            // Calculate d1
+            // Calculate delta y
+            var deltaY = _velocity * timeStep + 0.5f * Gravity * timeStep * timeStep;
+
+            // Calculate next position
             PlayerPosition = PlayerPosition + deltaY > _floorHeight ? PlayerPosition + deltaY : _floorHeight;
 
             // Recalculate velocity
             var deltaV = Gravity * timeStep;
             _velocity = PlayerPosition > _floorHeight ? _velocity + deltaV : 0;
 
-            ObstaclePositions = ObstaclePositions.Where(pos => pos.X > -640).ToList();
+            // Flip the player object if it's in the air
+            PlayerRotation = PlayerPosition > _floorHeight ?
+                (PlayerRotation - RotationSpeed * timeStep) % 360 : 0;
 
+            // Filter the passed obstacles and determine whether to add a new one
+            ObstaclePositions = ObstaclePositions.Where(pos => pos.X > -640).ToList();
             if (timeStep > 0 && _random.Next(Convert.ToInt32(1 / timeStep)) == 1)
                 ObstaclePositions.Add(new Position {X = 640});
         }

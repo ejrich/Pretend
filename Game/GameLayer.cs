@@ -43,6 +43,7 @@ namespace Game
             // Update the game
             _game.Update(timeStep);
             _playerObject.Y = _game.PlayerPosition;
+            _playerObject.Rotation = _game.PlayerRotation;
 
             _renderer.Begin(_camera);
 
