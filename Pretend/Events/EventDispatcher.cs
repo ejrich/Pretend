@@ -45,7 +45,7 @@ namespace Pretend.Events
                 HandleEvent(evnt, eventHandlers);
         }
 
-        private void HandleEvent(IEvent evnt, IEnumerable<Action<IEvent>> eventHandlers)
+        private static void HandleEvent(IEvent evnt, IEnumerable<Action<IEvent>> eventHandlers)
         {
             foreach (var eventHandler in eventHandlers)
             {

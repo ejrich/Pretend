@@ -19,7 +19,9 @@ namespace Pretend.Graphics
 
     public interface IVertexBuffer : IBuffer
     {
+        void SetSize<T>(int count) where T : struct;
         void SetData(float[] vertices);
+        void AddData<T>(T[] data) where T : struct;
         void AddLayout<T>(int count, bool normalized = false) where T : struct;
         IEnumerable<BufferLayout> Layouts { get; }
         int Stride { get; }

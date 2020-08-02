@@ -5,7 +5,7 @@ namespace Pretend.Graphics.OpenGL
 {
     public class VertexArray : IVertexArray
     {
-        private int _id;
+        private readonly int _id;
         private IVertexBuffer _vertexBuffer;
         private IIndexBuffer _indexBuffer;
 
@@ -63,19 +63,13 @@ namespace Pretend.Graphics.OpenGL
 
         private VertexAttribPointerType GetPointerType(Type type)
         {
-            switch (type)
+            return type switch
             {
-                case Type floatType when floatType == typeof(float):
-                    return VertexAttribPointerType.Float;
-
-                case Type intType when intType == typeof(int):
-                    return VertexAttribPointerType.Int;
-
-                case Type boolType when boolType == typeof(bool):
-                    return VertexAttribPointerType.Int;
-
-                default: return VertexAttribPointerType.Float;
-            }
+                { } floatType when floatType == typeof(float) => VertexAttribPointerType.Float,
+                { } intType when intType == typeof(int) => VertexAttribPointerType.Int,
+                { } boolType when boolType == typeof(bool) => VertexAttribPointerType.Int,
+                _ => VertexAttribPointerType.Float
+            };
         }
     }
 }

@@ -42,6 +42,7 @@ namespace Pretend
 
             // Core graphics
             _services.AddTransient<IRenderer, Renderer>();
+            _services.AddTransient<I2DRenderer, Renderer2D>();
             _services.AddTransient<ICamera, OrthographicCamera>();
 
             // Graphics API
@@ -95,7 +96,7 @@ namespace Pretend
             return _serviceProvider.GetService<T>();
         }
 
-        private bool IsSingleton(Type type)
+        private static bool IsSingleton(Type type)
         {
             return type.IsDefined(typeof(SingletonAttribute));
         }
