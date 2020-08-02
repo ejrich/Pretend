@@ -23,32 +23,34 @@ namespace Pretend.Graphics
         void Submit(Renderable2DObject renderObject);
     }
 
+    [StructLayout(LayoutKind.Explicit, Size = 40)]
+    internal struct Renderable2DBuffer
+    {
+        [FieldOffset(0)]
+        public readonly Vector3 Position;
+        [FieldOffset(12)]
+        public readonly Vector2 TextureLocation;
+        [FieldOffset(20)]
+        public readonly Vector4 Color;
+        [FieldOffset(36)]
+        public readonly int Texture;
+
+        public Renderable2DBuffer(Vector4 position, Vector2 textureLocation, Vector4 color, int texture)
+        {
+            Position = position.Xyz;
+            TextureLocation = textureLocation;
+            Color = color;
+            Texture = texture;
+        }
+    }
+
     public class Renderer2D : I2DRenderer
     {
-        [StructLayout(LayoutKind.Explicit, Size = 40)]
-        private struct Renderable2DBuffer
-        {
-            [FieldOffset(0)]
-            public readonly Vector3 Position;
-            [FieldOffset(12)]
-            public readonly Vector2 TextureLocation;
-            [FieldOffset(20)]
-            public readonly Vector4 Color;
-            [FieldOffset(36)]
-            public readonly int Texture;
 
-            public Renderable2DBuffer(Vector4 position, Vector2 textureLocation, Vector4 color, int texture)
-            {
-                Position = position.Xyz;
-                TextureLocation = textureLocation;
-                Color = color;
-                Texture = texture;
-            }
-        }
-
-        private const int MaxSubmissions = 400;
-        private const int VerticesInSubmission = 4;
-        private const int IndicesInSubmission = 6;
+        internal const int MaxSubmissions = 400;
+        internal const int VerticesInSubmission = 4;
+        internal const int IndicesInSubmission = 6;
+        internal const int MaxTextures = 32;
 
         private readonly IRenderContext _renderContext;
         private readonly IFactory _factory;
@@ -144,7 +146,7 @@ namespace Pretend.Graphics
 
             if (_submissions.Count / VerticesInSubmission == MaxSubmissions)
                 Flush();
-            else if (_textures.Count == 32 && renderObject.Texture != null && !_textures.ContainsKey(renderObject.Texture))
+            else if (_textures.Count == MaxTextures && renderObject.Texture != null && !_textures.ContainsKey(renderObject.Texture))
                 Flush(_submissions.Count / VerticesInSubmission);
 
             foreach (var vertex in Enumerable.Range(0, VerticesInSubmission))
