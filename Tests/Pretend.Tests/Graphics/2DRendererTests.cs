@@ -48,7 +48,7 @@ namespace Pretend.Tests.Graphics
 
             _target.Init();
 
-            _mockVertexBuffer.Verify(_ => _.SetSize<Renderable2DBuffer>(Renderer2D.MaxSubmissions * Renderer2D.VerticesInSubmission), Times.Once);
+            _mockVertexBuffer.Verify(_ => _.SetSize<Renderer2D.Renderable2DBuffer>(Renderer2D.MaxSubmissions * Renderer2D.VerticesInSubmission), Times.Once);
             _mockVertexBuffer.Verify(_ => _.AddLayout<float>(It.IsAny<int>(), false), Times.Exactly(4));
             _mockIndexBuffer.Verify(_ => _.AddData(It.IsAny<uint[]>()), Times.Once);
             _mockShader.Verify(_ => _.Compile(It.IsAny<string>()), Times.Once);
@@ -164,7 +164,7 @@ namespace Pretend.Tests.Graphics
             _mockFactory.Setup(_ => _.Create<IVertexArray>()).Returns(_mockVertexArray.Object);
             _mockFactory.Setup(_ => _.Create<IShader>()).Returns(_mockShader.Object);
 
-            _mockVertexBuffer.Setup(_ => _.SetSize<Renderable2DBuffer>(It.IsAny<int>()));
+            _mockVertexBuffer.Setup(_ => _.SetSize<Renderer2D.Renderable2DBuffer>(It.IsAny<int>()));
             _mockVertexBuffer.Setup(_ => _.AddLayout<float>(It.IsAny<int>(), false));
             _mockIndexBuffer.Setup(_ => _.AddData(It.IsAny<uint[]>()));
             _mockVertexArray.SetupSet(_ => _.VertexBuffer = _mockVertexBuffer.Object);
@@ -177,7 +177,7 @@ namespace Pretend.Tests.Graphics
         {
             _mockRenderContext.Setup(_ => _.Clear());
             _mockRenderContext.Setup(_ => _.Draw(_mockVertexArray.Object, It.IsAny<int>()));
-            _mockVertexBuffer.Setup(_ => _.AddData(It.IsAny<Renderable2DBuffer[]>()));
+            _mockVertexBuffer.Setup(_ => _.AddData(It.IsAny<Renderer2D.Renderable2DBuffer[]>()));
             _mockShader.Setup(_ => _.Bind());
             _mockShader.Setup(_ => _.SetMat4("viewProjection", It.IsAny<Matrix4>()));
             _mockVertexArray.Setup(_ => _.Bind());
