@@ -11,6 +11,12 @@
         <vm:MainWindowViewModel/>
     </Design.DataContext>
 
-    <TextBlock Text="{Binding Greeting}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+    <StackPanel>
+        <TextBox Name="other" Text="{Binding Name}" />
+        <TextBlock Text="{Binding Name}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+        <TextBlock Text="{Binding Greeting}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+        <Button Command="{Binding Run}" CommandParameter="Hello world!" Content="Do The Thing!" />
+        <Image Source="{Binding Image}" Width="800" Height="600" />
+    </StackPanel>
 
 </Window>
