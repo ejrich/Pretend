@@ -53,6 +53,7 @@ namespace Pretend
             _services.AddTransient<IVertexArray, VertexArray>();
             _services.AddTransient<IShader, Shader>();
             _services.AddTransient<ITexture2D, Texture2D>();
+            _services.AddTransient<IFramebuffer, Framebuffer>();
 
             // Application
             _services.AddTransient(typeof(IApplication), typeof(TApp));
