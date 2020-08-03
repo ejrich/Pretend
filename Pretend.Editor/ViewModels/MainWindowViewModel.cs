@@ -7,6 +7,7 @@ namespace Pretend.Editor.ViewModels
     public class MainWindowViewModel : ViewModelBase
     {
         private string _name;
+        private IBitmap _image;
 
         public string Greeting => "Hello World!";
 
@@ -20,9 +21,14 @@ namespace Pretend.Editor.ViewModels
 
         private void RunImpl(string value)
         {
+            Image ??= new Bitmap("Assets/picture.png");
             Console.WriteLine(value);
         }
 
-        public IBitmap Image => new Bitmap("Assets/picture.png");
+        public IBitmap Image
+        {
+            get => _image;
+            set => this.RaiseAndSetIfChanged(ref _image, value);
+        }
     }
 }
