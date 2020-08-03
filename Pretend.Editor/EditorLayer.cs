@@ -12,6 +12,7 @@ namespace Pretend.Editor
         private readonly IFactory _factory;
 
         private Vector3 _position;
+        private IFramebuffer _framebuffer;
 
         private float _leftSpeed;
         private float _rightSpeed;
@@ -30,6 +31,9 @@ namespace Pretend.Editor
         {
             _renderer.Init();
 
+            _framebuffer = _factory.Create<IFramebuffer>();
+            _framebuffer.Init();
+
             _position = _camera.Position;
         }
 
@@ -47,6 +51,7 @@ namespace Pretend.Editor
 
             _camera.Position = _position;
 
+            _framebuffer.Bind();
             _renderer.Begin(_camera);
 
             _renderer.Submit(new Renderable2DObject
@@ -68,6 +73,7 @@ namespace Pretend.Editor
             });
 
             _renderer.End();
+            _framebuffer.Unbind();
         }
 
         public void HandleEvent(IEvent evnt)

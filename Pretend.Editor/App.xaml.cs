@@ -1,3 +1,4 @@
+using System.Threading;
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
@@ -22,6 +23,8 @@ namespace Pretend.Editor
                     DataContext = new MainWindowViewModel(),
                 };
             }
+            var app = new Thread(Entrypoint.Start<EditorApp, WindowAttributes>);
+            app.Start();
 
             base.OnFrameworkInitializationCompleted();
         }
