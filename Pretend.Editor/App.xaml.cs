@@ -16,14 +16,21 @@ namespace Pretend.Editor
 
         public override void OnFrameworkInitializationCompleted()
         {
+            var factory = new Factory();
+            factory.RegisterServices<EditorApp, WindowAttributes>();
+            factory.BuildContainer();
+
             if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
             {
-                desktop.MainWindow = new MainWindow
-                {
-                    DataContext = new MainWindowViewModel(),
-                };
+                var mainWindow = factory.Create<MainWindow>();
+                mainWindow.DataContext = new MainWindowViewModel();
+
+                desktop.MainWindow = mainWindow;
             }
-            var app = new Thread(Entrypoint.Start<EditorApp, WindowAttributes>);
+
+            var applicationRunner = factory.Create<IApplicationRunner>();
+
+            var app = new Thread(applicationRunner.Run);
             app.Start();
 
             base.OnFrameworkInitializationCompleted();

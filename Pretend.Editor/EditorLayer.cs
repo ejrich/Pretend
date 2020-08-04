@@ -51,7 +51,7 @@ namespace Pretend.Editor
 
             _camera.Position = _position;
 
-            _framebuffer.Bind();
+            // _framebuffer.Bind();
             _renderer.Begin(_camera);
 
             _renderer.Submit(new Renderable2DObject
@@ -73,7 +73,7 @@ namespace Pretend.Editor
             });
 
             _renderer.End();
-            _framebuffer.Unbind();
+            // _framebuffer.Unbind();
         }
 
         public void HandleEvent(IEvent evnt)
