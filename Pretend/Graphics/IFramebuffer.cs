@@ -9,5 +9,6 @@ namespace Pretend.Graphics
         int Id { get; }
         int Width { get; }
         int Height { get; }
+        int ColorTexture { get; }
     }
 }

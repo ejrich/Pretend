@@ -15,29 +15,34 @@ namespace Pretend.Graphics.OpenGL
             GL.DeleteFramebuffer(Id);
         }
 
-        public int Id { get; private set; }
+        public int Id { get; }
         public int Width { get; } = 1280;
         public int Height { get; } = 720;
+        public int ColorTexture => _colorTexture;
+
+        private int _colorTexture;
 
         public void Init()
         {
             Bind();
 
-            GL.CreateTextures(TextureTarget.Texture2D, 1, out int colorTexture);
-            GL.BindTexture(TextureTarget.Texture2D, colorTexture);
+            // Color Texture
+            GL.CreateTextures(TextureTarget.Texture2D, 1, out _colorTexture);
+            GL.BindTexture(TextureTarget.Texture2D, _colorTexture);
             GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgb8, Width, Height, 0, PixelFormat.Rgba, PixelType.UnsignedByte, IntPtr.Zero);
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Linear);
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMinFilter.Linear);
-            
+            GL.FramebufferTexture2D(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, TextureTarget.Texture2D, _colorTexture, 0);
+
+            // Depth Texture
             GL.CreateTextures(TextureTarget.Texture2D, 1, out int depthTexture);
             GL.BindTexture(TextureTarget.Texture2D, depthTexture);
-            // GL.TexStorage2D(TextureTarget2d.Texture2D, 1, SizedInternalFormat.Rgba8, Width, Height);
             GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Depth24Stencil8, Width, Height, 0, PixelFormat.DepthStencil, PixelType.UnsignedInt248, IntPtr.Zero);
             GL.FramebufferTexture2D(FramebufferTarget.Framebuffer, FramebufferAttachment.DepthStencilAttachment, TextureTarget.Texture2D, depthTexture, 0);
             
             if (GL.CheckFramebufferStatus(FramebufferTarget.Framebuffer) != FramebufferErrorCode.FramebufferComplete)
                 throw new Exception("Framebuffer is incomplete");
-            
+
             Unbind();
         }
 
