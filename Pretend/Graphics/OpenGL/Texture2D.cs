@@ -5,17 +5,17 @@ namespace Pretend.Graphics.OpenGL
 {
     public class Texture2D : ITexture2D
     {
-        private readonly int _id;
-
         public Texture2D()
         {
-            _id = GL.GenTexture();
+            Id = GL.GenTexture();
         }
 
         ~Texture2D()
         {
-            GL.DeleteTexture(_id);
+            GL.DeleteTexture(Id);
         }
+
+        public int Id { get; }
 
         public void SetData(string file)
         {
@@ -42,7 +42,7 @@ namespace Pretend.Graphics.OpenGL
         public void Bind(int slot = 0)
         {
             GL.ActiveTexture(ConvertTextureUnit(slot));
-            GL.BindTexture(TextureTarget.Texture2D, _id);
+            GL.BindTexture(TextureTarget.Texture2D, Id);
         }
 
         private static TextureUnit ConvertTextureUnit(int slot)

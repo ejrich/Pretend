@@ -1,4 +1,3 @@
-using System.Threading;
 using OpenToolkit.Mathematics;
 using Pretend.Events;
 using Pretend.Graphics;
@@ -11,8 +10,10 @@ namespace Pretend.Editor
         private readonly I2DRenderer _renderer;
         private readonly ICamera _camera;
         private readonly IFactory _factory;
+        private readonly IRenderContext _renderContext;
 
         private Vector3 _position;
+        private IFramebuffer _framebuffer;
 
         private float _leftSpeed;
         private float _rightSpeed;
@@ -20,16 +21,21 @@ namespace Pretend.Editor
         private float _downSpeed;
         private float _rotation;
 
-        public EditorLayer(I2DRenderer renderer, ICamera camera, IFactory factory)
+        public EditorLayer(I2DRenderer renderer, ICamera camera, IFactory factory,
+            IRenderContext renderContext)
         {
             _renderer = renderer;
             _camera = camera;
             _factory = factory;
+            _renderContext = renderContext;
         }
         
         public void Attach()
         {
             _renderer.Init();
+            
+            _framebuffer = _factory.Create<IFramebuffer>();
+            _framebuffer.Init();
 
             _position = _camera.Position;
         }
@@ -48,6 +54,7 @@ namespace Pretend.Editor
 
             _camera.Position = _position;
 
+            _framebuffer.Bind();
             _renderer.Begin(_camera);
 
             _renderer.Submit(new Renderable2DObject
@@ -68,6 +75,16 @@ namespace Pretend.Editor
                 Width = 300, Height = 300,
             });
 
+            _renderer.End();
+            _framebuffer.Unbind();
+            
+            _renderContext.SetViewport(640, 720);
+            _renderer.Begin(_camera);
+            _renderer.Submit(new Renderable2DObject
+            {
+                Width = 1280, Height = 720,
+                Texture = _framebuffer.ColorTexture
+            });
             _renderer.End();
         }
 

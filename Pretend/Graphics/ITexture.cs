@@ -2,6 +2,7 @@ namespace Pretend.Graphics
 {
     public interface ITexture
     {
+        int Id { get; }
         void Bind(int slot = 0);
     }
 

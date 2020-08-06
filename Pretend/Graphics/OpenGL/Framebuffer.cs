@@ -5,9 +5,11 @@ namespace Pretend.Graphics.OpenGL
 {
     public class Framebuffer : IFramebuffer
     {
-        public Framebuffer()
+
+        public Framebuffer(ITexture2D texture)
         {
             Id = GL.GenFramebuffer();
+            ColorTexture = texture;
         }
 
         ~Framebuffer()
@@ -18,21 +20,18 @@ namespace Pretend.Graphics.OpenGL
         public int Id { get; }
         public int Width { get; } = 1280;
         public int Height { get; } = 720;
-        public int ColorTexture => _colorTexture;
-
-        private int _colorTexture;
+        public ITexture2D ColorTexture { get; }
 
         public void Init()
         {
             Bind();
 
             // Color Texture
-            GL.CreateTextures(TextureTarget.Texture2D, 1, out _colorTexture);
-            GL.BindTexture(TextureTarget.Texture2D, _colorTexture);
+            ColorTexture.Bind();
             GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgb8, Width, Height, 0, PixelFormat.Rgba, PixelType.UnsignedByte, IntPtr.Zero);
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Linear);
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMinFilter.Linear);
-            GL.FramebufferTexture2D(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, TextureTarget.Texture2D, _colorTexture, 0);
+            GL.FramebufferTexture2D(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, TextureTarget.Texture2D, ColorTexture.Id, 0);
 
             // Depth Texture
             GL.CreateTextures(TextureTarget.Texture2D, 1, out int depthTexture);
