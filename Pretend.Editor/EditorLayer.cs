@@ -99,7 +99,14 @@ namespace Pretend.Editor
             });
             _renderer.Submit(new Renderable2DObject
             {
-                X = -480, Width = 300, Height = 700,
+                X = _width * -3f / 8f, Y = _height / -4f,
+                Width = Convert.ToUInt32(_width / 4 - 20), Height = Convert.ToUInt32(_height / 2 - 20),
+                Color = new Vector4(0.1f, 0.1f, 0.1f, 1)
+            });
+            _renderer.Submit(new Renderable2DObject
+            {
+                X = _width * -3f / 8f, Y = _height / 4f,
+                Width = Convert.ToUInt32(_width / 4 - 20), Height = Convert.ToUInt32(_height / 2 - 20),
                 Color = new Vector4(0.1f, 0.1f, 0.1f, 1)
             });
             _renderer.End();
@@ -117,11 +124,11 @@ namespace Pretend.Editor
                     HandleKeyRelease(keyReleased);
                     break;
                 case WindowResizeEvent resize:
-                    _width = resize.Width;
-                    _height = resize.Height;
-                    _mainCamera.Resize(resize.Width, resize.Height);
-                    _viewportCamera.Resize(resize.Width * 3 / 4, resize.Height);
-                    _framebuffer.Resize(resize.Width, resize.Height);
+                    HandleResize(resize);
+                    break;
+                case MouseButtonPressedEvent buttonPressed:
+                    break;
+                case MouseButtonReleasedEvent buttonReleased:
                     break;
             }
         }
@@ -162,6 +169,15 @@ namespace Pretend.Editor
                     _rightSpeed = 0;
                     break;
             }
+        }
+
+        private void HandleResize(WindowResizeEvent evnt)
+        {
+            _width = evnt.Width;
+            _height = evnt.Height;
+            _mainCamera.Resize(evnt.Width, evnt.Height);
+            _viewportCamera.Resize(evnt.Width * 3 / 4, evnt.Height);
+            _framebuffer.Resize(evnt.Width, evnt.Height);
         }
     }
 }

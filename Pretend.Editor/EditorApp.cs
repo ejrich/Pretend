@@ -22,5 +22,7 @@ namespace Pretend.Editor
     public class WindowAttributes : IWindowAttributesProvider
     {
         public string Title => "Editor";
+        public int Width => 1920;
+        public int Height => 1080;
     }
 }
