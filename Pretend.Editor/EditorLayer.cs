@@ -1,3 +1,4 @@
+using System;
 using OpenToolkit.Mathematics;
 using Pretend.Events;
 using Pretend.Graphics;
@@ -8,12 +9,15 @@ namespace Pretend.Editor
     public class EditorLayer : ILayer
     {
         private readonly I2DRenderer _renderer;
-        private readonly ICamera _camera;
+        private readonly ICamera _viewportCamera;
+        private readonly ICamera _mainCamera;
         private readonly IFactory _factory;
         private readonly IRenderContext _renderContext;
 
         private Vector3 _position;
         private IFramebuffer _framebuffer;
+        private int _width;
+        private int _height;
 
         private float _leftSpeed;
         private float _rightSpeed;
@@ -21,13 +25,16 @@ namespace Pretend.Editor
         private float _downSpeed;
         private float _rotation;
 
-        public EditorLayer(I2DRenderer renderer, ICamera camera, IFactory factory,
-            IRenderContext renderContext)
+        public EditorLayer(I2DRenderer renderer, ICamera viewportCamera, ICamera mainCamera, IFactory factory,
+            IRenderContext renderContext, IWindowAttributesProvider windowAttributes)
         {
             _renderer = renderer;
-            _camera = camera;
+            _viewportCamera = viewportCamera;
+            _mainCamera = mainCamera;
             _factory = factory;
             _renderContext = renderContext;
+            _width = windowAttributes.Width;
+            _height = windowAttributes.Height;
         }
         
         public void Attach()
@@ -37,11 +44,13 @@ namespace Pretend.Editor
             _framebuffer = _factory.Create<IFramebuffer>();
             _framebuffer.Init();
 
-            _position = _camera.Position;
+            _viewportCamera.Resize(_width * 3 / 4, _height);
+            _position = _viewportCamera.Position;
         }
 
         public void Update(float timeStep)
         {
+            // Thread.Sleep(16);
             // Calculate location by speed
             var xSpeed = _rightSpeed - _leftSpeed;
             var ySpeed = _upSpeed - _downSpeed;
@@ -52,10 +61,12 @@ namespace Pretend.Editor
             _rotation += 100 * timeStep;
             if (_rotation >= 360) _rotation = 0;
 
-            _camera.Position = _position;
+            _viewportCamera.Position = _position;
 
+            // Capture the framebuffer for the viewport
             _framebuffer.Bind();
-            _renderer.Begin(_camera);
+            _renderContext.BackgroundColor(0, 1, 1, 1);
+            _renderer.Begin(_viewportCamera);
 
             _renderer.Submit(new Renderable2DObject
             {
@@ -72,18 +83,24 @@ namespace Pretend.Editor
             _renderer.Submit(new Renderable2DObject
             {
                 X = -400, Y = -100,
-                Width = 300, Height = 300,
+                Width = 300, Height = 300
             });
 
             _renderer.End();
             _framebuffer.Unbind();
-            
-            _renderContext.SetViewport(640, 720);
-            _renderer.Begin(_camera);
+
+            // Render the viewport and the rest of the editor panels
+            _renderContext.BackgroundColor(0.2f, 0.2f, 0.2f, 1);
+            _renderer.Begin(_mainCamera);
             _renderer.Submit(new Renderable2DObject
             {
-                Width = 1280, Height = 720,
+                X = _width / 8f, Width = Convert.ToUInt32(_width * 3 / 4), Height = Convert.ToUInt32(_height),
                 Texture = _framebuffer.ColorTexture
+            });
+            _renderer.Submit(new Renderable2DObject
+            {
+                X = -480, Width = 300, Height = 700,
+                Color = new Vector4(0.1f, 0.1f, 0.1f, 1)
             });
             _renderer.End();
         }
@@ -100,7 +117,11 @@ namespace Pretend.Editor
                     HandleKeyRelease(keyReleased);
                     break;
                 case WindowResizeEvent resize:
-                    _camera.Resize(resize.Width, resize.Height);
+                    _width = resize.Width;
+                    _height = resize.Height;
+                    _mainCamera.Resize(resize.Width, resize.Height);
+                    _viewportCamera.Resize(resize.Width * 3 / 4, resize.Height);
+                    _framebuffer.Resize(resize.Width, resize.Height);
                     break;
             }
         }

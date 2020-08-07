@@ -5,22 +5,25 @@ namespace Pretend.Graphics.OpenGL
 {
     public class Framebuffer : IFramebuffer
     {
+        private readonly IFactory _factory;
+        private int _id;
 
-        public Framebuffer(ITexture2D texture)
+        public Framebuffer(ITexture2D texture, IFactory factory)
         {
-            Id = GL.GenFramebuffer();
+            _factory = factory;
             ColorTexture = texture;
+ 
+            _id = GL.GenFramebuffer();
         }
 
         ~Framebuffer()
         {
-            GL.DeleteFramebuffer(Id);
+            GL.DeleteFramebuffer(_id);
         }
 
-        public int Id { get; }
-        public int Width { get; } = 1280;
-        public int Height { get; } = 720;
-        public ITexture2D ColorTexture { get; }
+        public int Width { get; private set; } = 1280;
+        public int Height { get; private set; } = 720;
+        public ITexture2D ColorTexture { get; private set; }
 
         public void Init()
         {
@@ -38,7 +41,7 @@ namespace Pretend.Graphics.OpenGL
             GL.BindTexture(TextureTarget.Texture2D, depthTexture);
             GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Depth24Stencil8, Width, Height, 0, PixelFormat.DepthStencil, PixelType.UnsignedInt248, IntPtr.Zero);
             GL.FramebufferTexture2D(FramebufferTarget.Framebuffer, FramebufferAttachment.DepthStencilAttachment, TextureTarget.Texture2D, depthTexture, 0);
-            
+
             if (GL.CheckFramebufferStatus(FramebufferTarget.Framebuffer) != FramebufferErrorCode.FramebufferComplete)
                 throw new Exception("Framebuffer is incomplete");
 
@@ -47,7 +50,7 @@ namespace Pretend.Graphics.OpenGL
 
         public void Bind()
         {
-            GL.BindFramebuffer(FramebufferTarget.Framebuffer, Id);
+            GL.BindFramebuffer(FramebufferTarget.Framebuffer, _id);
             GL.Viewport(0, 0, Width, Height);
         }
 
@@ -58,7 +61,14 @@ namespace Pretend.Graphics.OpenGL
 
         public void Resize(int width, int height)
         {
-            throw new System.NotImplementedException();
+            Width = width;
+            Height = height;
+            GL.DeleteFramebuffer(_id);
+            GL.DeleteTexture(ColorTexture.Id);
+
+            _id = GL.GenFramebuffer();
+            ColorTexture = _factory.Create<ITexture2D>();
+            Init();
         }
     }
 }
