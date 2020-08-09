@@ -40,9 +40,9 @@ namespace Pretend.Editor
         public void Attach()
         {
             _renderer.Init();
-            
+
             _framebuffer = _factory.Create<IFramebuffer>();
-            _framebuffer.Init();
+            _framebuffer.Init(_width, _height);
 
             _viewportCamera.Resize(_width * 3 / 4, _height);
             _position = _viewportCamera.Position;
@@ -50,7 +50,7 @@ namespace Pretend.Editor
 
         public void Update(float timeStep)
         {
-            // Thread.Sleep(16);
+            // System.Threading.Thread.Sleep(16);
             // Calculate location by speed
             var xSpeed = _rightSpeed - _leftSpeed;
             var ySpeed = _upSpeed - _downSpeed;

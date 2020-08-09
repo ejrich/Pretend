@@ -5,6 +5,8 @@ namespace Pretend.Graphics.OpenGL
 {
     public class Texture2D : ITexture2D
     {
+        private bool _deleted;
+
         public Texture2D()
         {
             Id = GL.GenTexture();
@@ -12,7 +14,7 @@ namespace Pretend.Graphics.OpenGL
 
         ~Texture2D()
         {
-            GL.DeleteTexture(Id);
+            if (!_deleted) Delete();
         }
 
         public int Id { get; }
@@ -48,6 +50,12 @@ namespace Pretend.Graphics.OpenGL
         private static TextureUnit ConvertTextureUnit(int slot)
         {
             return (TextureUnit) slot + 0x84C0;
+        }
+
+        public void Delete()
+        {
+            GL.DeleteTexture(Id);
+            _deleted = true;
         }
     }
 }

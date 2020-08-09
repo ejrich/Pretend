@@ -2,12 +2,10 @@ namespace Pretend.Graphics
 {
     public interface IFramebuffer
     {
-        void Init();
+        void Init(int width, int height);
         void Bind();
         void Unbind();
         void Resize(int width, int height);
-        int Width { get; }
-        int Height { get; }
         ITexture2D ColorTexture { get; }
     }
 }

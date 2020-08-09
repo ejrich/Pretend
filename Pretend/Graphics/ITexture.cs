@@ -4,6 +4,7 @@ namespace Pretend.Graphics
     {
         int Id { get; }
         void Bind(int slot = 0);
+        void Delete();
     }
 
     public interface ITexture2D : ITexture
