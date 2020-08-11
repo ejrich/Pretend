@@ -24,6 +24,7 @@ namespace Pretend.Editor
         private float _upSpeed;
         private float _downSpeed;
         private float _rotation;
+        private bool _paused;
 
         public EditorLayer(I2DRenderer renderer, ICamera viewportCamera, ICamera mainCamera, IFactory factory,
             IRenderContext renderContext, IWindowAttributesProvider windowAttributes)
@@ -58,8 +59,11 @@ namespace Pretend.Editor
             _position.X += xSpeed * timeStep;
             _position.Y += ySpeed * timeStep;
 
-            _rotation += 100 * timeStep;
-            if (_rotation >= 360) _rotation = 0;
+            if (!_paused)
+            {
+                _rotation += 100 * timeStep;
+                if (_rotation >= 360) _rotation = 0;
+            }
 
             _viewportCamera.Position = _position;
 
@@ -99,6 +103,11 @@ namespace Pretend.Editor
             });
             _renderer.Submit(new Renderable2DObject
             {
+                X = _width * -3f / 8f, Y = _height / -14f,
+                Width = 200, Height = 30
+            });
+            _renderer.Submit(new Renderable2DObject
+            {
                 X = _width * -3f / 8f, Y = _height / -4f,
                 Width = Convert.ToUInt32(_width / 4 - 20), Height = Convert.ToUInt32(_height / 2 - 20),
                 Color = new Vector4(0.1f, 0.1f, 0.1f, 1)
@@ -126,7 +135,8 @@ namespace Pretend.Editor
                 case WindowResizeEvent resize:
                     HandleResize(resize);
                     break;
-                case MouseButtonPressedEvent buttonPressed:
+            case MouseButtonPressedEvent buttonPressed:
+                    HandleClick(buttonPressed);
                     break;
                 case MouseButtonReleasedEvent buttonReleased:
                     break;
@@ -178,6 +188,20 @@ namespace Pretend.Editor
             _mainCamera.Resize(evnt.Width, evnt.Height);
             _viewportCamera.Resize(evnt.Width * 3 / 4, evnt.Height);
             _framebuffer.Resize(evnt.Width, evnt.Height);
+        }
+
+        private void HandleClick(MouseButtonPressedEvent evnt)
+        {
+            if (evnt.Button != MouseButton.Left) return;
+
+            var x = evnt.X - _width / 2;
+            var y = -(evnt.Y - _height / 2);
+
+            var x1 = _width * -3f / 8f;
+            var y1 = _height / -14f;
+            if (x > x1 - 100 && x < x1 + 100 
+                && y > y1 - 15 && y < y1 + 15)
+                _paused = !_paused;
         }
     }
 }

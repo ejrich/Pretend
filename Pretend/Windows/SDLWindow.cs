@@ -85,10 +85,12 @@ namespace Pretend.Windows
                     _eventDispatcher.DispatchEvent(new MouseScrollEvent { XOffset = evnt.wheel.x, YOffset = evnt.wheel.y });
                     break;
                 case SDL.SDL_EventType.SDL_MOUSEBUTTONDOWN:
-                    _eventDispatcher.DispatchEvent(new MouseButtonPressedEvent { Button = (MouseButton) evnt.button.button });
+                    _eventDispatcher.DispatchEvent(new MouseButtonPressedEvent { Button = (MouseButton) evnt.button.button,
+                        X = evnt.button.x, Y = evnt.button.y });
                     break;
                 case SDL.SDL_EventType.SDL_MOUSEBUTTONUP:
-                    _eventDispatcher.DispatchEvent(new MouseButtonReleasedEvent { Button = (MouseButton) evnt.button.button });
+                    _eventDispatcher.DispatchEvent(new MouseButtonReleasedEvent { Button = (MouseButton) evnt.button.button,
+                        X = evnt.button.x, Y = evnt.button.y });
                     break;
 
                 // Key Events
