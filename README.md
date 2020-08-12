@@ -21,4 +21,4 @@ To build, simply run `dotnet build`.  I recommend using Visual Studio or Rider a
 
 ### Project Roadmap
 
-I am working on this project in my own time, but I will create projects in GitHub and will regularly update progress
+I am working on this project in my own time, but I will create projects in GitHub and regularly update progress
