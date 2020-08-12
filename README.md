@@ -8,7 +8,7 @@ Make a cross-platform engine that respects the developer and uses modern C# desi
 
 * Native dependency injection without having to configure a container
 * Minimal overhead for fast execution
-* No public classes, only a factory creating an instance of an interface
+* Implementations are not exposed, a factory is responsible for creating an instance of a requested interface
 
 ### Project Setup
 
