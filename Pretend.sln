@@ -11,6 +11,7 @@ ProjectSection(SolutionItems) = preProject
 	.gitignore = .gitignore
 	.gitattributes = .gitattributes
 	.editorconfig = .editorconfig
+	LICENSE = LICENSE
 EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sandbox", "Sandbox\Sandbox.csproj", "{B66F5085-E4B0-4707-9B9E-8CFE66554EC0}"
