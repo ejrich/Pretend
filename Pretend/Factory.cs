@@ -41,8 +41,8 @@ namespace Pretend
             _services.AddTransient<IInput, SDLInput>();
 
             // Core graphics
-            _services.AddTransient<IRenderer, Renderer>();
-            _services.AddTransient<I2DRenderer, Renderer2D>();
+            _services.AddSingleton<IRenderer, Renderer>();
+            _services.AddSingleton<I2DRenderer, Renderer2D>();
             _services.AddTransient<ICamera, OrthographicCamera>();
 
             // Graphics API
