@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using OpenToolkit.Mathematics;
 using Pretend;
 using Pretend.Events;
@@ -22,6 +23,8 @@ namespace Sandbox
         private float _downSpeed;
         private float _rotation;
 
+        private List<Renderable2DObject> _objects;
+
         public Layer2D(I2DRenderer renderer, ICamera camera, IFactory factory)
         {
             _renderer = renderer;
@@ -40,6 +43,29 @@ namespace Sandbox
             _texture2.SetData("Assets/picture2.png");
 
             _position = _camera.Position;
+            
+            _objects = new List<Renderable2DObject>
+            {
+                new Renderable2DObject
+                {
+                    X = -100, Y = 400,
+                    Width = 300, Height = 300,
+                    Color = new Vector4(0.5f, 0.5f, 0.5f, 1f),
+                },
+                new Renderable2DObject
+                {
+                    X = 400, Y = -100,
+                    Width = 400, Height = 300, Rotation = _rotation,
+                    Color = new Vector4(1, 0, 1, 1),
+                    Texture = _texture
+                },
+                new Renderable2DObject
+                {
+                    X = -400, Y = -100,
+                    Width = 300, Height = 300,
+                    Texture = _texture2
+                }
+            };
         }
 
         public void Update(float timeStep)
@@ -53,30 +79,16 @@ namespace Sandbox
 
             _rotation += 100 * timeStep;
             if (_rotation >= 360) _rotation = 0;
+            _objects[1].Rotation = _rotation;
 
             _camera.Position = _position;
 
             _renderer.Begin(_camera);
 
-            _renderer.Submit(new Renderable2DObject
+            foreach (var renderObject in _objects)
             {
-                X = -100, Y = 400,
-                Width = 300, Height = 300,
-                Color = new Vector4(0.5f, 0.5f, 0.5f, 1f),
-            });
-            _renderer.Submit(new Renderable2DObject
-            {
-                X = 400, Y = -100,
-                Width = 400, Height = 300, Rotation = _rotation,
-                Color = new Vector4(1, 0, 1, 1),
-                Texture = _texture
-            });
-            _renderer.Submit(new Renderable2DObject
-            {
-                X = -400, Y = -100,
-                Width = 300, Height = 300,
-                Texture = _texture2
-            });
+                _renderer.Submit(renderObject);
+            }
 
             _renderer.End();
         }
