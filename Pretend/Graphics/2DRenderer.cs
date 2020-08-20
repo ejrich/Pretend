@@ -26,16 +26,12 @@ namespace Pretend.Graphics
     public class Renderer2D : I2DRenderer
     {
         [StructLayout(LayoutKind.Explicit, Size = 40)]
-        private struct Renderable2DBuffer
+        internal struct Renderable2DBuffer
         {
-            [FieldOffset(0)]
-            public readonly Vector3 Position;
-            [FieldOffset(12)]
-            public readonly Vector2 TextureLocation;
-            [FieldOffset(20)]
-            public readonly Vector4 Color;
-            [FieldOffset(36)]
-            public readonly int Texture;
+            [FieldOffset(0)] private readonly Vector3 Position;
+            [FieldOffset(12)] private readonly Vector2 TextureLocation;
+            [FieldOffset(20)] private readonly Vector4 Color;
+            [FieldOffset(36)] private readonly int Texture;
 
             public Renderable2DBuffer(Vector4 position, Vector2 textureLocation, Vector4 color, int texture)
             {
@@ -46,9 +42,10 @@ namespace Pretend.Graphics
             }
         }
 
-        private const int MaxSubmissions = 400;
-        private const int VerticesInSubmission = 4;
-        private const int IndicesInSubmission = 6;
+        internal const int MaxSubmissions = 400;
+        internal const int VerticesInSubmission = 4;
+        internal const int IndicesInSubmission = 6;
+        internal const int MaxTextures = 32;
 
         private readonly IRenderContext _renderContext;
         private readonly IFactory _factory;
@@ -73,15 +70,10 @@ namespace Pretend.Graphics
 
             _vertices = new[]
             {
-                new Vector4(0.5f, 0.5f, 0, 1),
-                new Vector4(0.5f, -0.5f, 0, 1),
-                new Vector4(-0.5f, -0.5f, 0, 1),
+                new Vector4(0.5f, 0.5f, 0, 1), new Vector4(0.5f, -0.5f, 0, 1), new Vector4(-0.5f, -0.5f, 0, 1),
                 new Vector4(-0.5f, 0.5f, 0, 1)
             };
-            _textureCoordinates = new[]
-            {
-                new Vector2(1, 1), new Vector2(1, 0), new Vector2(0, 0), new Vector2(0, 1)
-            };
+            _textureCoordinates = new[] {new Vector2(1, 1), new Vector2(1, 0), new Vector2(0, 0), new Vector2(0, 1)};
 
             var vertexBuffer = _factory.Create<IVertexBuffer>();
             vertexBuffer.SetSize<Renderable2DBuffer>(MaxSubmissions * VerticesInSubmission);
@@ -96,8 +88,8 @@ namespace Pretend.Graphics
                     var startingIndex = Convert.ToUInt32(i * VerticesInSubmission);
                     return new[]
                     {
-                        0 + startingIndex, 1 + startingIndex, 3 + startingIndex,
-                        1 + startingIndex, 2 + startingIndex, 3 + startingIndex
+                        0 + startingIndex, 1 + startingIndex, 3 + startingIndex, 1 + startingIndex,
+                        2 + startingIndex, 3 + startingIndex
                     };
                 }).ToArray();
             var indexBuffer = _factory.Create<IIndexBuffer>();
@@ -138,13 +130,14 @@ namespace Pretend.Graphics
         public void Submit(Renderable2DObject renderObject)
         {
             var transform = Matrix4.Identity *
-                Matrix4.CreateScale(renderObject.Width, renderObject.Height, 1) *
-                Matrix4.CreateRotationZ(MathHelper.DegreesToRadians(renderObject.Rotation)) *
-                Matrix4.CreateTranslation(renderObject.X, renderObject.Y, renderObject.Z);
+                            Matrix4.CreateScale(renderObject.Width, renderObject.Height, 1) *
+                            Matrix4.CreateRotationZ(MathHelper.DegreesToRadians(renderObject.Rotation)) *
+                            Matrix4.CreateTranslation(renderObject.X, renderObject.Y, renderObject.Z);
 
             if (_submissions.Count / VerticesInSubmission == MaxSubmissions)
                 Flush();
-            else if (_textures.Count == 32 && renderObject.Texture != null && !_textures.ContainsKey(renderObject.Texture))
+            else if (_textures.Count == MaxTextures && renderObject.Texture != null &&
+                     !_textures.ContainsKey(renderObject.Texture))
                 Flush(_submissions.Count / VerticesInSubmission);
 
             foreach (var vertex in Enumerable.Range(0, VerticesInSubmission))
@@ -166,6 +159,7 @@ namespace Pretend.Graphics
             {
                 texture.Bind(slot);
             }
+
             _textures.Clear();
 
             _vertexArray.Bind();

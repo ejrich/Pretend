@@ -10,7 +10,7 @@ namespace Pretend.Graphics
 
         public OrthographicCamera(IWindowAttributesProvider windowAttributes)
         {
-            Matrix4.CreateOrthographic((float) windowAttributes.Width, (float) windowAttributes.Height, -1f, 1f, out _projection);
+            Matrix4.CreateOrthographic(windowAttributes.Width, windowAttributes.Height, -1f, 1f, out _projection);
             _view = Matrix4.Identity;
             _position = new Vector3();
 
@@ -34,8 +34,7 @@ namespace Pretend.Graphics
 
         public void Resize(int width, int height)
         {
-            // NYI Correctly
-            Matrix4.CreateOrthographic((float) width, (float) height, -1f, 1f, out _projection);
+            Matrix4.CreateOrthographic(width, height, -1f, 1f, out _projection);
             CalculateViewProjection();
         }
 

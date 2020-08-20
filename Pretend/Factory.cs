@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Pretend.ECS;
 using Pretend.Events;
 using Pretend.Graphics;
 using Pretend.Graphics.OpenGL;
@@ -40,9 +41,13 @@ namespace Pretend
             _services.AddTransient<IWindow, SDLWindow>();
             _services.AddTransient<IInput, SDLInput>();
 
+            // ECS
+            _services.AddTransient<IScene, Scene>();
+            _services.AddTransient<IEntityContainer, EntityContainer>();
+
             // Core graphics
-            _services.AddTransient<IRenderer, Renderer>();
-            _services.AddTransient<I2DRenderer, Renderer2D>();
+            _services.AddSingleton<IRenderer, Renderer>();
+            _services.AddSingleton<I2DRenderer, Renderer2D>();
             _services.AddTransient<ICamera, OrthographicCamera>();
 
             // Graphics API
