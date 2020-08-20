@@ -24,10 +24,7 @@ namespace Pretend.Events
         public void Register<T>(Action<T> callback) where T : IEvent
         {
             if (!_typeEventHandlers.TryGetValue(typeof(T), out var eventHandlers))
-            {
-                eventHandlers = new List<Action<IEvent>>();
-                _typeEventHandlers.Add(typeof(T), eventHandlers);
-            }
+                _typeEventHandlers[typeof(T)] = eventHandlers = new List<Action<IEvent>>();
 
             eventHandlers.Add(evnt => callback((T) evnt));
         }

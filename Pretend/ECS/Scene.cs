@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System.Linq;
+using Pretend.Events;
 using Pretend.Graphics;
 
 namespace Pretend.ECS
@@ -7,19 +8,21 @@ namespace Pretend.ECS
     {
         void Init();
         Entity CreateEntity();
-        void Update();
+        void AddComponent<T>(Entity entity, T component) where T : IComponent;
+        void HandleEvent(IEvent evnt);
+        void Update(float timeStep);
         void Render();
     }
 
     public class Scene : IScene
     {
         private readonly I2DRenderer _renderer;
+        private readonly IEntityContainer _entityContainer;
 
-        private readonly List<Entity> _entities = new List<Entity>();
-
-        public Scene(I2DRenderer renderer)
+        public Scene(I2DRenderer renderer, IEntityContainer entityContainer)
         {
             _renderer = renderer;
+            _entityContainer = entityContainer;
         }
 
         public void Init()
@@ -29,47 +32,66 @@ namespace Pretend.ECS
 
         public Entity CreateEntity()
         {
-            var entity = new Entity();
-            _entities.Add(entity);
-            return entity;
+            return _entityContainer.CreateEntity();
         }
 
-        public void Update()
+        public void AddComponent<T>(Entity entity, T component) where T : IComponent
         {
-            // TODO Update components
+            _entityContainer.AddComponent(entity, component);
+        }
+
+        public void HandleEvent(IEvent evnt)
+        {
+            foreach (var script in _entityContainer.GetComponents<IScriptComponent>())
+            {
+                script.HandleEvent(evnt);
+            }
+        }
+
+        public void Update(float timeStep)
+        {
+            foreach (var script in _entityContainer.GetComponents<IScriptComponent>())
+            {
+                script.Update(timeStep);
+            }
         }
 
         public void Render()
         {
-            foreach (var entity in _entities)
+            var cameraComponent = _entityContainer.GetComponents<CameraComponent>()
+                .FirstOrDefault(camera => camera.Active);
+
+            _renderer.Begin(cameraComponent?.Camera);
+
+            foreach (var entity in _entityContainer.Entities)
             {
                 var renderObject = new Renderable2DObject();
-                var position = entity.GetComponent<PositionComponent>();
-                if (position != null)
+                foreach (var component in entity.Components)
                 {
-                    renderObject.X = position.X;
-                    renderObject.Y = position.Y;
-                    renderObject.Z = position.Z;
-                    renderObject.Rotation = position.Rotation;
+                    switch (component)
+                    {
+                        case PositionComponent position:
+                            renderObject.X = position.X;
+                            renderObject.Y = position.Y;
+                            renderObject.Z = position.Z;
+                            renderObject.Rotation = position.Rotation;
+                            break;
+                        case SizeComponent size:
+                            renderObject.Width = size.Width;
+                            renderObject.Height = size.Height;
+                            break;
+                        case ColorComponent color:
+                            renderObject.Color = color.Color;
+                            break;
+                        case TextureComponent texture:
+                            renderObject.Texture = texture.Texture;
+                            break;
+                    }
                 }
-
-                var size = entity.GetComponent<SizeComponent>();
-                if (size != null)
-                {
-                    renderObject.Width = size.Width;
-                    renderObject.Height = size.Height;
-                }
-
-                var color = entity.GetComponent<ColorComponent>();
-                if (color != null)
-                    renderObject.Color = color.Color;
-
-                var texture = entity.GetComponent<TextureComponent>();
-                if (texture != null)
-                    renderObject.Texture = texture.Texture;
-
                 _renderer.Submit(renderObject);
             }
+
+            _renderer.End();
         }
     }
 }

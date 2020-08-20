@@ -43,6 +43,7 @@ namespace Pretend
 
             // ECS
             _services.AddTransient<IScene, Scene>();
+            _services.AddTransient<IEntityContainer, EntityContainer>();
 
             // Core graphics
             _services.AddSingleton<IRenderer, Renderer>();

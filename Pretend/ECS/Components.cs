@@ -1,4 +1,5 @@
 ﻿using OpenToolkit.Mathematics;
+using Pretend.Events;
 using Pretend.Graphics;
 
 namespace Pretend.ECS
@@ -29,5 +30,19 @@ namespace Pretend.ECS
     public class TextureComponent : IComponent
     {
         public ITexture2D Texture { get; set; }
+    }
+
+    public class CameraComponent : IComponent
+    {
+        public bool Active { get; set; }
+        public ICamera Camera { get; set; }
+    }
+
+    public interface IScriptComponent : IComponent
+    {
+        void Attach() {}
+        void Update(float timeStep);
+        void HandleEvent(IEvent evnt) {}
+        void Detach() {}
     }
 }
