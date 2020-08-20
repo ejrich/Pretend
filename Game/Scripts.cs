@@ -6,7 +6,6 @@ namespace Game
 {
     public class PlayerScript : IScriptComponent
     {
-        private const float ObstacleSpeed = 200;
         private const float Gravity = -800;
         private const float RotationSpeed = 360;
 
@@ -58,9 +57,18 @@ namespace Game
 
     public class ObstacleScript : IScriptComponent
     {
+        private const float ObstacleSpeed = 200;
+
+        private readonly PositionComponent _position;
+
+        public ObstacleScript(PositionComponent position)
+        {
+            _position = position;
+        }
+
         public void Update(float timeStep)
         {
-            
+            _position.X -= ObstacleSpeed * timeStep;
         }
     }
 }
