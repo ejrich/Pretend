@@ -14,11 +14,11 @@ namespace Game
     public interface IGame
     {
         List<Position> ObstaclePositions { get; }
-        float PlayerPosition { get; }
-        float PlayerRotation { get; }
+        // float PlayerPosition { get; }
+        // float PlayerRotation { get; }
         bool Running { get; }
         void Update(float timeStep);
-        void Jump();
+        // void Jump();
         void Reset();
     }
 
@@ -31,7 +31,7 @@ namespace Game
 
         private readonly Random _random;
         private float _floorHeight;
-        private float _velocity;
+        // private float _velocity;
 
         public Game() => _random = new Random();
 
@@ -40,7 +40,7 @@ namespace Game
             new Position { X = 250 }, new Position { X = 450 }
         };
         public float PlayerPosition { get; private set; } = 450;
-        public float PlayerRotation { get; private set; }
+        // public float PlayerRotation { get; private set; }
         public bool Running { get; private set; } = true;
 
         public void Update(float timeStep)
@@ -68,19 +68,19 @@ namespace Game
                 return;
             }
 
-            // Calculate delta y
-            var deltaY = _velocity * timeStep + 0.5f * Gravity * timeStep * timeStep;
-
-            // Calculate next position
-            PlayerPosition = PlayerPosition + deltaY > _floorHeight ? PlayerPosition + deltaY : _floorHeight;
-
-            // Recalculate velocity
-            var deltaV = Gravity * timeStep;
-            _velocity = PlayerPosition > _floorHeight ? _velocity + deltaV : 0;
-
-            // Flip the player object if it's in the air
-            PlayerRotation = PlayerPosition > _floorHeight ?
-                (PlayerRotation - RotationSpeed * timeStep) % 360 : 0;
+            // // Calculate delta y
+            // var deltaY = _velocity * timeStep + 0.5f * Gravity * timeStep * timeStep;
+            //
+            // // Calculate next position
+            // PlayerPosition = PlayerPosition + deltaY > _floorHeight ? PlayerPosition + deltaY : _floorHeight;
+            //
+            // // Recalculate velocity
+            // var deltaV = Gravity * timeStep;
+            // _velocity = PlayerPosition > _floorHeight ? _velocity + deltaV : 0;
+            //
+            // // Flip the player object if it's in the air
+            // PlayerRotation = PlayerPosition > _floorHeight ?
+            //     (PlayerRotation - RotationSpeed * timeStep) % 360 : 0;
 
             // Filter the passed obstacles and determine whether to add a new one
             ObstaclePositions = ObstaclePositions.Where(pos => pos.X > -640).ToList();
@@ -88,14 +88,14 @@ namespace Game
                 ObstaclePositions.Add(new Position {X = 640});
         }
 
-        public void Jump()
-        {
-            _velocity = 300;
-        }
+        // public void Jump()
+        // {
+        //     _velocity = 300;
+        // }
 
         public void Reset()
         {
-            _velocity = 0;
+            // _velocity = 0;
             _floorHeight = 0;
             PlayerPosition = 450;
             ObstaclePositions = new List<Position> {new Position {X = 250}, new Position {X = 450}};
