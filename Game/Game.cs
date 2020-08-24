@@ -44,7 +44,7 @@ namespace Game
 
         private void AddObstacle(float x = 640)
         {
-            _obstaclePositions.Add(new Position { X = x });
+            // _obstaclePositions.Add(new Position { X = x });
             var obstacle = _scene.CreateEntity();
             var obstaclePosition = new PositionComponent { X = x };
             _scene.AddComponent(obstacle, obstaclePosition);
@@ -84,7 +84,7 @@ namespace Game
         public void Reset()
         {
             _floorHeight = 0;
-            _obstaclePositions = new List<Position> {new Position {X = 250}, new Position {X = 450}};
+            // _obstaclePositions = new List<Position> {new Position {X = 250}, new Position {X = 450}};
             Running = true;
         }
     }

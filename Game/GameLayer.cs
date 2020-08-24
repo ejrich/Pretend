@@ -9,17 +9,12 @@ namespace Game
 {
     public class GameLayer : ILayer
     {
-        private readonly I2DRenderer _renderer;
         private readonly ICamera _camera;
         private readonly IScene _scene;
         private readonly IGame _game;
 
-        private Renderable2DObject _playerObject;
-        private Renderable2DObject _floor;
-
-        public GameLayer(I2DRenderer renderer, ICamera camera, IScene scene, IGame game)
+        public GameLayer(ICamera camera, IScene scene, IGame game)
         {
-            _renderer = renderer;
             _camera = camera;
             _scene = scene;
             _game = game;
@@ -50,14 +45,6 @@ namespace Game
         {
             // Update the game
             _game.Update(timeStep);
-            // foreach (var obstaclePosition in _game.ObstaclePositions)
-            // {
-            //     _renderer.Submit(new Renderable2DObject
-            //     {
-            //         X = obstaclePosition.X,
-            //         Width = 40, Height = 40
-            //     });
-            // }
 
             _scene.Update(timeStep);
             _scene.Render();
