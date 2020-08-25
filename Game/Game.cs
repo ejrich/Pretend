@@ -15,6 +15,7 @@ namespace Game
     public interface IGame
     {
         bool Running { get; }
+        float FloorHeight { get; }
         void Init(IScene scene, PositionComponent playerPosition);
         void Update(float timeStep);
         void Reset();
@@ -23,15 +24,17 @@ namespace Game
     [Singleton]
     public class Game : IGame
     {
+        private const float ObstacleSpeed = 200;
+        
         private readonly Random _random;
         private List<Position> _obstaclePositions = new List<Position>();
-        private float _floorHeight;
         private IScene _scene;
         private PositionComponent _playerPosition;
 
         public Game() => _random = new Random();
 
         public bool Running { get; private set; } = true;
+        public float FloorHeight { get; private set; }
 
         public void Init(IScene scene, PositionComponent playerPosition)
         {
@@ -44,12 +47,12 @@ namespace Game
 
         private void AddObstacle(float x = 640)
         {
-            // _obstaclePositions.Add(new Position { X = x });
+            _obstaclePositions.Add(new Position { X = x });
             var obstacle = _scene.CreateEntity();
             var obstaclePosition = new PositionComponent { X = x };
             _scene.AddComponent(obstacle, obstaclePosition);
             _scene.AddComponent(obstacle, new SizeComponent { Width = 40, Height = 40 });
-            _scene.AddComponent<IScriptComponent>(obstacle, new ObstacleScript(obstaclePosition));
+            _scene.AddComponent<IScriptComponent>(obstacle, new ObstacleScript(obstaclePosition, this));
         }
 
         public void Update(float timeStep)
@@ -57,19 +60,18 @@ namespace Game
             if (!Running) return;
 
             // Recalculate obstacle positions and determine the floor height
-            var obstacleInRange = false;
+            FloorHeight = 0;
             foreach (var obstaclePosition in _obstaclePositions)
             {
+                obstaclePosition.X -= ObstacleSpeed * timeStep;
                 if (obstaclePosition.X > -35 && obstaclePosition.X < 35)
                 {
-                    _floorHeight = 35;
-                    obstacleInRange = true;
+                    FloorHeight = 35;
                 }
             }
-            if (!obstacleInRange) _floorHeight = 0;
 
             // Stop the game if there is a collision with an obstacle
-            if (obstacleInRange && _playerPosition.Y < _floorHeight)
+            if (FloorHeight > 0 && _playerPosition.Y < FloorHeight)
             {
                 Running = false;
                 return;
@@ -83,8 +85,8 @@ namespace Game
 
         public void Reset()
         {
-            _floorHeight = 0;
-            // _obstaclePositions = new List<Position> {new Position {X = 250}, new Position {X = 450}};
+            FloorHeight = 0;
+            _playerPosition.Y = 450;
             Running = true;
         }
     }
