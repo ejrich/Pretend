@@ -37,6 +37,16 @@ namespace Pretend.ECS
 
         public void AddComponent<T>(Entity entity, T component) where T : IComponent
         {
+            if (component is IScriptComponent scriptComponent)
+            {
+                // TODO Run script lifecycle methods
+                // AddComponent(entity, scriptComponent);
+            }
+            _entityContainer.AddComponent(entity, component);
+        }
+
+        private void AddComponent(Entity entity, IScriptComponent component)
+        {
             _entityContainer.AddComponent(entity, component);
         }
 

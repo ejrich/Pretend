@@ -35,7 +35,7 @@ namespace Sandbox
 
             var entity = _scene.CreateEntity();
             _scene.AddComponent(entity, new CameraComponent {Camera = _camera, Active = true});
-            _scene.AddComponent<IScriptComponent>(entity, new CameraScript(_camera));
+            _scene.AddComponent(entity, new CameraScript(_camera));
 
             entity = _scene.CreateEntity();
             _scene.AddComponent(entity, new PositionComponent {X = -100, Y = 400});
