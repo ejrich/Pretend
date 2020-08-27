@@ -48,7 +48,7 @@ namespace Sandbox
             _scene.AddComponent(entity, new SizeComponent {Width = 400, Height = 300});
             _scene.AddComponent(entity, new ColorComponent {Color = new Vector4(1, 0, 1, 1)});
             _scene.AddComponent(entity, new TextureComponent {Texture = _texture});
-            _scene.AddComponent<IScriptComponent>(entity, new DiceScript(positionComponent));
+            _scene.AddComponent(entity, new DiceScript(positionComponent));
 
             entity = _scene.CreateEntity();
             _scene.AddComponent(entity, new PositionComponent {X = -400, Y = -100});

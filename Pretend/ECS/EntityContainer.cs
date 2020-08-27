@@ -10,6 +10,7 @@ namespace Pretend.ECS
         List<T> GetComponents<T>() where T : IComponent;
         void AddComponent<T>(Entity entity, T component) where T : IComponent;
         Entity CreateEntity();
+        void DeleteEntity(Entity entity);
     }
 
     public class EntityContainer : IEntityContainer
@@ -42,6 +43,12 @@ namespace Pretend.ECS
             _entityDictionary[entity.Id] = entity;
 
             return entity;
+        }
+
+        public void DeleteEntity(Entity entity)
+        {
+            Entities.Remove(entity);
+            _entityDictionary.Remove(entity.Id);
         }
     }
 }
