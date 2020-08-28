@@ -35,7 +35,7 @@ namespace Sandbox
 
             var entity = _scene.CreateEntity();
             _scene.AddComponent(entity, new CameraComponent {Camera = _camera, Active = true});
-            _scene.AddComponent<IScriptComponent>(entity, new CameraScript(_camera));
+            _scene.AddComponent(entity, new CameraScript(_camera));
 
             entity = _scene.CreateEntity();
             _scene.AddComponent(entity, new PositionComponent {X = -100, Y = 400});
@@ -48,7 +48,7 @@ namespace Sandbox
             _scene.AddComponent(entity, new SizeComponent {Width = 400, Height = 300});
             _scene.AddComponent(entity, new ColorComponent {Color = new Vector4(1, 0, 1, 1)});
             _scene.AddComponent(entity, new TextureComponent {Texture = _texture});
-            _scene.AddComponent<IScriptComponent>(entity, new DiceScript(positionComponent));
+            _scene.AddComponent(entity, new DiceScript(positionComponent));
 
             entity = _scene.CreateEntity();
             _scene.AddComponent(entity, new PositionComponent {X = -400, Y = -100});
@@ -64,14 +64,12 @@ namespace Sandbox
 
         public void HandleEvent(IEvent evnt)
         {
+            _scene.HandleEvent(evnt);
             // Handle an event
             switch (evnt)
             {
                 case WindowResizeEvent resize:
                     _camera.Resize(resize.Width, resize.Height);
-                    break;
-                default:
-                    _scene.HandleEvent(evnt);
                     break;
             }
         }
