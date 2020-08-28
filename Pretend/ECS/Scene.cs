@@ -7,9 +7,9 @@ namespace Pretend.ECS
     public interface IScene
     {
         void Init();
-        Entity CreateEntity();
-        void DeleteEntity(Entity entity);
-        void AddComponent<T>(Entity entity, T component) where T : IComponent;
+        IEntity CreateEntity();
+        void DeleteEntity(IEntity entity);
+        void AddComponent<T>(IEntity entity, T component) where T : IComponent;
         void HandleEvent(IEvent evnt);
         void Update(float timeStep);
         void Render();
@@ -31,20 +31,20 @@ namespace Pretend.ECS
             _renderer.Init();
         }
 
-        public Entity CreateEntity()
+        public IEntity CreateEntity()
         {
             return _entityContainer.CreateEntity();
         }
 
-        public void DeleteEntity(Entity entity)
+        public void DeleteEntity(IEntity entity)
         {
             if (entity == null) return;
 
-            (entity.Components.FirstOrDefault(_ => _ is IScriptComponent) as IScriptComponent)?.Detach();
+            entity.GetComponent<IScriptComponent>()?.Detach();
             _entityContainer.DeleteEntity(entity);
         }
 
-        public void AddComponent<T>(Entity entity, T component) where T : IComponent
+        public void AddComponent<T>(IEntity entity, T component) where T : IComponent
         {
             if (component is IScriptComponent scriptComponent)
             {
