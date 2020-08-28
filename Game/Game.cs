@@ -6,12 +6,6 @@ using Pretend.ECS;
 
 namespace Game
 {
-    public class Position
-    {
-        public float X { get; set; }
-        public float Y { get; set; }
-    }
-
     public interface IGame
     {
         bool Running { get; }
@@ -24,10 +18,8 @@ namespace Game
     [Singleton]
     public class Game : IGame
     {
-        private const float ObstacleSpeed = 200;
-        
         private readonly Random _random;
-        private List<Position> _obstaclePositions = new List<Position>();
+        private readonly List<Entity> _obstacles = new List<Entity>();
         private IScene _scene;
         private PositionComponent _playerPosition;
 
@@ -41,18 +33,34 @@ namespace Game
             _scene = scene;
             _playerPosition = playerPosition;
 
-            AddObstacle(250);
-            AddObstacle(450);
+            ResetObstacles();
         }
 
         private void AddObstacle(float x = 640)
         {
-            _obstaclePositions.Add(new Position { X = x });
             var obstacle = _scene.CreateEntity();
+            _obstacles.Add(obstacle);
             var obstaclePosition = new PositionComponent { X = x };
             _scene.AddComponent(obstacle, obstaclePosition);
             _scene.AddComponent(obstacle, new SizeComponent { Width = 40, Height = 40 });
-            _scene.AddComponent<IScriptComponent>(obstacle, new ObstacleScript(obstaclePosition, this));
+            _scene.AddComponent(obstacle, new ObstacleScript(obstaclePosition, this));
+        }
+
+        private void DeleteObstacle(Entity obstacle)
+        {
+            _scene.DeleteEntity(obstacle);
+            _obstacles.Remove(obstacle);
+        }
+
+        private void ResetObstacles()
+        {
+            foreach (var obstacle in _obstacles)
+            {
+                _scene.DeleteEntity(obstacle);
+            }
+            _obstacles.Clear();
+            AddObstacle(250);
+            AddObstacle(450);
         }
 
         public void Update(float timeStep)
@@ -61,13 +69,13 @@ namespace Game
 
             // Recalculate obstacle positions and determine the floor height
             FloorHeight = 0;
-            foreach (var obstaclePosition in _obstaclePositions)
+            foreach (var obstacle in _obstacles)
             {
-                obstaclePosition.X -= ObstacleSpeed * timeStep;
-                if (obstaclePosition.X > -35 && obstaclePosition.X < 35)
-                {
-                    FloorHeight = 35;
-                }
+                var obstaclePosition = obstacle.Components.First(_ => _ is PositionComponent) as PositionComponent;
+                if (obstaclePosition.X < -35 || obstaclePosition.X > 35) continue;
+
+                FloorHeight = 35;
+                break;
             }
 
             // Stop the game if there is a collision with an obstacle
@@ -78,7 +86,11 @@ namespace Game
             }
 
             // Filter the passed obstacles and determine whether to add a new one
-            _obstaclePositions = _obstaclePositions.Where(pos => pos.X > -640).ToList();
+            var furthestObstacle = _obstacles.First();
+            var position = furthestObstacle.Components.First(_ => _ is PositionComponent) as PositionComponent;
+            if (position.X < -640)
+                DeleteObstacle(furthestObstacle);
+
             if (timeStep > 0 && _random.Next(Convert.ToInt32(1 / timeStep)) == 1)
                 AddObstacle();
         }
@@ -88,6 +100,7 @@ namespace Game
             FloorHeight = 0;
             _playerPosition.Y = 450;
             Running = true;
+            ResetObstacles();
         }
     }
 }

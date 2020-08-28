@@ -32,7 +32,7 @@ namespace Game
             _scene.AddComponent(playerEntity, playerPosition);
             _scene.AddComponent(playerEntity, new SizeComponent { Width = 30, Height = 30 });
             _scene.AddComponent(playerEntity, new ColorComponent { Color = new Vector4(1, 0, 0, 1) });
-            _scene.AddComponent<IScriptComponent>(playerEntity, new PlayerScript(playerPosition, _game));
+            _scene.AddComponent(playerEntity, new PlayerScript(playerPosition, _game));
 
             var floorEntity = _scene.CreateEntity();
             _scene.AddComponent(floorEntity, new PositionComponent { Y = -25 });
