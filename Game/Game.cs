@@ -19,7 +19,7 @@ namespace Game
     public class Game : IGame
     {
         private readonly Random _random;
-        private readonly List<Entity> _obstacles = new List<Entity>();
+        private readonly List<IEntity> _obstacles = new List<IEntity>();
         private IScene _scene;
         private PositionComponent _playerPosition;
 
@@ -46,7 +46,7 @@ namespace Game
             _scene.AddComponent(obstacle, new ObstacleScript(obstaclePosition, this));
         }
 
-        private void DeleteObstacle(Entity obstacle)
+        private void DeleteObstacle(IEntity obstacle)
         {
             _scene.DeleteEntity(obstacle);
             _obstacles.Remove(obstacle);
@@ -71,7 +71,7 @@ namespace Game
             FloorHeight = 0;
             foreach (var obstacle in _obstacles)
             {
-                var obstaclePosition = obstacle.Components.First(_ => _ is PositionComponent) as PositionComponent;
+                var obstaclePosition = obstacle.GetComponent<PositionComponent>();
                 if (obstaclePosition.X < -35 || obstaclePosition.X > 35) continue;
 
                 FloorHeight = 35;
@@ -87,8 +87,7 @@ namespace Game
 
             // Filter the passed obstacles and determine whether to add a new one
             var furthestObstacle = _obstacles.First();
-            var position = furthestObstacle.Components.First(_ => _ is PositionComponent) as PositionComponent;
-            if (position.X < -640)
+            if (furthestObstacle.GetComponent<PositionComponent>().X < -640)
                 DeleteObstacle(furthestObstacle);
 
             if (timeStep > 0 && _random.Next(Convert.ToInt32(1 / timeStep)) == 1)
