@@ -38,6 +38,8 @@ namespace Pretend.ECS
 
         public void DeleteEntity(Entity entity)
         {
+            if (entity == null) return;
+
             (entity.Components.FirstOrDefault(_ => _ is IScriptComponent) as IScriptComponent)?.Detach();
             _entityContainer.DeleteEntity(entity);
         }

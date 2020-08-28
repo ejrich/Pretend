@@ -64,14 +64,12 @@ namespace Sandbox
 
         public void HandleEvent(IEvent evnt)
         {
+            _scene.HandleEvent(evnt);
             // Handle an event
             switch (evnt)
             {
                 case WindowResizeEvent resize:
                     _camera.Resize(resize.Width, resize.Height);
-                    break;
-                default:
-                    _scene.HandleEvent(evnt);
                     break;
             }
         }
