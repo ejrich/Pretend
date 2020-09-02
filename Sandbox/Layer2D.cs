@@ -1,5 +1,6 @@
 using OpenToolkit.Mathematics;
 using Pretend;
+using Pretend.ECS;
 using Pretend.Events;
 using Pretend.Graphics;
 using Pretend.Layers;
@@ -8,130 +9,67 @@ namespace Sandbox
 {
     public class Layer2D : ILayer
     {
-        private readonly I2DRenderer _renderer;
         private readonly ICamera _camera;
         private readonly IFactory _factory;
+        private readonly IScene _scene;
 
         private ITexture2D _texture;
         private ITexture2D _texture2;
-        private Vector3 _position;
 
-        private float _leftSpeed;
-        private float _rightSpeed;
-        private float _upSpeed;
-        private float _downSpeed;
-        private float _rotation;
-
-        public Layer2D(I2DRenderer renderer, ICamera camera, IFactory factory)
+        public Layer2D(ICamera camera, IFactory factory, IScene scene)
         {
-            _renderer = renderer;
             _camera = camera;
             _factory = factory;
+            _scene = scene;
         }
-        
+
         public void Attach()
         {
-            _renderer.Init();
-
             _texture = _factory.Create<ITexture2D>();
             _texture.SetData("Assets/picture.png");
 
             _texture2 = _factory.Create<ITexture2D>();
             _texture2.SetData("Assets/picture2.png");
 
-            _position = _camera.Position;
+            _scene.Init();
+
+            var entity = _scene.CreateEntity();
+            _scene.AddComponent(entity, new CameraComponent {Camera = _camera, Active = true});
+            _scene.AddComponent(entity, new CameraScript(_camera));
+
+            entity = _scene.CreateEntity();
+            _scene.AddComponent(entity, new PositionComponent {X = -100, Y = 400});
+            _scene.AddComponent(entity, new SizeComponent {Width = 300, Height = 300});
+            _scene.AddComponent(entity, new ColorComponent {Color = new Vector4(0.5f, 0.5f, 0.5f, 1f)});
+
+            entity = _scene.CreateEntity();
+            var positionComponent = new PositionComponent {X = 400, Y = -100};
+            _scene.AddComponent(entity, positionComponent);
+            _scene.AddComponent(entity, new SizeComponent {Width = 400, Height = 300});
+            _scene.AddComponent(entity, new ColorComponent {Color = new Vector4(1, 0, 1, 1)});
+            _scene.AddComponent(entity, new TextureComponent {Texture = _texture});
+            _scene.AddComponent(entity, new DiceScript(positionComponent));
+
+            entity = _scene.CreateEntity();
+            _scene.AddComponent(entity, new PositionComponent {X = -400, Y = -100});
+            _scene.AddComponent(entity, new SizeComponent {Width = 300, Height = 300});
+            _scene.AddComponent(entity, new TextureComponent {Texture = _texture2});
         }
 
         public void Update(float timeStep)
         {
-            // Calculate location by speed
-            var xSpeed = _rightSpeed - _leftSpeed;
-            var ySpeed = _upSpeed - _downSpeed;
-
-            _position.X += xSpeed * timeStep;
-            _position.Y += ySpeed * timeStep;
-
-            _rotation += 100 * timeStep;
-            if (_rotation >= 360) _rotation = 0;
-
-            _camera.Position = _position;
-
-            _renderer.Begin(_camera);
-
-            _renderer.Submit(new Renderable2DObject
-            {
-                X = -100, Y = 400,
-                Width = 300, Height = 300,
-                Color = new Vector4(0.5f, 0.5f, 0.5f, 1f),
-            });
-            _renderer.Submit(new Renderable2DObject
-            {
-                X = 400, Y = -100,
-                Width = 400, Height = 300, Rotation = _rotation,
-                Color = new Vector4(1, 0, 1, 1),
-                Texture = _texture
-            });
-            _renderer.Submit(new Renderable2DObject
-            {
-                X = -400, Y = -100,
-                Width = 300, Height = 300,
-                Texture = _texture2
-            });
-
-            _renderer.End();
+            _scene.Update(timeStep);
+            _scene.Render();
         }
 
         public void HandleEvent(IEvent evnt)
         {
+            _scene.HandleEvent(evnt);
             // Handle an event
             switch (evnt)
             {
-                case KeyPressedEvent keyPressed:
-                    HandleKeyPress(keyPressed);
-                    break;
-                case KeyReleasedEvent keyReleased:
-                    HandleKeyRelease(keyReleased);
-                    break;
                 case WindowResizeEvent resize:
                     _camera.Resize(resize.Width, resize.Height);
-                    break;
-            }
-        }
-
-        private void HandleKeyPress(KeyPressedEvent evnt)
-        {
-            switch (evnt.KeyCode)
-            {
-                case KeyCode.W:
-                    _upSpeed = 1;
-                    break;
-                case KeyCode.S:
-                    _downSpeed = 1;
-                    break;
-                case KeyCode.A:
-                    _leftSpeed = 1;
-                    break;
-                case KeyCode.D:
-                    _rightSpeed = 1;
-                    break;
-            }
-        }
-
-        private void HandleKeyRelease(KeyReleasedEvent evnt)
-        {
-            switch (evnt.KeyCode)
-            {
-                case KeyCode.W:
-                    _upSpeed = 0;
-                    break;
-                case KeyCode.S:
-                    _downSpeed = 0;
-                    break;
-                case KeyCode.A:
-                    _leftSpeed = 0;
-                    break;
-                case KeyCode.D:
-                    _rightSpeed = 0;
                     break;
             }
         }
