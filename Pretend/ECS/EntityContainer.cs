@@ -22,8 +22,8 @@ namespace Pretend.ECS
 
         public List<T> GetComponents<T>() where T : IComponent
         {
-            return !_components.TryGetValue(typeof(T), out var components) ?
-                new List<T>() : components.Select(_ => (T) _).ToList();
+            return _components.TryGetValue(typeof(T), out var components) ?
+                components.Select(_ => (T) _).ToList() : new List<T>();
         }
 
         public void AddComponent<T>(IEntity entity, T component) where T : IComponent
