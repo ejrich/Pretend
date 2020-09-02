@@ -47,6 +47,12 @@ namespace Pretend.ECS
         public void DeleteEntity(IEntity entity)
         {
             _entityDictionary.Remove(entity.Id);
+            foreach (var component in entity.Components)
+            {
+                var type = component is IScriptComponent ? typeof(IScriptComponent) : component.GetType();
+                if (_components.TryGetValue(type, out var components))
+                    components.Remove(component);
+            }
         }
     }
 }
