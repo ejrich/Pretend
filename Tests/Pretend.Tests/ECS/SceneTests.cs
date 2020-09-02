@@ -1,5 +1,4 @@
-﻿using System.Net.Security;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Pretend.ECS;
 using Pretend.Graphics;
