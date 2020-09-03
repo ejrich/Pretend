@@ -29,10 +29,12 @@ namespace Game
 
             var playerEntity = _scene.CreateEntity();
             var playerPosition = new PositionComponent { Y = 450 };
+            var physicsComponent = new PhysicsComponent();
             _scene.AddComponent(playerEntity, playerPosition);
             _scene.AddComponent(playerEntity, new SizeComponent { Width = 30, Height = 30 });
             _scene.AddComponent(playerEntity, new ColorComponent { Color = new Vector4(1, 0, 0, 1) });
-            _scene.AddComponent(playerEntity, new PlayerScript(playerPosition, _game));
+            _scene.AddComponent(playerEntity, physicsComponent);
+            _scene.AddComponent(playerEntity, new PlayerScript(playerPosition, physicsComponent, _game));
 
             var floorEntity = _scene.CreateEntity();
             _scene.AddComponent(floorEntity, new PositionComponent { Y = -25 });

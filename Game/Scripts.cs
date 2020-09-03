@@ -1,4 +1,5 @@
-﻿using Pretend;
+﻿using OpenToolkit.Mathematics;
+using Pretend;
 using Pretend.ECS;
 using Pretend.Events;
 
@@ -6,18 +7,17 @@ namespace Game
 {
     public class PlayerScript : IScriptComponent
     {
-        private const float Gravity = -800;
         private const float RotationSpeed = 360;
 
         private readonly PositionComponent _position;
+        private readonly PhysicsComponent _physics;
         private readonly IGame _game;
 
-        private float _playerRotation;
-        private float _velocity;
 
-        public PlayerScript(PositionComponent position, IGame game)
+        public PlayerScript(PositionComponent position, PhysicsComponent physics, IGame game)
         {
             _position = position;
+            _physics = physics;
             _game = game;
         }
 
@@ -25,40 +25,29 @@ namespace Game
         {
             if (!_game.Running)
             {
-                _velocity = 0;
+                _physics.Fixed = true;
+                _physics.Velocity = Vector3.Zero;
                 return;
             }
-
-            // Calculate delta y
-            var deltaY = _velocity * timeStep + 0.5f * Gravity * timeStep * timeStep;
-
-            // Calculate next position
-            _position.Y = _position.Y + deltaY > _game.FloorHeight ?
-                _position.Y + deltaY : _game.FloorHeight;
-
-            // Recalculate velocity
-            var deltaV = Gravity * timeStep;
-            _velocity = _position.Y > _game.FloorHeight ?
-                _velocity + deltaV : 0;
+            _physics.Fixed = _position.Y <= _game.FloorHeight;
 
             // Flip the player object if it's in the air
-            _playerRotation = _position.Y > _game.FloorHeight ?
-                (_playerRotation - RotationSpeed * timeStep) % 360 : 0;
-
-            _position.Rotation = _playerRotation;
+            _position.Rotation = _position.Y > _game.FloorHeight ?
+                (_position.Rotation - RotationSpeed * timeStep) % 360 : 0;
         }
 
         public void HandleEvent(IEvent evnt)
         {
-            _velocity = evnt switch
+            switch (evnt)
             {
-                KeyPressedEvent keyPressed => keyPressed.KeyCode switch
-                {
-                    KeyCode.Space => 300,
-                    _ => _velocity
-                },
-                _ => _velocity
-            };
+                case KeyPressedEvent keyPressed:
+                    if (keyPressed.KeyCode == KeyCode.Space)
+                    {
+                        _physics.Velocity = new Vector3(0, 300, 0);
+                        _physics.Fixed = false;
+                    }
+                    break;
+            }
         }
     }
 
