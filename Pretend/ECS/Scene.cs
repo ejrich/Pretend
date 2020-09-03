@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using OpenToolkit.Mathematics;
 using Pretend.Events;
 using Pretend.Graphics;
 
@@ -69,6 +70,38 @@ namespace Pretend.ECS
             {
                 script.Update(timeStep);
             }
+
+            SimulateWorld(timeStep);
+        }
+
+        private void SimulateWorld(float timeStep)
+        {
+            var entities = _entityContainer.GetEntitiesWithComponent<PhysicsComponent>();
+            foreach (var entity in entities)
+            {
+                var physicsComponent = entity.GetComponent<PhysicsComponent>();
+                if (physicsComponent.Fixed) continue;
+
+                var positionComponent = entity.GetComponent<PositionComponent>();
+                var gravity = new Vector3(0, -800, 0);
+
+                CalculatePosition(gravity, physicsComponent, positionComponent, timeStep);
+            }
+        }
+
+        private void CalculatePosition(Vector3 gravity, PhysicsComponent physicsComponent, PositionComponent position, float timeStep)
+        {
+            // Calculate delta p
+            var (x, y, z) = physicsComponent.Velocity * timeStep + 0.5f * gravity * timeStep * timeStep;
+
+            // Calculate next position
+            position.X += x;
+            position.Y += y;
+            position.Z += z;
+
+            // Recalculate velocity
+            var deltaV = gravity * timeStep;
+            physicsComponent.Velocity += deltaV;
         }
 
         public void Render()
