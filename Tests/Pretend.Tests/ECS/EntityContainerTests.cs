@@ -26,6 +26,7 @@ namespace Pretend.Tests.ECS
             _target.AddComponent(entity.Object, component.Object);
 
             Assert.IsTrue(_target.GetComponents<IScriptComponent>().Any());
+            Assert.IsTrue(_target.GetEntitiesWithComponent<IScriptComponent>().Any());
             entity.Verify(_ => _.AddComponent(component.Object), Times.Once);
         }
 
@@ -42,6 +43,8 @@ namespace Pretend.Tests.ECS
 
             Assert.IsFalse(_target.GetComponents<IScriptComponent>().Any());
             Assert.IsFalse(_target.GetComponents<PositionComponent>().Any());
+            Assert.IsFalse(_target.GetEntitiesWithComponent<IScriptComponent>().Any());
+            Assert.IsFalse(_target.GetEntitiesWithComponent<PositionComponent>().Any());
             Assert.IsFalse(_target.Entities.Any());
         }
     }
