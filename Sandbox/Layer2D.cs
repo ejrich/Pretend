@@ -32,6 +32,7 @@ namespace Sandbox
             _texture2.SetData("Assets/picture2.png");
 
             _scene.Init();
+            _scene.Gravity = new Vector3(0, -800, 0);
 
             var entity = _scene.CreateEntity();
             _scene.AddComponent(entity, new CameraComponent {Camera = _camera, Active = true});

@@ -2,6 +2,7 @@
 using Moq;
 using Pretend.ECS;
 using Pretend.Graphics;
+using Pretend.Physics;
 
 namespace Pretend.Tests.ECS
 {
@@ -12,14 +13,16 @@ namespace Pretend.Tests.ECS
         
         private Mock<I2DRenderer> _mockRenderer;
         private Mock<IEntityContainer> _mockEntityContainer;
+        private Mock<IPhysicsContainer> _mockPhysicsContainer;
 
         [TestInitialize]
         public void TestInitialize()
         {
             _mockRenderer = new Mock<I2DRenderer>(MockBehavior.Strict);
             _mockEntityContainer = new Mock<IEntityContainer>(MockBehavior.Strict);
+            _mockPhysicsContainer = new Mock<IPhysicsContainer>(MockBehavior.Strict);
 
-            _target = new Scene(_mockRenderer.Object, _mockEntityContainer.Object);
+            _target = new Scene(_mockRenderer.Object, _mockEntityContainer.Object, _mockPhysicsContainer.Object);
         }
 
         [TestCleanup]
@@ -27,6 +30,7 @@ namespace Pretend.Tests.ECS
         {
             _mockRenderer.VerifyAll();
             _mockEntityContainer.VerifyAll();
+            _mockPhysicsContainer.VerifyAll();
         }
 
         [TestMethod]

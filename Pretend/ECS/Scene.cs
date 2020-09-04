@@ -2,6 +2,7 @@
 using OpenToolkit.Mathematics;
 using Pretend.Events;
 using Pretend.Graphics;
+using Pretend.Physics;
 
 namespace Pretend.ECS
 {
@@ -14,18 +15,23 @@ namespace Pretend.ECS
         void HandleEvent(IEvent evnt);
         void Update(float timeStep);
         void Render();
+        Vector3 Gravity { set; }
     }
 
     public class Scene : IScene
     {
         private readonly I2DRenderer _renderer;
         private readonly IEntityContainer _entityContainer;
+        private readonly IPhysicsContainer _physicsContainer;
 
-        public Scene(I2DRenderer renderer, IEntityContainer entityContainer)
+        public Scene(I2DRenderer renderer, IEntityContainer entityContainer, IPhysicsContainer physicsContainer)
         {
             _renderer = renderer;
             _entityContainer = entityContainer;
+            _physicsContainer = physicsContainer;
         }
+
+        public Vector3 Gravity { set => _physicsContainer.Gravity = value; }
 
         public void Init()
         {
@@ -71,37 +77,7 @@ namespace Pretend.ECS
                 script.Update(timeStep);
             }
 
-            SimulateWorld(timeStep);
-        }
-
-        private void SimulateWorld(float timeStep)
-        {
-            var entities = _entityContainer.GetEntitiesWithComponent<PhysicsComponent>();
-            foreach (var entity in entities)
-            {
-                var physicsComponent = entity.GetComponent<PhysicsComponent>();
-                if (physicsComponent.Fixed) continue;
-
-                var positionComponent = entity.GetComponent<PositionComponent>();
-                var gravity = new Vector3(0, -800, 0);
-
-                CalculatePosition(gravity, physicsComponent, positionComponent, timeStep);
-            }
-        }
-
-        private void CalculatePosition(Vector3 gravity, PhysicsComponent physicsComponent, PositionComponent position, float timeStep)
-        {
-            // Calculate delta p
-            var (x, y, z) = physicsComponent.Velocity * timeStep + 0.5f * gravity * timeStep * timeStep;
-
-            // Calculate next position
-            position.X += x;
-            position.Y += y;
-            position.Z += z;
-
-            // Recalculate velocity
-            var deltaV = gravity * timeStep;
-            physicsComponent.Velocity += deltaV;
+            _physicsContainer.Simulate(timeStep, _entityContainer);
         }
 
         public void Render()
