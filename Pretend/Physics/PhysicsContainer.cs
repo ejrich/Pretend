@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Reflection.Emit;
+using System.Linq;
 using OpenToolkit.Mathematics;
 using Pretend.ECS;
 
@@ -17,15 +17,28 @@ namespace Pretend.Physics
 
         public void Simulate(float timeStep, IEntityContainer entityContainer)
         {
+            var dt = timeStep / 4;
             var entities = entityContainer.GetEntitiesWithComponent<PhysicsComponent>();
-            foreach (var entity in entities)
+            for (var i = 0; i < 4; i++)
             {
-                var physicsComponent = entity.GetComponent<PhysicsComponent>();
-                if (physicsComponent.Fixed) continue;
+                foreach (var entity in entities)
+                {
+                    foreach (var other in entities.Where(_ => _ != entity))
+                    {
+                        var collision = DetermineCollision(entity, other);
+                        Console.WriteLine(collision);
+                        if (collision == Collision.Colliding)
+                        {
+                            // Console.WriteLine("Hello");
+                        }
+                    }
+                    var physicsComponent = entity.GetComponent<PhysicsComponent>();
+                    if (physicsComponent.Fixed) continue;
 
-                var positionComponent = entity.GetComponent<PositionComponent>();
+                    var positionComponent = entity.GetComponent<PositionComponent>();
 
-                CalculatePosition(physicsComponent, positionComponent, timeStep);
+                    CalculatePosition(physicsComponent, positionComponent, dt);
+                }
             }
         }
 
@@ -44,14 +57,14 @@ namespace Pretend.Physics
             physicsComponent.Velocity += deltaV;
         }
 
-        private Collision DetermineCollision(IEntity a, IEntity b)
+        private static Collision DetermineCollision(IEntity a, IEntity b)
         {
-            var ap = a.GetComponent<PositionComponent>();
-            var bp = b.GetComponent<PositionComponent>();
+            var aPos = a.GetComponent<PositionComponent>();
+            var bPos = b.GetComponent<PositionComponent>();
             var aSize = a.GetComponent<SizeComponent>();
             var bSize = b.GetComponent<SizeComponent>();
-            var dx = Math.Abs(bp.X - ap.X) - (aSize.Width + bSize.Width);
-            var dy = Math.Abs(bp.Y - ap.Y) - (aSize.Height + bSize.Height);
+            var dx = Math.Abs(bPos.X - aPos.X) - (aSize.Width / 2 + bSize.Width / 2);
+            var dy = Math.Abs(bPos.Y - aPos.Y) - (aSize.Height / 2 + bSize.Height / 2);
 
             if ((dx == 0 && dy > 0) || (dy == 0 && dx > 0)) return Collision.Touching;
 
