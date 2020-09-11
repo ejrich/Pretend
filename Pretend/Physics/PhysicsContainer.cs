@@ -40,36 +40,53 @@ namespace Pretend.Physics
                 }
                 foreach (var (entity, position) in newPositions)
                 {
+                    var updatePosition = true;
                     foreach (var other in entities.Where(_ => _ != entity))
                     {
                         var collision = DetermineCollision(entity, other);
-                        Console.WriteLine(collision);
+
+                        if (collision != Collision.Apart) updatePosition = false;
                         if (collision == Collision.Colliding)
                         {
                             var otherPosition = newPositions[other];
-                            InterpolateCollision(entity, other, position, otherPosition);
+                            var newPosition = InterpolateCollision(entity, other, position, otherPosition);
+                            ChangePosition(entity, newPosition);
                         }
                     }
+                    if (!updatePosition) continue;
 
-                    var positionComponent = entity.GetComponent<PositionComponent>();
-                    positionComponent.X = position.X;
-                    positionComponent.Y = position.Y;
-                    positionComponent.Z = position.Z;
+                    ChangePosition(entity, position);
                 }
             }
         }
 
-        private void InterpolateCollision(IEntity entity, IEntity other, Vector3 position, Vector3 otherPosition)
+        private static Vector3 InterpolateCollision(IEntity entity, IEntity other, Vector3 position, Vector3 otherPosition)
         {
-            var (dx, dy) = CalculateDistance(entity, other);
             var eFixed = entity.GetComponent<PhysicsComponent>().Fixed;
-            var oFixed = other.GetComponent<PhysicsComponent>().Fixed;
 
-            if (eFixed || oFixed)
+            // Don't try to move the position if the entity is fixed
+            if (eFixed) return position;
+
+            var (dx, dy) = CalculateDistance(entity, other);
+            var oFixed = other.GetComponent<PhysicsComponent>().Fixed;
+            var eSize = entity.GetComponent<SizeComponent>();
+            var oSize = other.GetComponent<SizeComponent>();
+            var interpolatedPosition = new Vector3(position);
+
+            // Simulate fixed collisions
+            if (oFixed)
             {
+                if (dx > dy)
+                    // TODO Determine whether to use + or -
+                    interpolatedPosition.X = otherPosition.X + (eSize.Width / 2 + oSize.Width / 2);
+                else
+                    // TODO Determine whether to use + or -
+                    interpolatedPosition.Y = otherPosition.Y + (eSize.Height / 2 + oSize.Height / 2);
                 entity.GetComponent<PhysicsComponent>().Velocity = Vector3.Zero;
-                other.GetComponent<PhysicsComponent>().Velocity = Vector3.Zero;
             }
+            // TODO Simulate elastics collisions
+
+            return interpolatedPosition;
         }
 
         private Vector3 CalculatePosition(PhysicsComponent physicsComponent, PositionComponent position, float timeStep)
@@ -78,10 +95,7 @@ namespace Pretend.Physics
             var (x, y, z) = physicsComponent.Velocity * timeStep + 0.5f * Gravity * timeStep * timeStep;
 
             // Calculate next position
-            var newPosition = new Vector3(position.X += x, position.Y += y, position.Z += z);
-            // position.X += x;
-            // position.Y += y;
-            // position.Z += z;
+            var newPosition = new Vector3(position.X + x, position.Y + y, position.Z + z);
 
             // Recalculate velocity
             var deltaV = Gravity * timeStep;
@@ -109,6 +123,15 @@ namespace Pretend.Physics
             var dy = Math.Abs(bPos.Y - aPos.Y) - (aSize.Height / 2 + bSize.Height / 2);
 
             return (dx, dy);
+        }
+
+        private static void ChangePosition(IEntity entity, Vector3 position)
+        {
+            var positionComponent = entity.GetComponent<PositionComponent>();
+            var (x, y, z) = position;
+            positionComponent.X = x;
+            positionComponent.Y = y;
+            positionComponent.Z = z;
         }
     }
 }
