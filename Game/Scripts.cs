@@ -68,7 +68,7 @@ namespace Game
         {
             if (!_game.Running) return;
 
-            _position.X -= ObstacleSpeed * timeStep;
+            // _position.X -= ObstacleSpeed * timeStep;
         }
     }
 }

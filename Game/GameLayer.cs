@@ -23,6 +23,7 @@ namespace Game
         public void Attach()
         {
             _scene.Init();
+            _scene.Gravity = new Vector3(0, -800, 0);
 
             var cameraEntity = _scene.CreateEntity();
             _scene.AddComponent(cameraEntity, new CameraComponent { Camera = _camera, Active = true });
@@ -39,7 +40,8 @@ namespace Game
             var floorEntity = _scene.CreateEntity();
             _scene.AddComponent(floorEntity, new PositionComponent { Y = -25 });
             _scene.AddComponent(floorEntity, new SizeComponent { Width = 1280, Height = 20 });
-            
+            _scene.AddComponent(floorEntity, new PhysicsComponent { Fixed = true });
+
             _game.Init(_scene, playerPosition);
         }
 
