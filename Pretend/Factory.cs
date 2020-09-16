@@ -9,6 +9,7 @@ using Pretend.Events;
 using Pretend.Graphics;
 using Pretend.Graphics.OpenGL;
 using Pretend.Layers;
+using Pretend.Physics;
 using Pretend.Windows;
 
 namespace Pretend
@@ -44,6 +45,9 @@ namespace Pretend
             // ECS
             _services.AddTransient<IScene, Scene>();
             _services.AddTransient<IEntityContainer, EntityContainer>();
+            
+            // Physics
+            _services.AddTransient<IPhysicsContainer, PhysicsContainer>();
 
             // Core graphics
             _services.AddSingleton<IRenderer, Renderer>();

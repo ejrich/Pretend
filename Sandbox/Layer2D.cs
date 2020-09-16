@@ -32,6 +32,7 @@ namespace Sandbox
             _texture2.SetData("Assets/picture2.png");
 
             _scene.Init();
+            _scene.Gravity = new Vector3(0, -800, 0);
 
             var entity = _scene.CreateEntity();
             _scene.AddComponent(entity, new CameraComponent {Camera = _camera, Active = true});
@@ -54,6 +55,12 @@ namespace Sandbox
             _scene.AddComponent(entity, new PositionComponent {X = -400, Y = -100});
             _scene.AddComponent(entity, new SizeComponent {Width = 300, Height = 300});
             _scene.AddComponent(entity, new TextureComponent {Texture = _texture2});
+            _scene.AddComponent(entity, new PhysicsComponent {Velocity = new Vector3(300, 500, 0)});
+
+            entity = _scene.CreateEntity();
+            _scene.AddComponent(entity, new PositionComponent {Y = -360});
+            _scene.AddComponent(entity, new SizeComponent {Width = 1280, Height = 10});
+            _scene.AddComponent(entity, new PhysicsComponent {Fixed = true });
         }
 
         public void Update(float timeStep)
