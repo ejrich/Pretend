@@ -23,13 +23,13 @@ namespace Game
 
         public void Update(float timeStep)
         {
+            _physics.Fixed = !_game.Running;
             if (!_game.Running)
             {
-                _physics.Fixed = true;
                 _physics.Velocity = Vector3.Zero;
                 return;
             }
-            _physics.Fixed = _position.Y <= _game.FloorHeight;
+            // Console.WriteLine($"{_position.X}, {_position.Y}, {_position.Z}");
 
             // Flip the player object if it's in the air
             _position.Rotation = _position.Y > _game.FloorHeight ?
@@ -44,7 +44,6 @@ namespace Game
                     if (keyPressed.KeyCode == KeyCode.Space)
                     {
                         _physics.Velocity = new Vector3(0, 300, 0);
-                        _physics.Fixed = false;
                     }
                     break;
             }
@@ -68,7 +67,7 @@ namespace Game
         {
             if (!_game.Running) return;
 
-            // _position.X -= ObstacleSpeed * timeStep;
+            _position.X -= ObstacleSpeed * timeStep;
         }
     }
 }
