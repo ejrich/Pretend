@@ -40,15 +40,18 @@ namespace Pretend.Physics
                 }
                 foreach (var (entity, position) in newPositions)
                 {
+                    // Don't update if fixed
+                    if (entity.GetComponent<PhysicsComponent>().Fixed) continue;
+
                     var updatePosition = true;
                     foreach (var other in entities.Where(_ => _ != entity))
                     {
-                        var collision = DetermineCollision(entity, other);
+                        var otherPosition = newPositions[other];
+                        var collision = DetermineCollision(entity, position, other, otherPosition);
 
                         if (collision != Collision.Apart) updatePosition = false;
                         if (collision == Collision.Colliding)
                         {
-                            var otherPosition = newPositions[other];
                             var newPosition = InterpolateCollision(entity, other, position, otherPosition);
                             ChangePosition(entity, newPosition);
                         }
@@ -62,27 +65,32 @@ namespace Pretend.Physics
 
         private static Vector3 InterpolateCollision(IEntity entity, IEntity other, Vector3 position, Vector3 otherPosition)
         {
-            var eFixed = entity.GetComponent<PhysicsComponent>().Fixed;
+            var ePhysicsComponent = entity.GetComponent<PhysicsComponent>();
 
             // Don't try to move the position if the entity is fixed
-            if (eFixed) return position;
+            if (ePhysicsComponent.Fixed) return position;
 
-            var (dx, dy) = CalculateDistance(entity, other);
-            var oFixed = other.GetComponent<PhysicsComponent>().Fixed;
+            var (dx, dy) = CalculateDistance(position, entity.GetComponent<SizeComponent>(),
+                otherPosition, other.GetComponent<SizeComponent>());
+            var oPhysicsComponent = other.GetComponent<PhysicsComponent>();
             var eSize = entity.GetComponent<SizeComponent>();
             var oSize = other.GetComponent<SizeComponent>();
             var interpolatedPosition = new Vector3(position);
 
             // Simulate fixed collisions
-            if (oFixed)
+            if (oPhysicsComponent.Fixed)
             {
                 if (dx > dy)
-                    // TODO Determine whether to use + or -
-                    interpolatedPosition.X = otherPosition.X + (eSize.Width / 2 + oSize.Width / 2);
+                {
+                    var dw = (eSize.Width / 2 + oSize.Width / 2) * (position.X > otherPosition.X ? 1 : -1);
+                    interpolatedPosition.X = otherPosition.X + dw;
+                }
                 else
-                    // TODO Determine whether to use + or -
-                    interpolatedPosition.Y = otherPosition.Y + (eSize.Height / 2 + oSize.Height / 2);
-                entity.GetComponent<PhysicsComponent>().Velocity = Vector3.Zero;
+                {
+                    var dh = (eSize.Height / 2 + oSize.Height / 2) * (position.Y > otherPosition.Y ? 1 : -1);
+                    interpolatedPosition.Y = otherPosition.Y + dh;
+                }
+                ePhysicsComponent.Velocity = new Vector3(ePhysicsComponent.Velocity.X, 0, ePhysicsComponent.Velocity.Z);
             }
             // TODO Simulate elastics collisions
 
@@ -104,21 +112,17 @@ namespace Pretend.Physics
             return newPosition;
         }
 
-        private static Collision DetermineCollision(IEntity a, IEntity b)
+        private static Collision DetermineCollision(IEntity a, Vector3 aNewPos, IEntity b, Vector3 bNewPos)
         {
-            var (dx, dy) = CalculateDistance(a, b);
+            var (dx, dy) = CalculateDistance(aNewPos, a.GetComponent<SizeComponent>(), bNewPos, b.GetComponent<SizeComponent>());
 
-            if ((dx == 0 && dy > 0) || (dy == 0 && dx > 0)) return Collision.Touching;
+            if (dx == 0 || dy == 0) return Collision.Touching;
 
             return dx < 0 && dy < 0 ? Collision.Colliding : Collision.Apart;
         }
 
-        private static (float dx, float dy) CalculateDistance(IEntity a, IEntity b)
+        private static (float dx, float dy) CalculateDistance(Vector3 aPos, SizeComponent aSize, Vector3 bPos, SizeComponent bSize)
         {
-            var aPos = a.GetComponent<PositionComponent>();
-            var bPos = b.GetComponent<PositionComponent>();
-            var aSize = a.GetComponent<SizeComponent>();
-            var bSize = b.GetComponent<SizeComponent>();
             var dx = Math.Abs(bPos.X - aPos.X) - (aSize.Width / 2 + bSize.Width / 2);
             var dy = Math.Abs(bPos.Y - aPos.Y) - (aSize.Height / 2 + bSize.Height / 2);
 
