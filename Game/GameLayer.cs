@@ -4,6 +4,7 @@ using Pretend.ECS;
 using Pretend.Events;
 using Pretend.Graphics;
 using Pretend.Layers;
+using Pretend.Physics;
 
 namespace Game
 {
@@ -12,18 +13,20 @@ namespace Game
         private readonly ICamera _camera;
         private readonly IScene _scene;
         private readonly IGame _game;
+        private readonly IPhysicsContainer _physicsContainer;
 
-        public GameLayer(ICamera camera, IScene scene, IGame game)
+        public GameLayer(ICamera camera, IScene scene, IGame game, IPhysicsContainer physicsContainer)
         {
             _camera = camera;
             _scene = scene;
             _game = game;
+            _physicsContainer = physicsContainer;
         }
 
         public void Attach()
         {
             _scene.Init();
-            _scene.Gravity = new Vector3(0, -800, 0);
+            _physicsContainer.Gravity = new Vector3(0, -800, 0);
 
             var cameraEntity = _scene.CreateEntity();
             _scene.AddComponent(cameraEntity, new CameraComponent { Camera = _camera, Active = true });
@@ -50,6 +53,7 @@ namespace Game
             // Update the game
             _game.Update(timeStep);
 
+            _physicsContainer.Simulate(timeStep, _scene.EntityContainer);
             _scene.Update(timeStep);
             _scene.Render();
         }
