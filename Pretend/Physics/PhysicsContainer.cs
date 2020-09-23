@@ -9,18 +9,20 @@ namespace Pretend.Physics
     public interface IPhysicsContainer
     {
         Vector3 Gravity { set; }
+        int Iterations { set; }
         void Simulate(float timeStep, IEntityContainer entityContainer);
     }
 
     public class PhysicsContainer : IPhysicsContainer
     {
         public Vector3 Gravity { private get; set; }
+        public int Iterations { private get; set; } = 4;
 
         public void Simulate(float timeStep, IEntityContainer entityContainer)
         {
-            var dt = timeStep / 4;
+            var dt = timeStep / Iterations;
             var entities = entityContainer.GetEntitiesWithComponent<PhysicsComponent>();
-            for (var i = 0; i < 4; i++)
+            for (var i = 0; i < Iterations; i++)
             {
                 var newPositions = new Dictionary<IEntity, Vector3>();
                 foreach (var entity in entities)
