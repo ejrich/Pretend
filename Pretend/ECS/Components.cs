@@ -50,6 +50,6 @@ namespace Pretend.ECS
     {
         public bool Fixed { get; set; }
         public bool Solid { get; set; } = true;
-        public Vector3 Velocity { get; set; }
+        public Vector3 Velocity { get; set; } = Vector3.Zero;
     }
 }

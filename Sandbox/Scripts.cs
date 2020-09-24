@@ -102,4 +102,72 @@ namespace Sandbox
                 _position.Rotation = 0;
         }
     }
+
+    public class ControlScript : IScriptComponent
+    {
+        private readonly PhysicsComponent _physics;
+
+        private float _leftSpeed;
+        private float _rightSpeed;
+        private float _upSpeed;
+
+        public ControlScript(PhysicsComponent physics)
+        {
+            _physics = physics;
+        }
+        
+        public void Update(float timeStep)
+        {
+            var xSpeed = _rightSpeed - _leftSpeed;
+            var ySpeed = _physics.Velocity.Y == 0 ? _upSpeed : _physics.Velocity.Y;
+
+            if (xSpeed == _physics.Velocity.X && ySpeed == _physics.Velocity.Y) return;
+            _physics.Velocity = new Vector3(xSpeed, ySpeed, _physics.Velocity.Z);
+        }
+
+        public void HandleEvent(IEvent evnt)
+        {
+            switch (evnt)
+            {
+                case KeyPressedEvent keyPressed:
+                    HandleKeyPress(keyPressed);
+                    break;
+                case KeyReleasedEvent keyReleased:
+                    HandleKeyRelease(keyReleased);
+                    break;
+            }
+        }
+
+        private void HandleKeyPress(KeyPressedEvent evnt)
+        {
+            switch (evnt.KeyCode)
+            {
+                case KeyCode.Left:
+                    _leftSpeed = 100;
+                    break;
+                case KeyCode.Right:
+                    _rightSpeed = 100;
+                    break;
+                case KeyCode.Space:
+                    _upSpeed = 200;
+                    break;
+            }
+        }
+
+        private void HandleKeyRelease(KeyReleasedEvent evnt)
+        {
+            switch (evnt.KeyCode)
+            {
+                case KeyCode.Left:
+                    _leftSpeed = 0;
+                    break;
+                case KeyCode.Right:
+                    _rightSpeed = 0;
+                    break;
+                case KeyCode.Space:
+                    _upSpeed = 0;
+                    break;
+            }
+        }
+    }
 }
