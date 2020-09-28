@@ -15,9 +15,6 @@ namespace Sandbox
         private readonly IScene _scene;
         private readonly IPhysicsContainer _physicsContainer;
 
-        private ITexture2D _texture;
-        private ITexture2D _texture2;
-
         public PhysicsLayer(ICamera camera, IFactory factory, IScene scene, IPhysicsContainer physicsContainer)
         {
             _camera = camera;
@@ -28,12 +25,6 @@ namespace Sandbox
 
         public void Attach()
         {
-            _texture = _factory.Create<ITexture2D>();
-            _texture.SetData("Assets/picture.png");
-
-            _texture2 = _factory.Create<ITexture2D>();
-            _texture2.SetData("Assets/picture2.png");
-
             _scene.Init();
             _physicsContainer.Gravity = new Vector3(0, -800, 0);
 

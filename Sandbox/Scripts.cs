@@ -142,10 +142,10 @@ namespace Sandbox
         {
             switch (evnt.KeyCode)
             {
-                case KeyCode.Left:
+                case KeyCode.A:
                     _leftSpeed = 100;
                     break;
-                case KeyCode.Right:
+                case KeyCode.D:
                     _rightSpeed = 100;
                     break;
                 case KeyCode.Space:
@@ -158,10 +158,10 @@ namespace Sandbox
         {
             switch (evnt.KeyCode)
             {
-                case KeyCode.Left:
+                case KeyCode.A:
                     _leftSpeed = 0;
                     break;
-                case KeyCode.Right:
+                case KeyCode.D:
                     _rightSpeed = 0;
                     break;
                 case KeyCode.Space:
