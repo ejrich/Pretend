@@ -97,9 +97,9 @@ namespace Sandbox
         
         public void Update(float timeStep)
         {
-            _position.Rotation += 100 * timeStep;
-            if (_position.Rotation >= 360)
-                _position.Rotation = 0;
+            _position.Yaw += 100 * timeStep;
+            if (_position.Yaw >= 360)
+                _position.Yaw = 0;
         }
     }
 

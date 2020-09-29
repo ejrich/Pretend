@@ -44,7 +44,7 @@ namespace Sandbox
             _scene.AddComponent(entity, new PhysicsComponent {Fixed = true });
 
             entity = _scene.CreateEntity();
-            _scene.AddComponent(entity, new PositionComponent {Y = -360, Rotation = 30});
+            _scene.AddComponent(entity, new PositionComponent {Y = -360, Yaw = 30});
             _scene.AddComponent(entity, new SizeComponent {Width = 1280, Height = 10});
             _scene.AddComponent(entity, new PhysicsComponent {Fixed = true });
         }
