@@ -52,6 +52,8 @@ namespace Pretend.ECS
     {
         public bool Fixed { get; set; }
         public bool Solid { get; set; } = true;
+        public float Mass { get; set; }
         public Vector3 Velocity { get; set; } = Vector3.Zero;
+        public Vector3 Force { get; set; }
     }
 }

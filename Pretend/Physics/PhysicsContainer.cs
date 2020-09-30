@@ -101,6 +101,11 @@ namespace Pretend.Physics
 
         private Vector3 CalculatePosition(PhysicsComponent physicsComponent, PositionComponent position, float timeStep)
         {
+            if (physicsComponent.Force != null)
+            {
+                ApplyForce(physicsComponent);
+            }
+
             // Calculate delta p
             var (x, y, z) = physicsComponent.Velocity * timeStep + 0.5f * Gravity * timeStep * timeStep;
 
@@ -112,6 +117,11 @@ namespace Pretend.Physics
             physicsComponent.Velocity += deltaV;
 
             return newPosition;
+        }
+
+        private void ApplyForce(PhysicsComponent physicsComponent)
+        {
+            var acceleration = physicsComponent.Force / physicsComponent.Mass;
         }
 
         private static Collision DetermineCollision(IEntity a, Vector3 aNewPos, IEntity b, Vector3 bNewPos)
