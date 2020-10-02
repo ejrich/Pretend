@@ -109,7 +109,7 @@ namespace Sandbox
 
         private float _leftSpeed;
         private float _rightSpeed;
-        private float _upSpeed;
+        private bool _jump;
 
         public ControlScript(PhysicsComponent physics)
         {
@@ -119,10 +119,14 @@ namespace Sandbox
         public void Update(float timeStep)
         {
             var xSpeed = _rightSpeed - _leftSpeed;
-            var ySpeed = _physics.Velocity.Y == 0 ? _upSpeed : _physics.Velocity.Y;
 
-            if (xSpeed == _physics.Velocity.X && ySpeed == _physics.Velocity.Y) return;
-            _physics.Velocity = new Vector3(xSpeed, ySpeed, _physics.Velocity.Z);
+            if (_physics.Velocity.Y == 0 && _jump)
+            {
+                _physics.Force = new Vector3(0, 350000, 0);
+            }
+            
+            if (xSpeed == _physics.Velocity.X) return;
+            _physics.Velocity = new Vector3(xSpeed, _physics.Velocity.Y, _physics.Velocity.Z);
         }
 
         public void HandleEvent(IEvent evnt)
@@ -149,7 +153,7 @@ namespace Sandbox
                     _rightSpeed = 100;
                     break;
                 case KeyCode.Space:
-                    _upSpeed = 200;
+                    _jump = true;
                     break;
             }
         }
@@ -165,7 +169,7 @@ namespace Sandbox
                     _rightSpeed = 0;
                     break;
                 case KeyCode.Space:
-                    _upSpeed = 0;
+                    _jump = false;
                     break;
             }
         }
