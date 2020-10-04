@@ -24,6 +24,7 @@ namespace Pretend.Tests.Physics
         public void Simulate()
         {
             // TODO
+            Assert.Fail("Tests not yet implemented");
         }
     }
 }

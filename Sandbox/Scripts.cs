@@ -115,7 +115,7 @@ namespace Sandbox
         {
             _physics = physics;
         }
-        
+
         public void Update(float timeStep)
         {
             var xSpeed = _rightSpeed - _leftSpeed;

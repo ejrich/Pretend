@@ -101,8 +101,9 @@ namespace Pretend.Physics
 
         private Vector3 CalculatePosition(PhysicsComponent physicsComponent, PositionComponent position, float timeStep)
         {
+            // TODO FIX - At high frame rates, the acceleration doesn't properly calculate dv and dp
             var acceleration = DetermineAcceleration(physicsComponent);
-            
+
             // Recalculate velocity
             var deltaV = acceleration * timeStep;
             physicsComponent.Velocity += deltaV;
