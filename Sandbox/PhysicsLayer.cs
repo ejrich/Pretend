@@ -47,12 +47,13 @@ namespace Sandbox
             _scene.AddComponent(entity, new PositionComponent {Y = -360, Yaw = 30});
             _scene.AddComponent(entity, new SizeComponent {Width = 1280, Height = 10});
             _scene.AddComponent(entity, new PhysicsComponent {Fixed = true });
+
+            _physicsContainer.Start(144, _scene.EntityContainer);
         }
 
         public void Update(float timeStep)
         {
             _scene.Update(timeStep);
-            _physicsContainer.Simulate(timeStep, _scene.EntityContainer);
             _scene.Render();
         }
 

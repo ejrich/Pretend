@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using OpenToolkit.Mathematics;
 using Pretend.ECS;
 
@@ -10,18 +13,49 @@ namespace Pretend.Physics
     {
         Vector3 Gravity { set; }
         int Iterations { set; }
+        bool Running { get; }
         void Simulate(float timeStep, IEntityContainer entityContainer);
+        void Start(int hertz, IEntityContainer entityContainer);
+        void Stop();
     }
 
     public class PhysicsContainer : IPhysicsContainer
     {
         public Vector3 Gravity { private get; set; }
         public int Iterations { private get; set; } = 4;
+        public bool Running { get; private set; }
+
+        public void Start(int hertz, IEntityContainer entityContainer)
+        {
+            var timeStep = 1f / hertz;
+            var ms = (int)(timeStep * 1000);
+            Running = true;
+            var task = new Task(() =>
+            {
+                var stopwatch = new Stopwatch();
+                stopwatch.Start();
+                while (Running)
+                {
+                    Simulate(timeStep, entityContainer);
+                    stopwatch.Stop();
+                    var dt = ms - (int)stopwatch.ElapsedMilliseconds;
+                    if (dt > 0)
+                        Thread.Sleep(dt);
+
+                    stopwatch.Restart();
+                }
+            });
+            task.Start();
+        }
+
+        public void Stop() => Running = false;
 
         public void Simulate(float timeStep, IEntityContainer entityContainer)
         {
             var dt = timeStep / Iterations;
             var entities = entityContainer.GetEntitiesWithComponent<PhysicsComponent>();
+
+            // Update positions
             for (var i = 0; i < Iterations; i++)
             {
                 var newPositions = new Dictionary<IEntity, Vector3>();
@@ -63,6 +97,13 @@ namespace Pretend.Physics
                     ChangePosition(entity, position);
                 }
             }
+
+            // Clear force vectors
+            foreach (var entity in entities)
+            {
+                var physicsComponent = entity.GetComponent<PhysicsComponent>();
+                physicsComponent.Force = Vector3.Zero;
+            }
         }
 
         private static Vector3 InterpolateCollision(IEntity entity, IEntity other, Vector3 position, Vector3 otherPosition)
@@ -101,7 +142,6 @@ namespace Pretend.Physics
 
         private Vector3 CalculatePosition(PhysicsComponent physicsComponent, PositionComponent position, float timeStep)
         {
-            // TODO FIX - At high frame rates, the acceleration doesn't properly calculate dv and dp
             var acceleration = DetermineAcceleration(physicsComponent);
 
             // Recalculate velocity
@@ -109,7 +149,7 @@ namespace Pretend.Physics
             physicsComponent.Velocity += deltaV;
 
             // Calculate delta p
-            var (x, y, z) = physicsComponent.Velocity * timeStep + 0.5f * Gravity * timeStep * timeStep;
+            var (x, y, z) = physicsComponent.Velocity * timeStep + 0.5f * acceleration * timeStep * timeStep;
 
             // Calculate next position
             var newPosition = new Vector3(position.X + x, position.Y + y, position.Z + z);
@@ -121,10 +161,7 @@ namespace Pretend.Physics
         {
             if (physicsComponent.Force == default) return Gravity;
 
-            var acceleration = Gravity + (physicsComponent.Force / (physicsComponent.Mass == 0 ? 1 : physicsComponent.Mass));
-            physicsComponent.Force = default;
-
-            return acceleration;
+            return Gravity + (physicsComponent.Force / (physicsComponent.Mass == 0 ? 1 : physicsComponent.Mass));
         }
 
         private static Collision DetermineCollision(IEntity a, Vector3 aNewPos, IEntity b, Vector3 bNewPos)

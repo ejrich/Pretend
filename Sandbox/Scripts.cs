@@ -122,9 +122,9 @@ namespace Sandbox
 
             if (_physics.Velocity.Y == 0 && _jump)
             {
-                _physics.Force = new Vector3(0, 350000, 0);
+                _physics.Force = new Vector3(0,100000, 0);
             }
-            
+
             if (xSpeed == _physics.Velocity.X) return;
             _physics.Velocity = new Vector3(xSpeed, _physics.Velocity.Y, _physics.Velocity.Z);
         }
