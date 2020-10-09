@@ -85,12 +85,11 @@ namespace Pretend.Physics
                         var otherPosition = newPositions[other];
                         var collision = DetermineCollision(entity, position, other, otherPosition);
 
-                        if (collision != Collision.Apart) updatePosition = false;
-                        if (collision == Collision.Colliding)
-                        {
-                            var newPosition = InterpolateCollision(entity, other, position, otherPosition);
-                            ChangePosition(entity, newPosition);
-                        }
+                        if (!collision) continue;
+
+                        updatePosition = false;
+                        var newPosition = InterpolateCollision(entity, other, position, otherPosition);
+                        ChangePosition(entity, newPosition);
                     }
                     if (!updatePosition) continue;
 
@@ -127,13 +126,14 @@ namespace Pretend.Physics
                 {
                     var dw = (eSize.Width / 2 + oSize.Width / 2) * (position.X > otherPosition.X ? 1 : -1);
                     interpolatedPosition.X = otherPosition.X + dw;
+                    ePhysicsComponent.Velocity = new Vector3(0, ePhysicsComponent.Velocity.Y, ePhysicsComponent.Velocity.Z);
                 }
                 else
                 {
                     var dh = (eSize.Height / 2 + oSize.Height / 2) * (position.Y > otherPosition.Y ? 1 : -1);
                     interpolatedPosition.Y = otherPosition.Y + dh;
+                    ePhysicsComponent.Velocity = new Vector3(ePhysicsComponent.Velocity.X, 0, ePhysicsComponent.Velocity.Z);
                 }
-                ePhysicsComponent.Velocity = new Vector3(ePhysicsComponent.Velocity.X, 0, ePhysicsComponent.Velocity.Z);
             }
             // TODO Simulate elastics collisions
 
@@ -164,13 +164,11 @@ namespace Pretend.Physics
             return Gravity + (physicsComponent.Force / (physicsComponent.Mass == 0 ? 1 : physicsComponent.Mass));
         }
 
-        private static Collision DetermineCollision(IEntity a, Vector3 aNewPos, IEntity b, Vector3 bNewPos)
+        private static bool DetermineCollision(IEntity a, Vector3 aNewPos, IEntity b, Vector3 bNewPos)
         {
             var (dx, dy) = CalculateDistance(aNewPos, a.GetComponent<SizeComponent>(), bNewPos, b.GetComponent<SizeComponent>());
 
-            if (dx == 0 || dy == 0) return Collision.Touching;
-
-            return dx < 0 && dy < 0 ? Collision.Colliding : Collision.Apart;
+            return dx < 0 && dy < 0;
         }
 
         private static (float dx, float dy) CalculateDistance(Vector3 aPos, SizeComponent aSize, Vector3 bPos, SizeComponent bSize)
