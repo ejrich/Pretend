@@ -1,5 +1,4 @@
 ﻿using OpenToolkit.Mathematics;
-using Pretend;
 using Pretend.ECS;
 using Pretend.Events;
 using Pretend.Graphics;
@@ -11,14 +10,12 @@ namespace Sandbox
     public class PhysicsLayer : ILayer
     {
         private readonly ICamera _camera;
-        private readonly IFactory _factory;
         private readonly IScene _scene;
         private readonly IPhysicsContainer _physicsContainer;
 
-        public PhysicsLayer(ICamera camera, IFactory factory, IScene scene, IPhysicsContainer physicsContainer)
+        public PhysicsLayer(ICamera camera, IScene scene, IPhysicsContainer physicsContainer)
         {
             _camera = camera;
-            _factory = factory;
             _scene = scene;
             _physicsContainer = physicsContainer;
         }
