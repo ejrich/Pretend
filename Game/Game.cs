@@ -43,6 +43,7 @@ namespace Game
             var obstaclePosition = new PositionComponent { X = x };
             _scene.AddComponent(obstacle, obstaclePosition);
             _scene.AddComponent(obstacle, new SizeComponent { Width = 40, Height = 40 });
+            _scene.AddComponent(obstacle, new PhysicsComponent { Fixed = true });
             _scene.AddComponent(obstacle, new ObstacleScript(obstaclePosition, this));
         }
 
@@ -86,8 +87,8 @@ namespace Game
             }
 
             // Filter the passed obstacles and determine whether to add a new one
-            var furthestObstacle = _obstacles.First();
-            if (furthestObstacle.GetComponent<PositionComponent>().X < -640)
+            var furthestObstacle = _obstacles.FirstOrDefault();
+            if (furthestObstacle?.GetComponent<PositionComponent>().X < -640)
                 DeleteObstacle(furthestObstacle);
 
             if (timeStep > 0 && _random.Next(Convert.ToInt32(1 / timeStep)) == 1)

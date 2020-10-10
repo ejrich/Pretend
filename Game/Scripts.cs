@@ -13,7 +13,6 @@ namespace Game
         private readonly PhysicsComponent _physics;
         private readonly IGame _game;
 
-
         public PlayerScript(PositionComponent position, PhysicsComponent physics, IGame game)
         {
             _position = position;
@@ -23,17 +22,16 @@ namespace Game
 
         public void Update(float timeStep)
         {
+            _physics.Fixed = !_game.Running;
             if (!_game.Running)
             {
-                _physics.Fixed = true;
                 _physics.Velocity = Vector3.Zero;
                 return;
             }
-            _physics.Fixed = _position.Y <= _game.FloorHeight;
 
             // Flip the player object if it's in the air
-            _position.Rotation = _position.Y > _game.FloorHeight ?
-                (_position.Rotation - RotationSpeed * timeStep) % 360 : 0;
+            _position.Yaw = _position.Y > _game.FloorHeight ?
+                (_position.Yaw - RotationSpeed * timeStep) % 360 : 0;
         }
 
         public void HandleEvent(IEvent evnt)
