@@ -42,7 +42,6 @@ namespace Game
                     if (keyPressed.KeyCode == KeyCode.Space)
                     {
                         _physics.Velocity = new Vector3(0, 300, 0);
-                        _physics.Fixed = false;
                     }
                     break;
             }

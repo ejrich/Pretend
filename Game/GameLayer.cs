@@ -51,7 +51,6 @@ namespace Game
 
         public void Update(float timeStep)
         {
-            // Thread.Sleep(16);
             // Update the game
             _game.Update(timeStep);
 
