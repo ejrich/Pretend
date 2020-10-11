@@ -64,7 +64,7 @@ namespace Pretend.Physics
                     var physicsComponent = entity.GetComponent<PhysicsComponent>();
 
                     var position = entity.GetComponent<PositionComponent>();
-                    if (physicsComponent.Fixed)
+                    if (physicsComponent.Fixed && !physicsComponent.Kinematic)
                     {
                         newPositions.Add(entity, new Vector3(position.X, position.Y, position.Z));
                     }
@@ -76,8 +76,14 @@ namespace Pretend.Physics
                 }
                 foreach (var (entity, position) in newPositions)
                 {
-                    // Don't update if fixed
-                    if (entity.GetComponent<PhysicsComponent>().Fixed) continue;
+                    var physicsComponent = entity.GetComponent<PhysicsComponent>();
+
+                    // Kinematic objects ignore collisions
+                    if (physicsComponent.Kinematic)
+                        ChangePosition(entity, position);
+
+                    // Don't calculate collisions if fixed or kinematic
+                    if (physicsComponent.Fixed || physicsComponent.Kinematic) continue;
 
                     var updatePosition = true;
                     foreach (var other in entities.Where(_ => _ != entity))
@@ -159,6 +165,8 @@ namespace Pretend.Physics
 
         private Vector3 DetermineAcceleration(PhysicsComponent physicsComponent)
         {
+            if (physicsComponent.Kinematic) return Vector3.Zero;
+
             if (physicsComponent.Force == default) return Gravity;
 
             return Gravity + (physicsComponent.Force / (physicsComponent.Mass == 0 ? 1 : physicsComponent.Mass));

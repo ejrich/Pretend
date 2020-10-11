@@ -51,6 +51,7 @@ namespace Pretend.ECS
     public class PhysicsComponent : IComponent
     {
         public bool Fixed { get; set; }
+        public bool Kinematic { get; set; }
         public bool Solid { get; set; } = true;
         public float Mass { get; set; }
         public Vector3 Velocity { get; set; }
