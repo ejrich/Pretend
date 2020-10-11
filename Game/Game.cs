@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using OpenToolkit.Mathematics;
 using Pretend;
 using Pretend.ECS;
 
@@ -40,11 +41,11 @@ namespace Game
         {
             var obstacle = _scene.CreateEntity();
             _obstacles.Add(obstacle);
-            var obstaclePosition = new PositionComponent { X = x };
-            _scene.AddComponent(obstacle, obstaclePosition);
+            var physicsComponent = new PhysicsComponent { Fixed = true, Kinematic = true, Velocity = new Vector3(-200, 0, 0) };
+            _scene.AddComponent(obstacle, new PositionComponent { X = x });
             _scene.AddComponent(obstacle, new SizeComponent { Width = 40, Height = 40 });
-            _scene.AddComponent(obstacle, new PhysicsComponent { Fixed = true });
-            _scene.AddComponent(obstacle, new ObstacleScript(obstaclePosition, this));
+            _scene.AddComponent(obstacle, physicsComponent);
+            _scene.AddComponent(obstacle, new ObstacleScript(physicsComponent, this));
         }
 
         private void DeleteObstacle(IEntity obstacle)

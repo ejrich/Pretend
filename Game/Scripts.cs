@@ -50,22 +50,19 @@ namespace Game
 
     public class ObstacleScript : IScriptComponent
     {
-        private const float ObstacleSpeed = 200;
-
-        private readonly PositionComponent _position;
+        private readonly PhysicsComponent _physics;
         private readonly IGame _game;
 
-        public ObstacleScript(PositionComponent position, IGame game)
+        public ObstacleScript(PhysicsComponent physics, IGame game)
         {
-            _position = position;
+            _physics = physics;
             _game = game;
         }
 
         public void Update(float timeStep)
         {
-            if (!_game.Running) return;
-
-            _position.X -= ObstacleSpeed * timeStep;
+            if (!_game.Running)
+                _physics.Velocity = Vector3.Zero;
         }
     }
 }
