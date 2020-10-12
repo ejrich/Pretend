@@ -93,6 +93,9 @@ namespace Pretend.Physics
                     {
                         var otherPosition = newPositions[other];
                         var collision = DetermineCollision(entity, position, other, otherPosition);
+                        // var orientation = newOrientations[entity];
+                        // var otherOrientation = newOrientations[other];
+                        // var collision = DetermineCollision(entity, position, orientation, other, otherPosition, otherOrientation);
 
                         if (!collision) continue;
 
@@ -180,6 +183,12 @@ namespace Pretend.Physics
             var (dx, dy) = CalculateDistance(aNewPos, a.GetComponent<SizeComponent>(), bNewPos, b.GetComponent<SizeComponent>());
 
             return dx < 0 && dy < 0;
+        }
+
+        private static bool DetermineCollision(IEntity a, Vector3 aNewPos, Vector3 aOr, IEntity b, Vector3 bNewPos, Vector3 bOr)
+        {
+            return Algorithms.GJK(aNewPos, aOr, a.GetComponent<SizeComponent>(), 
+                bNewPos, bOr, b.GetComponent<SizeComponent>());
         }
 
         private static (float dx, float dy) CalculateDistance(Vector3 aPos, SizeComponent aSize, Vector3 bPos, SizeComponent bSize)
