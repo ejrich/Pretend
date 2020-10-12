@@ -59,6 +59,7 @@ namespace Pretend.Physics
             for (var i = 0; i < Iterations; i++)
             {
                 var newPositions = new Dictionary<IEntity, Vector3>();
+                var newOrientations = new Dictionary<IEntity, Vector3>();
                 foreach (var entity in entities)
                 {
                     var physicsComponent = entity.GetComponent<PhysicsComponent>();
@@ -67,11 +68,13 @@ namespace Pretend.Physics
                     if (physicsComponent.Fixed && !physicsComponent.Kinematic)
                     {
                         newPositions.Add(entity, new Vector3(position.X, position.Y, position.Z));
+                        newOrientations.Add(entity, new Vector3(position.Pitch, position.Roll, position.Yaw));
                     }
                     else
                     {
-                        var newPosition = CalculatePosition(physicsComponent, position, dt);
+                        var (newPosition, newOrientation) = CalculatePosition(physicsComponent, position, dt);
                         newPositions.Add(entity, newPosition);
+                        newOrientations.Add(entity, newOrientation);
                     }
                 }
                 foreach (var (entity, position) in newPositions)
@@ -146,7 +149,7 @@ namespace Pretend.Physics
             return interpolatedPosition;
         }
 
-        private Vector3 CalculatePosition(PhysicsComponent physicsComponent, PositionComponent position, float timeStep)
+        private (Vector3 position, Vector3 orientation) CalculatePosition(PhysicsComponent physicsComponent, PositionComponent position, float timeStep)
         {
             var acceleration = DetermineAcceleration(physicsComponent);
 
@@ -160,7 +163,7 @@ namespace Pretend.Physics
             // Calculate next position
             var newPosition = new Vector3(position.X + x, position.Y + y, position.Z + z);
 
-            return newPosition;
+            return (newPosition, new Vector3(position.Pitch, position.Roll, position.Yaw));
         }
 
         private Vector3 DetermineAcceleration(PhysicsComponent physicsComponent)
