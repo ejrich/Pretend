@@ -16,103 +16,30 @@ namespace Pretend.Physics
         public static bool GJK(Vector3 aPos, Vector3 aOrientation, SizeComponent aSize,
                                Vector3 bPos, Vector3 bOrientation, SizeComponent bSize)
         {
-            var index = 0;
-            var simplex = new Vector3[3];
+            var simplex = new List<Vector3>();
             var direction = aPos - bPos;
 
             var aVertices = GetVertices(aPos, aOrientation, aSize);
             var bVertices = GetVertices(bPos, bOrientation, bSize);
 
-            var a = simplex[0] = Support(aVertices, bVertices, direction);
+            var support = Support(aVertices, bVertices, direction);
+            simplex.Add(support);
 
-            if (Vector3.Dot(a, direction) <= 0)
-                return false;
-
-            direction = a * -1;
+            direction = support * -1;
 
             while (true)
             {
-                a = simplex[++index] = Support(aVertices, bVertices, direction);
+                support = Support(aVertices, bVertices, direction);
 
-                if (Vector3.Dot(a, direction) <= 0)
+                if (Vector3.Dot(support, direction) <= 0)
                     return false;
 
-                var a0 = a * -1;
+                simplex.Insert(0, support);
 
-                if (index < 2)
-                {
-                    var b = simplex[0];
-                    var ab = b - a;
-                    direction = TripleProduct(ab, a0, ab);
-                    if (direction.LengthSquared == 0)
-                        direction = Vector3.Cross(ab, Vector3.One);
-                    continue;
-                }
+                var (collision, newDirection) = NextSimplex(simplex, direction);
+                if (collision) return true;
 
-                // if (index < 3)
-                // {
-                //     var ac = simplex[2] - simplex[0];
-                //     var ab = simplex[1] - simplex[0];
-                //
-                //     direction = Vector3.Cross(ac, ab);
-                //
-                //     var ao = simplex[0] * -1;
-                //     if (Vector3.Dot(direction, ao) < 0) direction *= -1;
-                //     continue;
-                // }
-
-                {
-                    var ab = simplex[1] - a;
-                    var ac = simplex[0] - a;
-                    var acPerp = TripleProduct(ab, ac, ac);
-                    
-                    if (Vector3.Dot(acPerp, a0) >= 0)
-                    {
-                        direction = acPerp;
-                    }
-                    else
-                    {
-                        var abPerp = TripleProduct(ac, ab, ab);
-                    
-                        if (Vector3.Dot(abPerp, a0) < 0)
-                            return true;
-                    
-                        simplex[0] = simplex[1];
-                        direction = abPerp;
-                    }
-                    simplex[1] = simplex[2];
-                    // var da = simplex[3] - simplex[0];
-                    // var db = simplex[3] - simplex[1];
-                    // var dc = simplex[3] - simplex[2];
-                    //
-                    // var d0 = simplex[3] * -1;
-                    //
-                    // var abdNorm = Vector3.Cross(da, db);
-                    // var bcdNorm = Vector3.Cross(db, dc);
-                    // var cadNorm = Vector3.Cross(dc, da);
-                    //
-                    // if (Vector3.Dot(abdNorm, d0) > 0)
-                    // {
-                    //     simplex[2] = simplex[3];
-                    //     direction = abdNorm;
-                    // }
-                    // else if (Vector3.Dot(bcdNorm, d0) > 0)
-                    // {
-                    //     simplex[0] = simplex[1];
-                    //     simplex[1] = simplex[2];
-                    //     simplex[2] = simplex[3];
-                    //     direction = bcdNorm;
-                    // }
-                    // else if (Vector3.Dot(cadNorm, d0) > 0)
-                    // {
-                    //     simplex[1] = simplex[2];
-                    //     simplex[2] = simplex[3];
-                    //     direction = cadNorm;
-                    // }
-                    // else
-                    //     return true;
-                }
-                --index;
+                direction = newDirection;
             }
         }
 
@@ -124,14 +51,6 @@ namespace Pretend.Physics
                 Matrix4.CreateTranslation(pos);
 
             return Vertices.Select(vertex => (vertex * transform).Xyz).ToList();
-        }
-
-        // Returns true if no intersection is found
-        private static bool AddSupport(List<Vector3> simplex, List<Vector3> aVertices, List<Vector3> bVertices, Vector3 direction)
-        {
-            var support = Support(aVertices, bVertices, direction);
-            simplex.Add(support);
-            return Vector3.Dot(direction, support) < 0;
         }
 
         private static Vector3 Support(List<Vector3> aVertices, List<Vector3> bVertices, Vector3 direction)
@@ -156,6 +75,168 @@ namespace Pretend.Physics
                 }
             }
             return furthestPoint;
+        }
+
+        private static (bool collision, Vector3 newDirection) NextSimplex(List<Vector3> simplex, Vector3 direction)
+        {
+            return simplex.Count switch
+            {
+                2 => Line(simplex, direction),
+                3 => Triangle2D(simplex, direction), // 3 => Triangle(simplex, direction),
+                4 => Tetrahedron(simplex, direction),
+                _ => (false, direction)
+            };
+        }
+
+        private static (bool collision, Vector3 newDirection) Line(List<Vector3> simplex, Vector3 direction)
+        {
+            var a = simplex[0];
+            var b = simplex[1];
+
+            var ab = b - a;
+            var ao = -a;
+
+            Vector3 newDirection;
+            if (SameDirection(ab, ao))
+                newDirection = TripleProduct(ab, ao, ab);
+            else
+            {
+                simplex.Remove(b);
+                newDirection = ao;
+            }
+
+            return (false, newDirection);
+        }
+
+        private static (bool collision, Vector3 newDirection) Triangle(List<Vector3> simplex, Vector3 direction)
+        {
+            var a = simplex[0];
+            var b = simplex[1];
+            var c = simplex[2];
+
+            var ab = b - a;
+            var ac = c - a;
+            var ao = -a;
+
+            var abc = Vector3.Cross(ab, ac);
+
+            Vector3 newDirection;
+            if (SameDirection(Vector3.Cross(abc, ac), ao))
+            {
+                if (SameDirection(ac, ao))
+                {
+                    simplex.Remove(b);
+                    newDirection = TripleProduct(ac, ao, ac);
+                }
+                else
+                {
+                    simplex.Remove(c);
+                    return Line(simplex, direction);
+                }
+            }
+            else
+            {
+                if (SameDirection(Vector3.Cross(ab, abc), ao))
+                {
+                    simplex.Remove(c);
+                    return Line(simplex, direction);
+                }
+
+                if (SameDirection(abc, ao))
+                {
+                    newDirection = abc;
+                }
+                else
+                {
+                    simplex[1] = c;
+                    simplex[2] = b;
+                    newDirection = -abc;
+                }
+            }
+
+            return (false, newDirection);
+        }
+
+        private static (bool collision, Vector3 newDirection) Triangle2D(List<Vector3> simplex, Vector3 direction)
+        {
+            var a = simplex[0];
+            var b = simplex[1];
+            var c = simplex[2];
+
+            var ab = b - a;
+            var ac = c - a;
+            var ao = -a;
+
+            var abc = Vector3.Cross(ab, ac);
+
+            Vector3 newDirection;
+            if (SameDirection(Vector3.Cross(abc, ac), ao))
+            {
+                if (SameDirection(ac, ao))
+                {
+                    simplex.Remove(b);
+                    newDirection = TripleProduct(ac, ao, ac);
+                }
+                else
+                {
+                    simplex.Remove(c);
+                    return Line(simplex, direction);
+                }
+            }
+            else
+            {
+                if (SameDirection(Vector3.Cross(ab, abc), ao))
+                {
+                    simplex.Remove(c);
+                    return Line(simplex, direction);
+                }
+
+                return (true, direction);
+            }
+
+            return (false, newDirection);
+        }
+
+        private static (bool collision, Vector3 newDirection) Tetrahedron(List<Vector3> simplex, Vector3 direction)
+        {
+            var a = simplex[0];
+            var b = simplex[1];
+            var c = simplex[2];
+            var d = simplex[3];
+            
+            var ab = b - a;
+            var ac = c - a;
+            var ad = d - a;
+            var ao = -a;
+
+            var abc = Vector3.Cross(ab, ac);
+            var acd = Vector3.Cross(ac, ad);
+            var adb = Vector3.Cross(ad, ab);
+
+            if (SameDirection(abc, ao))
+            {
+                simplex.Remove(d);
+                return Triangle(simplex, direction);
+            }
+            if (SameDirection(acd, ao))
+            {
+                simplex.Remove(b);
+                return Triangle(simplex, direction);
+            }
+            if (SameDirection(adb, ao))
+            {
+                simplex.Remove(c);
+                simplex[1] = d;
+                simplex[2] = b;
+                return Triangle(simplex, direction);
+            }
+
+            return (true, direction);
+        }
+
+        private static bool SameDirection(Vector3 direction, Vector3 ao)
+        {
+            return Vector3.Dot(direction, ao) > 0;
         }
 
         private static Vector3 TripleProduct(Vector3 a, Vector3 b, Vector3 c)
