@@ -44,13 +44,15 @@ namespace Pretend.Physics
                     var b = simplex[0];
                     var ab = b - a;
                     direction = TripleProduct(ab, a0, ab);
+                    if (direction.LengthSquared == 0)
+                        direction = Vector3.Cross(ab, Vector3.One);
                     continue;
                 }
 
                 // if (index < 3)
                 // {
                 //     var ac = simplex[2] - simplex[0];
-                //     var ab = simplex[2] - simplex[0];
+                //     var ab = simplex[1] - simplex[0];
                 //
                 //     direction = Vector3.Cross(ac, ab);
                 //
