@@ -16,74 +16,102 @@ namespace Pretend.Physics
         public static bool GJK(Vector3 aPos, Vector3 aOrientation, SizeComponent aSize,
                                Vector3 bPos, Vector3 bOrientation, SizeComponent bSize)
         {
-            var iterations = 0;
-            var simplex = new List<Vector3>();
-            var direction = bPos - aPos;
+            var index = 0;
+            var simplex = new Vector3[3];
+            var direction = aPos - bPos;
 
             var aVertices = GetVertices(aPos, aOrientation, aSize);
             var bVertices = GetVertices(bPos, bOrientation, bSize);
 
-            while (iterations++ < 20)
+            var a = simplex[0] = Support(aVertices, bVertices, direction);
+
+            if (Vector3.Dot(a, direction) <= 0)
+                return false;
+
+            direction = a * -1;
+
+            while (true)
             {
-                switch (simplex.Count)
+                a = simplex[++index] = Support(aVertices, bVertices, direction);
+
+                if (Vector3.Dot(a, direction) <= 0)
+                    return false;
+
+                var a0 = a * -1;
+
+                if (index < 2)
                 {
-                    case 1:
-                        direction *= -1;
-                        break;
-                    case 2:
-                        {
-                            var ab = simplex[1] - simplex[0];
-                            var a0 = simplex[0] * -1;
-                            var tmp = TripleProduct(ab, a0, Vector3.Zero);
-                            direction = TripleProduct(tmp, ab, direction);
-                        }
-                        break;
-                    case 3:
-                        {
-                            var ac = simplex[2] - simplex[0];
-                            var ab = simplex[1] - simplex[0];
-                            direction = TripleProduct(ac, ab, Vector3.Zero);
-
-                            var a0 = simplex[0] * -1;
-                            if (Vector3.Dot(direction, a0) < 0) direction *= -1;
-                        }
-                        break;
-                    case 4:
-                        var da = simplex[3] - simplex[0];
-                        var db = simplex[3] - simplex[1];
-                        var dc = simplex[3] - simplex[2];
-
-                        var d0 = simplex[3] * -1;
-
-                        var abdNorm = TripleProduct(da, db, Vector3.Zero);
-                        var bcdNorm = TripleProduct(db, dc, Vector3.Zero);
-                        var cadNorm = TripleProduct(dc, da, Vector3.Zero);
-
-                        if (Vector3.Dot(abdNorm, d0) > 0)
-                        {
-                            simplex.Remove(simplex[2]);
-                            direction = abdNorm;
-                        }
-                        else if (Vector3.Dot(bcdNorm, d0) > 0)
-                        {
-                            simplex.Remove(simplex[0]);
-                            direction = bcdNorm;
-                        }
-                        else if (Vector3.Dot(cadNorm, d0) > 0)
-                        {
-                            simplex.Remove(simplex[1]);
-                            direction = cadNorm;
-                        }
-                        else
-                            return true;
-                        break;
+                    var b = simplex[0];
+                    var ab = b - a;
+                    direction = TripleProduct(ab, a0, ab);
+                    continue;
                 }
 
-                if (AddSupport(simplex, aVertices, bVertices, direction))
-                    return false;
-            }
+                // if (index < 3)
+                // {
+                //     var ac = simplex[2] - simplex[0];
+                //     var ab = simplex[2] - simplex[0];
+                //
+                //     direction = Vector3.Cross(ac, ab);
+                //
+                //     var ao = simplex[0] * -1;
+                //     if (Vector3.Dot(direction, ao) < 0) direction *= -1;
+                //     continue;
+                // }
 
-            return false;
+                {
+                    var ab = simplex[1] - a;
+                    var ac = simplex[0] - a;
+                    var acPerp = TripleProduct(ab, ac, ac);
+                    
+                    if (Vector3.Dot(acPerp, a0) >= 0)
+                    {
+                        direction = acPerp;
+                    }
+                    else
+                    {
+                        var abPerp = TripleProduct(ac, ab, ab);
+                    
+                        if (Vector3.Dot(abPerp, a0) < 0)
+                            return true;
+                    
+                        simplex[0] = simplex[1];
+                        direction = abPerp;
+                    }
+                    simplex[1] = simplex[2];
+                    // var da = simplex[3] - simplex[0];
+                    // var db = simplex[3] - simplex[1];
+                    // var dc = simplex[3] - simplex[2];
+                    //
+                    // var d0 = simplex[3] * -1;
+                    //
+                    // var abdNorm = Vector3.Cross(da, db);
+                    // var bcdNorm = Vector3.Cross(db, dc);
+                    // var cadNorm = Vector3.Cross(dc, da);
+                    //
+                    // if (Vector3.Dot(abdNorm, d0) > 0)
+                    // {
+                    //     simplex[2] = simplex[3];
+                    //     direction = abdNorm;
+                    // }
+                    // else if (Vector3.Dot(bcdNorm, d0) > 0)
+                    // {
+                    //     simplex[0] = simplex[1];
+                    //     simplex[1] = simplex[2];
+                    //     simplex[2] = simplex[3];
+                    //     direction = bcdNorm;
+                    // }
+                    // else if (Vector3.Dot(cadNorm, d0) > 0)
+                    // {
+                    //     simplex[1] = simplex[2];
+                    //     simplex[2] = simplex[3];
+                    //     direction = cadNorm;
+                    // }
+                    // else
+                    //     return true;
+                }
+                --index;
+            }
         }
 
         private static List<Vector3> GetVertices(Vector3 pos, Vector3 orientation, SizeComponent size)
@@ -130,10 +158,7 @@ namespace Pretend.Physics
 
         private static Vector3 TripleProduct(Vector3 a, Vector3 b, Vector3 c)
         {
-            var ac = Vector3.Dot(a, c);
-            var ab = Vector3.Dot(a, b);
-
-            return ac * b - ab * c;
+            return Vector3.Cross(Vector3.Cross(a, b), c);
         }
     }
 }

@@ -92,10 +92,10 @@ namespace Pretend.Physics
                     foreach (var other in entities.Where(_ => _ != entity))
                     {
                         var otherPosition = newPositions[other];
-                        var collision = DetermineCollision(entity, position, other, otherPosition);
-                        // var orientation = newOrientations[entity];
-                        // var otherOrientation = newOrientations[other];
-                        // var collision = DetermineCollision(entity, position, orientation, other, otherPosition, otherOrientation);
+                        // var collision = DetermineCollision(entity, position, other, otherPosition);
+                        var orientation = newOrientations[entity];
+                        var otherOrientation = newOrientations[other];
+                        var collision = DetermineCollision(entity, position, orientation, other, otherPosition, otherOrientation);
 
                         if (!collision) continue;
 
