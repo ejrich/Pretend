@@ -34,7 +34,7 @@ namespace Pretend.Physics
                 if (Vector3.Dot(support, direction) <= 0)
                     return false;
 
-                simplex.Insert(0, support);
+                simplex.Add(support);
 
                 var (collision, newDirection) = NextSimplex(simplex, direction);
                 if (collision) return true;
@@ -90,8 +90,8 @@ namespace Pretend.Physics
 
         private static (bool collision, Vector3 newDirection) Line(List<Vector3> simplex, Vector3 direction)
         {
-            var a = simplex[0];
-            var b = simplex[1];
+            var a = simplex[1];
+            var b = simplex[0];
 
             var ab = b - a;
             var ao = -a;
@@ -114,9 +114,9 @@ namespace Pretend.Physics
 
         private static (bool collision, Vector3 newDirection) Triangle(List<Vector3> simplex, Vector3 direction)
         {
-            var a = simplex[0];
+            var a = simplex[2];
             var b = simplex[1];
-            var c = simplex[2];
+            var c = simplex[0];
 
             var ab = b - a;
             var ac = c - a;
@@ -153,7 +153,7 @@ namespace Pretend.Physics
                 else
                 {
                     simplex[1] = c;
-                    simplex[2] = b;
+                    simplex[0] = b;
                     newDirection = -abc;
                 }
             }
@@ -163,9 +163,9 @@ namespace Pretend.Physics
 
         private static (bool collision, Vector3 newDirection) Triangle2D(List<Vector3> simplex, Vector3 direction)
         {
-            var a = simplex[0];
+            var a = simplex[2];
             var b = simplex[1];
-            var c = simplex[2];
+            var c = simplex[0];
 
             var ab = b - a;
             var ac = c - a;
@@ -203,10 +203,10 @@ namespace Pretend.Physics
 
         private static (bool collision, Vector3 newDirection) Tetrahedron(List<Vector3> simplex, Vector3 direction)
         {
-            var a = simplex[0];
-            var b = simplex[1];
-            var c = simplex[2];
-            var d = simplex[3];
+            var a = simplex[3];
+            var b = simplex[2];
+            var c = simplex[1];
+            var d = simplex[0];
             
             var ab = b - a;
             var ac = c - a;
@@ -231,7 +231,7 @@ namespace Pretend.Physics
             {
                 simplex.Remove(c);
                 simplex[1] = d;
-                simplex[2] = b;
+                simplex[0] = b;
                 return Triangle(simplex, direction);
             }
 
