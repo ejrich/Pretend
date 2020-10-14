@@ -87,7 +87,7 @@ namespace Pretend.Physics
             return simplex.Count switch
             {
                 2 => Line(simplex, direction),
-                3 => twoD ? Triangle2D(simplex, direction) : Triangle(simplex, direction),
+                3 => Triangle(simplex, direction, twoD),
                 4 => Tetrahedron(simplex, direction),
                 _ => (false, direction)
             };
@@ -117,7 +117,7 @@ namespace Pretend.Physics
             return (false, newDirection);
         }
 
-        private static (bool collision, Vector3 newDirection) Triangle(List<Vector3> simplex, Vector3 direction)
+        private static (bool collision, Vector3 newDirection) Triangle(List<Vector3> simplex, Vector3 direction, bool twoD = false)
         {
             var a = simplex[2];
             var b = simplex[1];
@@ -150,6 +150,8 @@ namespace Pretend.Physics
                     simplex.Remove(c);
                     return Line(simplex, direction);
                 }
+                
+                if (twoD) return (true, direction);
 
                 if (SameDirection(abc, ao))
                 {
@@ -161,46 +163,6 @@ namespace Pretend.Physics
                     simplex[0] = b;
                     newDirection = -abc;
                 }
-            }
-
-            return (false, newDirection);
-        }
-
-        private static (bool collision, Vector3 newDirection) Triangle2D(List<Vector3> simplex, Vector3 direction)
-        {
-            var a = simplex[2];
-            var b = simplex[1];
-            var c = simplex[0];
-
-            var ab = b - a;
-            var ac = c - a;
-            var ao = -a;
-
-            var abc = Vector3.Cross(ab, ac);
-
-            Vector3 newDirection;
-            if (SameDirection(Vector3.Cross(abc, ac), ao))
-            {
-                if (SameDirection(ac, ao))
-                {
-                    simplex.Remove(b);
-                    newDirection = TripleProduct(ac, ao, ac);
-                }
-                else
-                {
-                    simplex.Remove(c);
-                    return Line(simplex, direction);
-                }
-            }
-            else
-            {
-                if (SameDirection(Vector3.Cross(ab, abc), ao))
-                {
-                    simplex.Remove(c);
-                    return Line(simplex, direction);
-                }
-
-                return (true, direction);
             }
 
             return (false, newDirection);
