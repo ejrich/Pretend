@@ -14,13 +14,18 @@ namespace Pretend.Physics
         };
 
         public static bool GJK(Vector3 aPos, Vector3 aOrientation, SizeComponent aSize,
-                               Vector3 bPos, Vector3 bOrientation, SizeComponent bSize)
+            Vector3 bPos, Vector3 bOrientation, SizeComponent bSize)
+        {
+            var aVertices = GetVertices(aPos, aOrientation, aSize);
+            var bVertices = GetVertices(bPos, bOrientation, bSize);
+
+            return GJK(aPos, aVertices, bPos, bVertices, true);
+        }
+
+        public static bool GJK(Vector3 aPos, List<Vector3> aVertices, Vector3 bPos, List<Vector3> bVertices, bool twoD = false)
         {
             var simplex = new List<Vector3>();
             var direction = aPos - bPos;
-
-            var aVertices = GetVertices(aPos, aOrientation, aSize);
-            var bVertices = GetVertices(bPos, bOrientation, bSize);
 
             var support = Support(aVertices, bVertices, direction);
             simplex.Add(support);
@@ -36,7 +41,7 @@ namespace Pretend.Physics
 
                 simplex.Add(support);
 
-                var (collision, newDirection) = NextSimplex(simplex, direction);
+                var (collision, newDirection) = NextSimplex(simplex, direction, twoD);
                 if (collision) return true;
 
                 direction = newDirection;
@@ -77,12 +82,12 @@ namespace Pretend.Physics
             return furthestPoint;
         }
 
-        private static (bool collision, Vector3 newDirection) NextSimplex(List<Vector3> simplex, Vector3 direction)
+        private static (bool collision, Vector3 newDirection) NextSimplex(List<Vector3> simplex, Vector3 direction, bool twoD)
         {
             return simplex.Count switch
             {
                 2 => Line(simplex, direction),
-                3 => Triangle2D(simplex, direction), // 3 => Triangle(simplex, direction),
+                3 => twoD ? Triangle2D(simplex, direction) : Triangle(simplex, direction),
                 4 => Tetrahedron(simplex, direction),
                 _ => (false, direction)
             };
