@@ -98,7 +98,11 @@ namespace Pretend.Physics
 
             Vector3 newDirection;
             if (SameDirection(ab, ao))
+            {
                 newDirection = TripleProduct(ab, ao, ab);
+                if (newDirection.LengthSquared == 0)
+                    newDirection = Vector3.Cross(ab, Vector3.One);
+            }
             else
             {
                 simplex.Remove(b);

@@ -1,4 +1,5 @@
-﻿using OpenToolkit.Mathematics;
+﻿using System.Threading;
+using OpenToolkit.Mathematics;
 using Pretend.ECS;
 using Pretend.Events;
 using Pretend.Graphics;
@@ -43,6 +44,11 @@ namespace Sandbox
             entity = _scene.CreateEntity();
             _scene.AddComponent(entity, new PositionComponent {Y = -200});
             _scene.AddComponent(entity, new SizeComponent {Width = 600, Height = 10});
+            _scene.AddComponent(entity, new PhysicsComponent {Fixed = true });
+
+            entity = _scene.CreateEntity();
+            _scene.AddComponent(entity, new PositionComponent {X = 402, Y = -95, Yaw = 45});
+            _scene.AddComponent(entity, new SizeComponent {Width = 300, Height = 10});
             _scene.AddComponent(entity, new PhysicsComponent {Fixed = true });
 
             _physicsContainer.Start(144, _scene.EntityContainer);
