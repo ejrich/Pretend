@@ -6,14 +6,22 @@ using Pretend.ECS;
 
 namespace Pretend.Physics
 {
+    public class GJKResult
+    {
+        public bool Collision { get; set; }
+        public List<Vector3> Simplex { get; set; }
+        public List<Vector3> AVertices { get; set; }
+        public List<Vector3> BVertices { get; set; }
+    }
+
     public static class Algorithms
     {
         private static readonly Vector4[] Vertices = {
             new Vector4(0.5f, 0.5f, 0, 1), new Vector4(0.5f, -0.5f, 0, 1),
             new Vector4(-0.5f, -0.5f, 0, 1), new Vector4(-0.5f, 0.5f, 0, 1)
         };
-
-        public static bool GJK(Vector3 aPos, Vector3 aOrientation, SizeComponent aSize,
+        
+        public static GJKResult GJK(Vector3 aPos, Vector3 aOrientation, SizeComponent aSize,
             Vector3 bPos, Vector3 bOrientation, SizeComponent bSize)
         {
             var aVertices = GetVertices(aPos, aOrientation, aSize);
@@ -22,13 +30,18 @@ namespace Pretend.Physics
             return GJK(aPos, aVertices, bPos, bVertices, true);
         }
 
-        public static bool GJK(Vector3 aPos, List<Vector3> aVertices, Vector3 bPos, List<Vector3> bVertices, bool twoD = false)
+        public static GJKResult GJK(Vector3 aPos, List<Vector3> aVertices, Vector3 bPos, List<Vector3> bVertices, bool twoD = false)
         {
-            var simplex = new List<Vector3>();
+            var result = new GJKResult
+            {
+                Simplex = new List<Vector3>(),
+                AVertices = aVertices,
+                BVertices = bVertices
+            };
             var direction = aPos - bPos;
 
             var support = Support(aVertices, bVertices, direction);
-            simplex.Add(support);
+            result.Simplex.Add(support);
 
             direction = support * -1;
 
@@ -37,12 +50,16 @@ namespace Pretend.Physics
                 support = Support(aVertices, bVertices, direction);
 
                 if (Vector3.Dot(support, direction) <= 0)
-                    return false;
+                    return new GJKResult();
 
-                simplex.Add(support);
+                result.Simplex.Add(support);
 
-                var (collision, newDirection) = NextSimplex(simplex, direction, twoD);
-                if (collision) return true;
+                var (collision, newDirection) = NextSimplex(result.Simplex, direction, twoD);
+                if (collision)
+                {
+                    result.Collision = true;
+                    return result;
+                }
 
                 direction = newDirection;
             }
@@ -213,6 +230,68 @@ namespace Pretend.Physics
         private static Vector3 TripleProduct(Vector3 a, Vector3 b, Vector3 c)
         {
             return Vector3.Cross(Vector3.Cross(a, b), c);
+        }
+
+        public static Vector3 EPA(GJKResult result)
+        {
+            if (!result.Collision) return Vector3.Zero;
+
+            var simplex = result.Simplex;
+
+            var e0 = (simplex[1].X - simplex[0].X) * (simplex[1].Y + simplex[0].Y);
+            var e1 = (simplex[2].X - simplex[1].X) * (simplex[2].Y + simplex[1].Y);
+            var e2 = (simplex[0].X - simplex[2].X) * (simplex[0].Y + simplex[2].Y);
+
+            var clockWise = e0 + e1 + e2 > 0;
+            
+            var intersection = new Vector3();
+            for (var i = 0; i < 20; i++)
+            {
+                var edge = FindClosestEdge(simplex, clockWise);
+                var support = Support(result.AVertices, result.BVertices, edge.Normal);
+                var distance = Vector3.Dot(support, edge.Normal);
+
+                intersection = edge.Normal * distance;
+                if (Math.Abs(distance - edge.Distance) < 0.00001)
+                    return intersection;
+
+                simplex.Insert(edge.Index, support);
+            }
+
+            return intersection;
+        }
+
+        private static Edge FindClosestEdge(List<Vector3> simplex, bool clockWise)
+        {
+            var edge = new Edge
+            {
+                Distance = float.MaxValue
+            };
+            for (var i = 0; i < simplex.Count; i++)
+            {
+                var j = i + 1 >= simplex.Count ? 0 : i + 1;
+                var (x, y, _) = simplex[j] - simplex[i];
+                var normal = clockWise ? new Vector3(y, -x, 0) : new Vector3(-y, x, 0);
+
+                normal.Normalize();
+
+                var distance = Vector3.Dot(normal, simplex[i]);
+                if (distance < edge.Distance)
+                {
+                    edge.Distance = distance;
+                    edge.Normal = normal;
+                    edge.Index = j;
+                }
+            }
+
+            return edge;
+        }
+
+        private class Edge
+        {
+            public float Distance { get; set; }
+            public Vector3 Normal { get; set; }
+            public int Index { get; set; }
         }
     }
 }

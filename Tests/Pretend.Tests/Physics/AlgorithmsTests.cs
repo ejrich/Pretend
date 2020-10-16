@@ -19,9 +19,9 @@ namespace Pretend.Tests.Physics
             var bOrientation = new Vector3(0, 0, 0);
             var bSize = new SizeComponent { Width = 100, Height = 10 };
 
-            var colliding = Algorithms.GJK(aPos, aOrientation, aSize, bPos, bOrientation, bSize);
+            var result = Algorithms.GJK(aPos, aOrientation, aSize, bPos, bOrientation, bSize);
 
-            Assert.IsFalse(colliding);
+            Assert.IsFalse(result.Collision);
         }
 
         [TestMethod]
@@ -34,9 +34,10 @@ namespace Pretend.Tests.Physics
             var bOrientation = new Vector3(0, 0, 0);
             var bSize = new SizeComponent { Width = 100, Height = 10 };
 
-            var colliding = Algorithms.GJK(aPos, aOrientation, aSize, bPos, bOrientation, bSize);
+            var result = Algorithms.GJK(aPos, aOrientation, aSize, bPos, bOrientation, bSize);
+            var a = Algorithms.EPA(result);
 
-            Assert.IsTrue(colliding);
+            Assert.IsTrue(result.Collision);
         }
 
         [TestMethod]
@@ -55,9 +56,9 @@ namespace Pretend.Tests.Physics
                 new Vector3(-25, -25, -5), new Vector3(-25, -15, -5), new Vector3(-15, -15, -5), new Vector3(-15, -25, -5),
             };
 
-            var colliding = Algorithms.GJK(aPos, aVertices, bPos, bVertices);
+            var result = Algorithms.GJK(aPos, aVertices, bPos, bVertices);
 
-            Assert.IsFalse(colliding);
+            Assert.IsFalse(result.Collision);
         }
 
         [TestMethod]
@@ -76,9 +77,9 @@ namespace Pretend.Tests.Physics
                 new Vector3(-13, -13, -5), new Vector3(-13, -3, -5), new Vector3(-3, -3, -5), new Vector3(-3, -13, -5),
             };
 
-            var colliding = Algorithms.GJK(aPos, aVertices, bPos, bVertices);
+            var result = Algorithms.GJK(aPos, aVertices, bPos, bVertices);
 
-            Assert.IsTrue(colliding);
+            Assert.IsTrue(result.Collision);
         }
     }
 }

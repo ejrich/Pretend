@@ -95,9 +95,9 @@ namespace Pretend.Physics
                         // var collision = DetermineCollision(entity, position, other, otherPosition);
                         var orientation = newOrientations[entity];
                         var otherOrientation = newOrientations[other];
-                        var collision = DetermineCollision(entity, position, orientation, other, otherPosition, otherOrientation);
+                        var result = DetermineCollision(entity, position, orientation, other, otherPosition, otherOrientation);
 
-                        if (!collision) continue;
+                        if (!result.Collision) continue;
 
                         updatePosition = false;
                         var newPosition = InterpolateCollision(entity, other, position, otherPosition);
@@ -185,7 +185,7 @@ namespace Pretend.Physics
             return dx < 0 && dy < 0;
         }
 
-        private static bool DetermineCollision(IEntity a, Vector3 aNewPos, Vector3 aOr, IEntity b, Vector3 bNewPos, Vector3 bOr)
+        private static GJKResult DetermineCollision(IEntity a, Vector3 aNewPos, Vector3 aOr, IEntity b, Vector3 bNewPos, Vector3 bOr)
         {
             return Algorithms.GJK(aNewPos, aOr, a.GetComponent<SizeComponent>(), 
                 bNewPos, bOr, b.GetComponent<SizeComponent>());
