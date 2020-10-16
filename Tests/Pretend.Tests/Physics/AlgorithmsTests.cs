@@ -98,5 +98,30 @@ namespace Pretend.Tests.Physics
             Assert.AreEqual(-2, y);
             Assert.AreEqual(0, z);
         }
+
+        [TestMethod]
+        public void EPA_3D_WhenColliding_ReturnsPenetrationVector()
+        {
+            var aPos = new Vector3(0, 0, 0);
+            var bPos = new Vector3(0, -8, 0);
+            var aVertices = new List<Vector3>
+            {
+                new Vector3(-5, -5, 5), new Vector3(-5, 5, 5), new Vector3(5, 5, 5), new Vector3(5, -5, 5),
+                new Vector3(-5, -5, -5), new Vector3(-5, 5, -5), new Vector3(5, 5, -5), new Vector3(5, -5, -5),
+            };
+            var bVertices = new List<Vector3>
+            {
+                new Vector3(-13, -13, 5), new Vector3(-13, -3, 5), new Vector3(-3, -3, 5), new Vector3(-3, -13, 5),
+                new Vector3(-13, -13, -5), new Vector3(-13, -3, -5), new Vector3(-3, -3, -5), new Vector3(-3, -13, -5),
+            };
+
+            var gjkResult = Algorithms.GJK(aPos, aVertices, bPos, bVertices);
+            // TODO: 3D EPA is NYI, this will fail
+            var (x, y, z) = Algorithms.EPA(gjkResult);
+
+            Assert.AreEqual(0, x);
+            Assert.AreEqual(-2, y);
+            Assert.AreEqual(0, z);
+        }
     }
 }
