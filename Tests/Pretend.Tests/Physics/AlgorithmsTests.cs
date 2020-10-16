@@ -35,7 +35,6 @@ namespace Pretend.Tests.Physics
             var bSize = new SizeComponent { Width = 100, Height = 10 };
 
             var result = Algorithms.GJK(aPos, aOrientation, aSize, bPos, bOrientation, bSize);
-            var a = Algorithms.EPA(result);
 
             Assert.IsTrue(result.Collision);
         }
@@ -80,6 +79,24 @@ namespace Pretend.Tests.Physics
             var result = Algorithms.GJK(aPos, aVertices, bPos, bVertices);
 
             Assert.IsTrue(result.Collision);
+        }
+
+        [TestMethod]
+        public void EPA_WhenColliding_ReturnsPenetrationVector()
+        {
+            var aPos = new Vector3(0, 0, 0);
+            var aOrientation = new Vector3(0, 0, 0);
+            var aSize = new SizeComponent { Width = 10, Height = 10 };
+            var bPos = new Vector3(2, -8, 0);
+            var bOrientation = new Vector3(0, 0, 0);
+            var bSize = new SizeComponent { Width = 10, Height = 10 };
+
+            var gjkResult = Algorithms.GJK(aPos, aOrientation, aSize, bPos, bOrientation, bSize);
+            var (x, y, z) = Algorithms.EPA(gjkResult);
+
+            Assert.AreEqual(0, x);
+            Assert.AreEqual(-2, y);
+            Assert.AreEqual(0, z);
         }
     }
 }

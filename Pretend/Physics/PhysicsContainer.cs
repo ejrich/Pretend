@@ -100,7 +100,7 @@ namespace Pretend.Physics
                         if (!result.Collision) continue;
 
                         updatePosition = false;
-                        var newPosition = InterpolateCollision(entity, other, position, otherPosition);
+                        var newPosition = InterpolateCollision(entity, other, position, otherPosition, result);
                         ChangePosition(entity, newPosition);
                     }
                     if (!updatePosition) continue;
@@ -117,35 +117,23 @@ namespace Pretend.Physics
             }
         }
 
-        private static Vector3 InterpolateCollision(IEntity entity, IEntity other, Vector3 position, Vector3 otherPosition)
+        private static Vector3 InterpolateCollision(IEntity entity, IEntity other, Vector3 position, Vector3 otherPosition, GJKResult result)
         {
             var ePhysicsComponent = entity.GetComponent<PhysicsComponent>();
 
             // Don't try to move the position if the entity is fixed
             if (ePhysicsComponent.Fixed) return position;
 
-            var (dx, dy) = CalculateDistance(position, entity.GetComponent<SizeComponent>(),
-                otherPosition, other.GetComponent<SizeComponent>());
             var oPhysicsComponent = other.GetComponent<PhysicsComponent>();
-            var eSize = entity.GetComponent<SizeComponent>();
-            var oSize = other.GetComponent<SizeComponent>();
             var interpolatedPosition = new Vector3(position);
 
             // Simulate fixed collisions
             if (oPhysicsComponent.Fixed)
             {
-                if (dx > dy)
-                {
-                    var dw = (eSize.Width / 2 + oSize.Width / 2) * (position.X > otherPosition.X ? 1 : -1);
-                    interpolatedPosition.X = otherPosition.X + dw;
-                    ePhysicsComponent.Velocity = new Vector3(0, ePhysicsComponent.Velocity.Y, ePhysicsComponent.Velocity.Z);
-                }
-                else
-                {
-                    var dh = (eSize.Height / 2 + oSize.Height / 2) * (position.Y > otherPosition.Y ? 1 : -1);
-                    interpolatedPosition.Y = otherPosition.Y + dh;
-                    ePhysicsComponent.Velocity = new Vector3(ePhysicsComponent.Velocity.X, 0, ePhysicsComponent.Velocity.Z);
-                }
+                var epaResult = Algorithms.EPA(result);
+                interpolatedPosition -= epaResult;
+                ePhysicsComponent.Velocity = new Vector3(epaResult.X == 0 ? ePhysicsComponent.Velocity.X : 0,
+                    epaResult.Y == 0 ? ePhysicsComponent.Velocity.Y : 0, epaResult.Z == 0 ? ePhysicsComponent.Velocity.Z : 0);
             }
             // TODO Simulate elastics collisions
 
