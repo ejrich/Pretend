@@ -132,13 +132,16 @@ namespace Pretend.Physics
             {
                 var epaResult = Algorithms.EPA(result);
                 interpolatedPosition -= epaResult;
-                ePhysicsComponent.Velocity = new Vector3(epaResult.X == 0 ? ePhysicsComponent.Velocity.X : 0,
-                    epaResult.Y == 0 ? ePhysicsComponent.Velocity.Y : 0, epaResult.Z == 0 ? ePhysicsComponent.Velocity.Z : 0);
+                ePhysicsComponent.Velocity = new Vector3(InterpolatedVelocity(ePhysicsComponent.Velocity.X, epaResult.X),
+                    InterpolatedVelocity(ePhysicsComponent.Velocity.Y, epaResult.Y),
+                    InterpolatedVelocity(ePhysicsComponent.Velocity.Z, epaResult.Z));
             }
             // TODO Simulate elastics collisions
 
             return interpolatedPosition;
         }
+
+        private static float InterpolatedVelocity(float o, float p) => Math.Sign(o) == Math.Sign(p) ? 0 : o;
 
         private (Vector3 position, Vector3 orientation) CalculatePosition(PhysicsComponent physicsComponent, PositionComponent position, float timeStep)
         {

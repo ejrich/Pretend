@@ -120,10 +120,10 @@ namespace Sandbox
         {
             var xSpeed = _rightSpeed - _leftSpeed;
 
-            if (_physics.Velocity.Y == 0 && _jump)
-            {
+            if (_physics.Velocity.Y != 0) return;
+
+            if (_jump)
                 _physics.Force = new Vector3(0,100000, 0);
-            }
 
             if (xSpeed == _physics.Velocity.X) return;
             _physics.Velocity = new Vector3(xSpeed, _physics.Velocity.Y, _physics.Velocity.Z);
