@@ -132,7 +132,6 @@ namespace Pretend.Graphics
             var transform = Matrix4.Identity *
                             Matrix4.CreateScale(renderObject.Width, renderObject.Height, 1) *
                             Matrix4.CreateFromQuaternion(renderObject.Rotation) *
-                            // Matrix4.CreateRotationZ(MathHelper.DegreesToRadians(renderObject.Rotation)) *
                             Matrix4.CreateTranslation(renderObject.X, renderObject.Y, renderObject.Z);
 
             if (_submissions.Count / VerticesInSubmission == MaxSubmissions)
