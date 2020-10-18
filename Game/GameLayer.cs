@@ -26,7 +26,6 @@ namespace Game
         public void Attach()
         {
             _scene.Init();
-            _physicsContainer.Gravity = new Vector3(0, -800, 0);
 
             var cameraEntity = _scene.CreateEntity();
             _scene.AddComponent(cameraEntity, new CameraComponent { Camera = _camera, Active = true });
@@ -38,15 +37,14 @@ namespace Game
             _scene.AddComponent(playerEntity, new SizeComponent { Width = 30, Height = 30 });
             _scene.AddComponent(playerEntity, new ColorComponent { Color = new Vector4(1, 0, 0, 1) });
             _scene.AddComponent(playerEntity, physicsComponent);
-            _scene.AddComponent(playerEntity, new PlayerScript(playerPosition, physicsComponent, _game));
+            _scene.AddComponent(playerEntity, new PlayerScript(playerPosition, physicsComponent));
 
             var floorEntity = _scene.CreateEntity();
             _scene.AddComponent(floorEntity, new PositionComponent { Y = -25 });
             _scene.AddComponent(floorEntity, new SizeComponent { Width = 1280, Height = 20 });
             _scene.AddComponent(floorEntity, new PhysicsComponent { Fixed = true });
 
-            _game.Init(_scene, playerPosition);
-            _physicsContainer.Start(144, _scene.EntityContainer);
+            _game.Init(_scene, _physicsContainer, playerPosition);
         }
 
         public void Update(float timeStep)

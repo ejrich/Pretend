@@ -11,26 +11,17 @@ namespace Game
 
         private readonly PositionComponent _position;
         private readonly PhysicsComponent _physics;
-        private readonly IGame _game;
 
-        public PlayerScript(PositionComponent position, PhysicsComponent physics, IGame game)
+        public PlayerScript(PositionComponent position, PhysicsComponent physics)
         {
             _position = position;
             _physics = physics;
-            _game = game;
         }
 
         public void Update(float timeStep)
         {
-            _physics.Fixed = !_game.Running;
-            if (!_game.Running)
-            {
-                _physics.Velocity = Vector3.Zero;
-                return;
-            }
-
             // Flip the player object if it's in the air
-            _position.Yaw = _position.Y > _game.FloorHeight ?
+            _position.Yaw = _physics.Velocity.Y != 0 ?
                 (_position.Yaw - RotationSpeed * timeStep) % 360 : 0;
         }
 
@@ -45,24 +36,6 @@ namespace Game
                     }
                     break;
             }
-        }
-    }
-
-    public class ObstacleScript : IScriptComponent
-    {
-        private readonly PhysicsComponent _physics;
-        private readonly IGame _game;
-
-        public ObstacleScript(PhysicsComponent physics, IGame game)
-        {
-            _physics = physics;
-            _game = game;
-        }
-
-        public void Update(float timeStep)
-        {
-            if (!_game.Running)
-                _physics.Velocity = Vector3.Zero;
         }
     }
 }

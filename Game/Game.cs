@@ -4,14 +4,14 @@ using System.Linq;
 using OpenToolkit.Mathematics;
 using Pretend;
 using Pretend.ECS;
+using Pretend.Physics;
 
 namespace Game
 {
     public interface IGame
     {
         bool Running { get; }
-        float FloorHeight { get; }
-        void Init(IScene scene, PositionComponent playerPosition);
+        void Init(IScene scene, IPhysicsContainer physicsContainer, PositionComponent playerPosition);
         void Update(float timeStep);
         void Reset();
     }
@@ -22,30 +22,33 @@ namespace Game
         private readonly Random _random;
         private readonly List<IEntity> _obstacles = new List<IEntity>();
         private IScene _scene;
+        private IPhysicsContainer _physicsContainer;
         private PositionComponent _playerPosition;
 
         public Game() => _random = new Random();
 
         public bool Running { get; private set; } = true;
-        public float FloorHeight { get; private set; }
+        private float _floorHeight;
 
-        public void Init(IScene scene, PositionComponent playerPosition)
+        public void Init(IScene scene, IPhysicsContainer physicsContainer, PositionComponent playerPosition)
         {
             _scene = scene;
+            _physicsContainer = physicsContainer;
             _playerPosition = playerPosition;
 
             ResetObstacles();
+
+            _physicsContainer.Gravity = new Vector3(0, -800, 0);
+            _physicsContainer.Start(144, _scene.EntityContainer);
         }
 
         private void AddObstacle(float x = 640)
         {
             var obstacle = _scene.CreateEntity();
             _obstacles.Add(obstacle);
-            var physicsComponent = new PhysicsComponent { Fixed = true, Kinematic = true, Velocity = new Vector3(-200, 0, 0) };
             _scene.AddComponent(obstacle, new PositionComponent { X = x });
             _scene.AddComponent(obstacle, new SizeComponent { Width = 40, Height = 40 });
-            _scene.AddComponent(obstacle, physicsComponent);
-            _scene.AddComponent(obstacle, new ObstacleScript(physicsComponent, this));
+            _scene.AddComponent(obstacle, new PhysicsComponent { Fixed = true, Kinematic = true, Velocity = new Vector3(-200, 0, 0) });
         }
 
         private void DeleteObstacle(IEntity obstacle)
@@ -70,20 +73,21 @@ namespace Game
             if (!Running) return;
 
             // Recalculate obstacle positions and determine the floor height
-            FloorHeight = 0;
+            _floorHeight = 0;
             foreach (var obstacle in _obstacles)
             {
                 var obstaclePosition = obstacle.GetComponent<PositionComponent>();
                 if (obstaclePosition.X < -35 || obstaclePosition.X > 35) continue;
 
-                FloorHeight = 35;
+                _floorHeight = 35;
                 break;
             }
 
             // Stop the game if there is a collision with an obstacle
-            if (FloorHeight > 0 && _playerPosition.Y < FloorHeight)
+            if (_floorHeight > 0 && _playerPosition.Y < _floorHeight)
             {
                 Running = false;
+                _physicsContainer.Stop();
                 return;
             }
 
@@ -98,10 +102,11 @@ namespace Game
 
         public void Reset()
         {
-            FloorHeight = 0;
+            _floorHeight = 0;
             _playerPosition.Y = 450;
             Running = true;
             ResetObstacles();
+            _physicsContainer.Start(144, _scene.EntityContainer);
         }
     }
 }
