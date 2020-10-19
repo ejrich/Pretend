@@ -83,8 +83,8 @@ namespace Pretend.Physics
                     var orientation = newOrientations[entity];
                     var physicsComponent = entity.GetComponent<PhysicsComponent>();
 
-                    // Kinematic objects ignore collisions
-                    if (physicsComponent.Kinematic)
+                    // Kinematic and non-solid object ignore collisions
+                    if (physicsComponent.Kinematic || !physicsComponent.Solid)
                         ChangePosition(entity, position, orientation);
 
                     // Don't calculate collisions if fixed or kinematic
@@ -130,28 +130,34 @@ namespace Pretend.Physics
             var interpolatedOrientation = new Vector3(orientation);
 
             // Simulate fixed collisions
-            if (oPhysicsComponent.Fixed)
+            if (oPhysicsComponent.Fixed && oPhysicsComponent.Solid)
             {
                 var epaResult = Algorithms.EPA(result);
                 interpolatedPosition -= epaResult;
-                ePhysicsComponent.Velocity = new Vector3(InterpolatedVelocity(ePhysicsComponent.Velocity.X, epaResult.X, Gravity.X),
-                    InterpolatedVelocity(ePhysicsComponent.Velocity.Y, epaResult.Y, Gravity.Y),
-                    InterpolatedVelocity(ePhysicsComponent.Velocity.Z, epaResult.Z, Gravity.Z));
+                ePhysicsComponent.Velocity = new Vector3(InterpolateVelocity(ePhysicsComponent.Velocity.X, epaResult.X, Gravity.X),
+                    InterpolateVelocity(ePhysicsComponent.Velocity.Y, epaResult.Y, Gravity.Y),
+                    InterpolateVelocity(ePhysicsComponent.Velocity.Z, epaResult.Z, Gravity.Z));
 
-                // TODO Make this calculation based on acceleration
-                var yaw = interpolatedOrientation.Z % 90;
-                var newAngle = epaResult.Y == 0 ? 0 : (float) MathHelper.RadiansToDegrees(Math.Atan(epaResult.X / epaResult.Y));
-                interpolatedOrientation.Z += yaw - newAngle > 45 ? 90 - yaw - newAngle : newAngle - yaw;
+                interpolatedOrientation += new Vector3(InterpolateOrientation(interpolatedOrientation.X, epaResult.Y, epaResult.Z),
+                    InterpolateOrientation(interpolatedOrientation.Y, epaResult.Z, epaResult.X),
+                    InterpolateOrientation(interpolatedOrientation.Z, epaResult.X, epaResult.Y));
             }
             // TODO Simulate elastics collisions
 
             return (interpolatedPosition, interpolatedOrientation);
         }
 
-        private static float InterpolatedVelocity(float o, float p, float g)
+        private static float InterpolateVelocity(float o, float p, float g)
         {
             if (Math.Sign(o) == Math.Sign(p)) return 0;
             return Math.Sign(o) + Math.Sign(g) == 0 ? 0 : o;
+        }
+
+        private static float InterpolateOrientation(float previous, float a, float b)
+        {
+            var theta = previous % 90;
+            var newAngle = b == 0 ? 0 : (float) MathHelper.RadiansToDegrees(Math.Atan(a / b));
+            return newAngle == 0 ? theta - newAngle > 45 ? 90 - theta - newAngle : newAngle - theta : 0;
         }
 
         private (Vector3 position, Vector3 orientation) CalculatePosition(PhysicsComponent physicsComponent, PositionComponent position, float timeStep)
@@ -207,7 +213,6 @@ namespace Pretend.Physics
             positionComponent.Z = z;
             positionComponent.Pitch = orientation.X;
             positionComponent.Roll = orientation.Y;
-            Console.WriteLine(orientation.Z);
             positionComponent.Yaw = orientation.Z;
         }
     }

@@ -1,5 +1,4 @@
-﻿using System.Threading;
-using OpenToolkit.Mathematics;
+﻿using OpenToolkit.Mathematics;
 using Pretend;
 using Pretend.ECS;
 using Pretend.Events;
