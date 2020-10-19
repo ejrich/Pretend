@@ -158,6 +158,9 @@ namespace Sandbox
                 case KeyCode.W:
                     _physics.AngularVelocity = new Vector3(0, 0, 90);
                     break;
+                case KeyCode.X:
+                    _physics.AngularVelocity = new Vector3(0, 0, -90);
+                    break;
                 case KeyCode.S:
                     _physics.AngularVelocity = Vector3.Zero;
                     break;
