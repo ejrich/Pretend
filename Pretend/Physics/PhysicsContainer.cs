@@ -28,7 +28,7 @@ namespace Pretend.Physics
         public void Start(int hertz, IEntityContainer entityContainer)
         {
             var timeStep = 1f / hertz;
-            var ms = (int)(timeStep * 1000) * 1;
+            var ms = (int)(timeStep * 1000);
             Running = true;
             var task = new Task(() =>
             {
@@ -138,10 +138,13 @@ namespace Pretend.Physics
                     InterpolateVelocity(ePhysicsComponent.Velocity.Y, epaResult.Y, Gravity.Y),
                     InterpolateVelocity(ePhysicsComponent.Velocity.Z, epaResult.Z, Gravity.Z));
 
-                interpolatedOrientation += new Vector3(InterpolateOrientation(interpolatedOrientation.X, epaResult.Y, epaResult.Z),
+                var dOrientation = new Vector3(InterpolateOrientation(interpolatedOrientation.X, epaResult.Y, epaResult.Z),
                     InterpolateOrientation(interpolatedOrientation.Y, epaResult.Z, epaResult.X),
                     InterpolateOrientation(interpolatedOrientation.Z, epaResult.X, epaResult.Y));
-                ePhysicsComponent.AngularVelocity = Vector3.Zero;
+                interpolatedOrientation += dOrientation;
+                ePhysicsComponent.AngularVelocity = new Vector3(dOrientation.X != 0 ? 0 : ePhysicsComponent.AngularVelocity.X,
+                    dOrientation.Y != 0 ? 0 : ePhysicsComponent.AngularVelocity.Y,
+                    dOrientation.Z != 0 ? 0 : ePhysicsComponent.AngularVelocity.Z);
             }
             // TODO Simulate elastics collisions
 
