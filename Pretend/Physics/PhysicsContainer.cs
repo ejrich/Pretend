@@ -28,7 +28,7 @@ namespace Pretend.Physics
         public void Start(int hertz, IEntityContainer entityContainer)
         {
             var timeStep = 1f / hertz;
-            var ms = (int)(timeStep * 1000);
+            var ms = (int)(timeStep * 1000) * 1;
             Running = true;
             var task = new Task(() =>
             {
@@ -77,13 +77,15 @@ namespace Pretend.Physics
                         newOrientations.Add(entity, newOrientation);
                     }
                 }
-                foreach (var (entity, position) in newPositions)
+                foreach (var entity in entities)
                 {
+                    var position = newPositions[entity];
+                    var orientation = newOrientations[entity];
                     var physicsComponent = entity.GetComponent<PhysicsComponent>();
 
-                    // Kinematic objects ignore collisions
-                    if (physicsComponent.Kinematic)
-                        ChangePosition(entity, position);
+                    // Kinematic and non-solid object ignore collisions
+                    if (physicsComponent.Kinematic || !physicsComponent.Solid)
+                        ChangePosition(entity, position, orientation);
 
                     // Don't calculate collisions if fixed or kinematic
                     if (physicsComponent.Fixed || physicsComponent.Kinematic) continue;
@@ -92,20 +94,18 @@ namespace Pretend.Physics
                     foreach (var other in entities.Where(_ => _ != entity))
                     {
                         var otherPosition = newPositions[other];
-                        // var collision = DetermineCollision(entity, position, other, otherPosition);
-                        var orientation = newOrientations[entity];
                         var otherOrientation = newOrientations[other];
                         var result = DetermineCollision(entity, position, orientation, other, otherPosition, otherOrientation);
 
                         if (!result.Collision) continue;
 
                         updatePosition = false;
-                        var newPosition = InterpolateCollision(entity, other, position, otherPosition, result);
-                        ChangePosition(entity, newPosition);
+                        var (newPosition, newOrientation) = InterpolateCollision(entity, other, position, otherPosition, orientation, result);
+                        ChangePosition(entity, newPosition, newOrientation);
                     }
                     if (!updatePosition) continue;
 
-                    ChangePosition(entity, position);
+                    ChangePosition(entity, position, orientation);
                 }
             }
 
@@ -117,31 +117,48 @@ namespace Pretend.Physics
             }
         }
 
-        private static Vector3 InterpolateCollision(IEntity entity, IEntity other, Vector3 position, Vector3 otherPosition, GJKResult result)
+        private (Vector3 position, Vector3 orientation) InterpolateCollision(IEntity entity, IEntity other,
+            Vector3 position, Vector3 otherPosition, Vector3 orientation, GJKResult result)
         {
             var ePhysicsComponent = entity.GetComponent<PhysicsComponent>();
 
             // Don't try to move the position if the entity is fixed
-            if (ePhysicsComponent.Fixed) return position;
+            if (ePhysicsComponent.Fixed) return (position, orientation);
 
             var oPhysicsComponent = other.GetComponent<PhysicsComponent>();
             var interpolatedPosition = new Vector3(position);
+            var interpolatedOrientation = new Vector3(orientation);
 
             // Simulate fixed collisions
-            if (oPhysicsComponent.Fixed)
+            if (oPhysicsComponent.Fixed && oPhysicsComponent.Solid)
             {
                 var epaResult = Algorithms.EPA(result);
                 interpolatedPosition -= epaResult;
-                ePhysicsComponent.Velocity = new Vector3(InterpolatedVelocity(ePhysicsComponent.Velocity.X, epaResult.X),
-                    InterpolatedVelocity(ePhysicsComponent.Velocity.Y, epaResult.Y),
-                    InterpolatedVelocity(ePhysicsComponent.Velocity.Z, epaResult.Z));
+                ePhysicsComponent.Velocity = new Vector3(InterpolateVelocity(ePhysicsComponent.Velocity.X, epaResult.X, Gravity.X),
+                    InterpolateVelocity(ePhysicsComponent.Velocity.Y, epaResult.Y, Gravity.Y),
+                    InterpolateVelocity(ePhysicsComponent.Velocity.Z, epaResult.Z, Gravity.Z));
+
+                interpolatedOrientation += new Vector3(InterpolateOrientation(interpolatedOrientation.X, epaResult.Y, epaResult.Z),
+                    InterpolateOrientation(interpolatedOrientation.Y, epaResult.Z, epaResult.X),
+                    InterpolateOrientation(interpolatedOrientation.Z, epaResult.X, epaResult.Y));
             }
             // TODO Simulate elastics collisions
 
-            return interpolatedPosition;
+            return (interpolatedPosition, interpolatedOrientation);
         }
 
-        private static float InterpolatedVelocity(float o, float p) => Math.Sign(o) == Math.Sign(p) ? 0 : o;
+        private static float InterpolateVelocity(float o, float p, float g)
+        {
+            if (Math.Sign(o) == Math.Sign(p)) return 0;
+            return Math.Sign(o) + Math.Sign(g) == 0 ? 0 : o;
+        }
+
+        private static float InterpolateOrientation(float previous, float a, float b)
+        {
+            var theta = previous % 90;
+            var newAngle = b == 0 ? 0 : (float) MathHelper.RadiansToDegrees(Math.Atan(a / b));
+            return newAngle == 0 ? theta - newAngle > 45 ? 90 - theta - newAngle : newAngle - theta : 0;
+        }
 
         private (Vector3 position, Vector3 orientation) CalculatePosition(PhysicsComponent physicsComponent, PositionComponent position, float timeStep)
         {
@@ -156,8 +173,20 @@ namespace Pretend.Physics
 
             // Calculate next position
             var newPosition = new Vector3(position.X + x, position.Y + y, position.Z + z);
+            
+            // Calculate dr
+            var (p, r, yaw) = physicsComponent.AngularVelocity * timeStep;
+            
+            // Calculate next orientation
+            var newOrientation = new Vector3(ChangeAngle(position.Pitch, p), ChangeAngle(position.Roll, r), ChangeAngle(position.Yaw, yaw));
 
-            return (newPosition, new Vector3(position.Pitch, position.Roll, position.Yaw));
+            return (newPosition, newOrientation);
+        }
+
+        private static float ChangeAngle(float o, float d)
+        {
+            if (o < 0) o += 360;
+            return (o - d) % 360;
         }
 
         private Vector3 DetermineAcceleration(PhysicsComponent physicsComponent)
@@ -169,34 +198,22 @@ namespace Pretend.Physics
             return Gravity + (physicsComponent.Force / (physicsComponent.Mass == 0 ? 1 : physicsComponent.Mass));
         }
 
-        private static bool DetermineCollision(IEntity a, Vector3 aNewPos, IEntity b, Vector3 bNewPos)
-        {
-            var (dx, dy) = CalculateDistance(aNewPos, a.GetComponent<SizeComponent>(), bNewPos, b.GetComponent<SizeComponent>());
-
-            return dx < 0 && dy < 0;
-        }
-
         private static GJKResult DetermineCollision(IEntity a, Vector3 aNewPos, Vector3 aOr, IEntity b, Vector3 bNewPos, Vector3 bOr)
         {
             return Algorithms.GJK(aNewPos, aOr, a.GetComponent<SizeComponent>(), 
                 bNewPos, bOr, b.GetComponent<SizeComponent>());
         }
 
-        private static (float dx, float dy) CalculateDistance(Vector3 aPos, SizeComponent aSize, Vector3 bPos, SizeComponent bSize)
-        {
-            var dx = Math.Abs(bPos.X - aPos.X) - (aSize.Width / 2 + bSize.Width / 2);
-            var dy = Math.Abs(bPos.Y - aPos.Y) - (aSize.Height / 2 + bSize.Height / 2);
-
-            return (dx, dy);
-        }
-
-        private static void ChangePosition(IEntity entity, Vector3 position)
+        private static void ChangePosition(IEntity entity, Vector3 position, Vector3 orientation)
         {
             var positionComponent = entity.GetComponent<PositionComponent>();
             var (x, y, z) = position;
             positionComponent.X = x;
             positionComponent.Y = y;
             positionComponent.Z = z;
+            positionComponent.Pitch = orientation.X;
+            positionComponent.Roll = orientation.Y;
+            positionComponent.Yaw = orientation.Z;
         }
     }
 }

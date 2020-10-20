@@ -252,8 +252,8 @@ namespace Pretend.Physics
                 var distance = Vector3.Dot(support, edge.Normal);
 
                 intersection = edge.Normal * distance;
-                if (Math.Abs(distance - edge.Distance) < 0.00001)
-                    return intersection;
+                if (Math.Abs(distance - edge.Distance) < 0.000001)
+                    return FixError(intersection);
 
                 simplex.Insert(edge.Index, support);
             }
@@ -285,6 +285,12 @@ namespace Pretend.Physics
             }
 
             return edge;
+        }
+
+        private static Vector3 FixError(Vector3 a)
+        {
+            const double error = 10e-10;
+            return new Vector3(Math.Abs(a.X) < error ? 0 : a.X, Math.Abs(a.Y) < error ? 0 : a.Y, Math.Abs(a.Z) < error ? 0 : a.Z);
         }
 
         private class Edge
