@@ -141,6 +141,7 @@ namespace Pretend.Physics
                 interpolatedOrientation += new Vector3(InterpolateOrientation(interpolatedOrientation.X, epaResult.Y, epaResult.Z),
                     InterpolateOrientation(interpolatedOrientation.Y, epaResult.Z, epaResult.X),
                     InterpolateOrientation(interpolatedOrientation.Z, epaResult.X, epaResult.Y));
+                ePhysicsComponent.AngularVelocity = Vector3.Zero;
             }
             // TODO Simulate elastics collisions
 

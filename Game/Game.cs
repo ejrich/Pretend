@@ -11,7 +11,7 @@ namespace Game
     public interface IGame
     {
         bool Running { get; }
-        void Init(IScene scene, IPhysicsContainer physicsContainer, PositionComponent playerPosition);
+        void Init(IScene scene, IPhysicsContainer physicsContainer, IEntity player);
         void Update(float timeStep);
         void Reset();
     }
@@ -23,18 +23,19 @@ namespace Game
         private readonly List<IEntity> _obstacles = new List<IEntity>();
         private IScene _scene;
         private IPhysicsContainer _physicsContainer;
+        private IEntity _player;
         private PositionComponent _playerPosition;
 
         public Game() => _random = new Random();
 
         public bool Running { get; private set; } = true;
-        private float _floorHeight;
 
-        public void Init(IScene scene, IPhysicsContainer physicsContainer, PositionComponent playerPosition)
+        public void Init(IScene scene, IPhysicsContainer physicsContainer, IEntity player)
         {
             _scene = scene;
             _physicsContainer = physicsContainer;
-            _playerPosition = playerPosition;
+            _player = player;
+            _playerPosition = player.GetComponent<PositionComponent>();
 
             ResetObstacles();
 
@@ -73,19 +74,18 @@ namespace Game
             if (!Running) return;
 
             // Recalculate obstacle positions and determine the floor height
-            _floorHeight = 0;
             foreach (var obstacle in _obstacles)
             {
                 var obstaclePosition = obstacle.GetComponent<PositionComponent>();
                 if (obstaclePosition.X < -35 || obstaclePosition.X > 35) continue;
 
-                _floorHeight = 35;
-                break;
-            }
+                // Stop the game if there is a collision with an obstacle
+                var gjkResult = Algorithms.GJK(_player, obstacle);
+                if (!gjkResult.Collision) continue;
 
-            // Stop the game if there is a collision with an obstacle
-            if (_floorHeight > 0 && _playerPosition.Y < _floorHeight)
-            {
+                var penetrationVector = Algorithms.EPA(gjkResult);
+                if (!(penetrationVector.X > 1e-7)) continue;
+
                 Running = false;
                 _physicsContainer.Stop();
                 return;
@@ -102,7 +102,7 @@ namespace Game
 
         public void Reset()
         {
-            _floorHeight = 0;
+            _playerPosition.X = 0;
             _playerPosition.Y = 450;
             Running = true;
             ResetObstacles();

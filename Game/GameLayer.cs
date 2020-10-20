@@ -32,19 +32,19 @@ namespace Game
 
             var playerEntity = _scene.CreateEntity();
             var playerPosition = new PositionComponent { Y = 450 };
-            var physicsComponent = new PhysicsComponent();
+            var physicsComponent = new PhysicsComponent { AngularVelocity = new Vector3(0, 0, 360) };
             _scene.AddComponent(playerEntity, playerPosition);
             _scene.AddComponent(playerEntity, new SizeComponent { Width = 30, Height = 30 });
             _scene.AddComponent(playerEntity, new ColorComponent { Color = new Vector4(1, 0, 0, 1) });
             _scene.AddComponent(playerEntity, physicsComponent);
-            _scene.AddComponent(playerEntity, new PlayerScript(playerPosition, physicsComponent));
+            _scene.AddComponent(playerEntity, new PlayerScript(physicsComponent));
 
             var floorEntity = _scene.CreateEntity();
             _scene.AddComponent(floorEntity, new PositionComponent { Y = -25 });
             _scene.AddComponent(floorEntity, new SizeComponent { Width = 1280, Height = 20 });
             _scene.AddComponent(floorEntity, new PhysicsComponent { Fixed = true });
 
-            _game.Init(_scene, _physicsContainer, playerPosition);
+            _game.Init(_scene, _physicsContainer, playerEntity);
         }
 
         public void Update(float timeStep)

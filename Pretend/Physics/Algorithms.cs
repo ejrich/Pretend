@@ -20,7 +20,19 @@ namespace Pretend.Physics
             new Vector4(0.5f, 0.5f, 0, 1), new Vector4(0.5f, -0.5f, 0, 1),
             new Vector4(-0.5f, -0.5f, 0, 1), new Vector4(-0.5f, 0.5f, 0, 1)
         };
-        
+
+        public static GJKResult GJK(IEntity a, IEntity b)
+        {
+            var aPosition = a.GetComponent<PositionComponent>();
+            var aPos = new Vector3(aPosition.X, aPosition.Y, aPosition.Z);
+            var aOr = new Vector3(aPosition.Pitch, aPosition.Roll, aPosition.Yaw);
+            var bPosition = b.GetComponent<PositionComponent>();
+            var bPos = new Vector3(bPosition.X, bPosition.Y, bPosition.Z);
+            var bOr = new Vector3(bPosition.Pitch, bPosition.Roll, bPosition.Yaw);
+
+            return GJK(aPos, aOr, a.GetComponent<SizeComponent>(), bPos, bOr, b.GetComponent<SizeComponent>());
+        }
+
         public static GJKResult GJK(Vector3 aPos, Vector3 aOrientation, SizeComponent aSize,
             Vector3 bPos, Vector3 bOrientation, SizeComponent bSize)
         {
