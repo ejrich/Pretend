@@ -84,7 +84,7 @@ namespace Game
                 if (!gjkResult.Collision) continue;
 
                 var penetrationVector = Algorithms.EPA(gjkResult);
-                if (!(penetrationVector.X > 1e-7)) continue;
+                if (penetrationVector.X <= 1e-7) continue;
 
                 Running = false;
                 _physicsContainer.Stop();

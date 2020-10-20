@@ -32,7 +32,7 @@ namespace Game
 
             var playerEntity = _scene.CreateEntity();
             var playerPosition = new PositionComponent { Y = 450 };
-            var physicsComponent = new PhysicsComponent { AngularVelocity = new Vector3(0, 0, 360) };
+            var physicsComponent = new PhysicsComponent();
             _scene.AddComponent(playerEntity, playerPosition);
             _scene.AddComponent(playerEntity, new SizeComponent { Width = 30, Height = 30 });
             _scene.AddComponent(playerEntity, new ColorComponent { Color = new Vector4(1, 0, 0, 1) });

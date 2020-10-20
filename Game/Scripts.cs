@@ -15,6 +15,7 @@ namespace Game
         public PlayerScript(PhysicsComponent physics)
         {
             _physics = physics;
+            _physics.AngularVelocity = new Vector3(0, 0, RotationSpeed);
         }
 
         public void Update(float timeStep)
