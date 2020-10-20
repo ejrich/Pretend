@@ -248,6 +248,16 @@ namespace Pretend.Physics
         {
             if (!result.Collision) return Vector3.Zero;
 
+            return result.Simplex.Count switch
+            {
+                3 => EPA2D(result),
+                4 => EPA3D(result),
+                _ => Vector3.Zero
+            };
+        }
+
+        private static Vector3 EPA2D(GJKResult result)
+        {
             var simplex = result.Simplex;
 
             var e0 = (simplex[1].X - simplex[0].X) * (simplex[1].Y + simplex[0].Y);
@@ -255,8 +265,8 @@ namespace Pretend.Physics
             var e2 = (simplex[0].X - simplex[2].X) * (simplex[0].Y + simplex[2].Y);
 
             var clockWise = e0 + e1 + e2 > 0;
-            
-            var intersection = new Vector3();
+
+            var intersection = Vector3.Zero;
             for (var i = 0; i < 20; i++)
             {
                 var edge = FindClosestEdge(simplex, clockWise);
@@ -264,10 +274,95 @@ namespace Pretend.Physics
                 var distance = Vector3.Dot(support, edge.Normal);
 
                 intersection = edge.Normal * distance;
-                if (Math.Abs(distance - edge.Distance) < 0.000001)
+                if (Math.Abs(distance - edge.Distance) < 1e-6)
                     return FixError(intersection);
 
                 simplex.Insert(edge.Index, support);
+            }
+
+            return intersection;
+        }
+
+        private static Vector3 EPA3D(GJKResult result)
+        {
+            var simplex = result.Simplex;
+
+            var faces = new List<Face>
+            {
+                new Face(simplex[0], simplex[1], simplex[2]),
+                new Face(simplex[0], simplex[2], simplex[3]),
+                new Face(simplex[0], simplex[3], simplex[1]),
+                new Face(simplex[1], simplex[3], simplex[2]),
+            };
+
+            var intersection = Vector3.Zero;
+            for (int iteration = 0; iteration < 20; iteration++)
+            {
+                var minDistance = float.MaxValue;
+                var closestFace = faces.First();
+                foreach (var face in faces)
+                {
+                    var dot = Vector3.Dot(face.Vertices[0], face.Normal);
+                    if (dot < minDistance)
+                    {
+                        minDistance = dot;
+                        closestFace = face;
+                    }
+                }
+
+                var support = Support(result.AVertices, result.BVertices, closestFace.Normal);
+                var distance = Vector3.Dot(support, closestFace.Normal);
+
+                intersection = closestFace.Normal * distance;
+                if (Math.Abs(distance - minDistance) < 1e-6)
+                    return FixError(intersection);
+                
+                var looseEdges = new List<Vector3[]>();
+
+                for (var i = 0; i < faces.Count; i++)
+                {
+                    if (Vector3.Dot(faces[i].Normal, support - faces[i].Vertices[0]) <= 0) continue;
+
+                    for (var j = 0; j < 3; j++)
+                    {
+                        var currentEdge = new[] { faces[i].Vertices[j], faces[i].Vertices[(j + 1) % 3] };
+                        var edgeFound = false;
+                        for (var k = 0; k < looseEdges.Count; k++)
+                        {
+                            if (looseEdges[k][1] == currentEdge[0] && looseEdges[k][0] == currentEdge[1])
+                            {
+                                looseEdges[k] = looseEdges[^1];
+                                looseEdges.Remove(looseEdges[^1]);
+                                edgeFound = true;
+                                k = looseEdges.Count;
+                            }
+                        }
+
+                        if (!edgeFound)
+                        {
+                            if (looseEdges.Count >= 32) break;
+                            looseEdges.Add(currentEdge);
+                        }
+                    }
+
+                    faces[i] = faces[^1];
+                    faces.Remove(faces[^1]);
+                    i--;
+                }
+
+                for (int i = 0; i < looseEdges.Count; i++)
+                {
+                    if (faces.Count >= 64) break;
+                    var face = new Face(looseEdges[i][0], looseEdges[i][1], support);
+                    faces.Add(face);
+
+                    if (Vector3.Dot(face.Vertices[0], face.Normal) + 1e-6 < 0)
+                    {
+                        face.Vertices[0] = looseEdges[i][1];
+                        face.Vertices[1] = looseEdges[i][0];
+                        face.Normal *= -1;
+                    }
+                }
             }
 
             return intersection;
@@ -283,9 +378,7 @@ namespace Pretend.Physics
             {
                 var j = i + 1 >= simplex.Count ? 0 : i + 1;
                 var (x, y, _) = simplex[j] - simplex[i];
-                var normal = clockWise ? new Vector3(y, -x, 0) : new Vector3(-y, x, 0);
-
-                normal.Normalize();
+                var normal = (clockWise ? new Vector3(y, -x, 0) : new Vector3(-y, x, 0)).Normalized();
 
                 var distance = Vector3.Dot(normal, simplex[i]);
                 if (distance < edge.Distance)
@@ -310,6 +403,18 @@ namespace Pretend.Physics
             public float Distance { get; set; }
             public Vector3 Normal { get; set; }
             public int Index { get; set; }
+        }
+
+        private class Face
+        {
+            public Face(Vector3 a, Vector3 b, Vector3 c)
+            {
+                Vertices = new List<Vector3> { a, b, c };
+                Normal = Vector3.Cross(b - a, c - a).Normalized();
+            }
+
+            public List<Vector3> Vertices { get; set; }
+            public Vector3 Normal { get; set; }
         }
     }
 }

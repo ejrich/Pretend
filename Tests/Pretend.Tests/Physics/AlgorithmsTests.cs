@@ -111,12 +111,11 @@ namespace Pretend.Tests.Physics
             };
             var bVertices = new List<Vector3>
             {
-                new Vector3(-13, -13, 5), new Vector3(-13, -3, 5), new Vector3(-3, -3, 5), new Vector3(-3, -13, 5),
-                new Vector3(-13, -13, -5), new Vector3(-13, -3, -5), new Vector3(-3, -3, -5), new Vector3(-3, -13, -5),
+                new Vector3(-5, -13, 5), new Vector3(-5, -3, 5), new Vector3(5, -3, 5), new Vector3(5, -13, 5),
+                new Vector3(-5, -13, -5), new Vector3(-5, -3, -5), new Vector3(5, -3, -5), new Vector3(5, -13, -5),
             };
 
             var gjkResult = Algorithms.GJK(aPos, aVertices, bPos, bVertices);
-            // TODO: 3D EPA is NYI, this will fail
             var (x, y, z) = Algorithms.EPA(gjkResult);
 
             Assert.AreEqual(0, x);
