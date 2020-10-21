@@ -90,7 +90,6 @@ namespace Pretend.Physics
                     // Don't calculate collisions if fixed or kinematic
                     if (physicsComponent.Fixed || physicsComponent.Kinematic) continue;
 
-                    var updatePosition = true;
                     foreach (var other in entities.Where(_ => _ != entity))
                     {
                         var otherPosition = newPositions[other];
@@ -99,11 +98,10 @@ namespace Pretend.Physics
 
                         if (!result.Collision) continue;
 
-                        updatePosition = false;
                         var (newPosition, newOrientation) = InterpolateCollision(entity, other, position, otherPosition, orientation, result);
-                        ChangePosition(entity, newPosition, newOrientation);
+                        position = newPosition;
+                        orientation = newOrientation;
                     }
-                    if (!updatePosition) continue;
 
                     ChangePosition(entity, position, orientation);
                 }
@@ -133,11 +131,8 @@ namespace Pretend.Physics
             if (oPhysicsComponent.Fixed && oPhysicsComponent.Solid)
             {
                 var epaResult = Algorithms.EPA(result);
-                interpolatedPosition -= epaResult;
-                ePhysicsComponent.Velocity = new Vector3(InterpolateVelocity(ePhysicsComponent.Velocity.X, epaResult.X, Gravity.X),
-                    InterpolateVelocity(ePhysicsComponent.Velocity.Y, epaResult.Y, Gravity.Y),
-                    InterpolateVelocity(ePhysicsComponent.Velocity.Z, epaResult.Z, Gravity.Z));
 
+                // Fix orientation based on the penetration vector
                 var dOrientation = new Vector3(InterpolateOrientation(interpolatedOrientation.X, epaResult.Y, epaResult.Z),
                     InterpolateOrientation(interpolatedOrientation.Y, epaResult.Z, epaResult.X),
                     InterpolateOrientation(interpolatedOrientation.Z, epaResult.X, epaResult.Y));
@@ -145,10 +140,24 @@ namespace Pretend.Physics
                 ePhysicsComponent.AngularVelocity = new Vector3(dOrientation.X != 0 ? 0 : ePhysicsComponent.AngularVelocity.X,
                     dOrientation.Y != 0 ? 0 : ePhysicsComponent.AngularVelocity.Y,
                     dOrientation.Z != 0 ? 0 : ePhysicsComponent.AngularVelocity.Z);
+
+                // Correct the position based on the penetration vector
+                var correctedResult = new Vector3(CorrectEPAResult(epaResult.X, epaResult.Yz, Gravity.Yz),
+                    CorrectEPAResult(epaResult.Y, epaResult.Xz, Gravity.Xz),
+                    CorrectEPAResult(epaResult.Z, epaResult.Xy, Gravity.Xy));
+                interpolatedPosition -= correctedResult;
+                ePhysicsComponent.Velocity = new Vector3(InterpolateVelocity(ePhysicsComponent.Velocity.X, correctedResult.X, Gravity.X),
+                    InterpolateVelocity(ePhysicsComponent.Velocity.Y, correctedResult.Y, Gravity.Y),
+                    InterpolateVelocity(ePhysicsComponent.Velocity.Z, correctedResult.Z, Gravity.Z));
             }
             // TODO Simulate elastics collisions
 
             return (interpolatedPosition, interpolatedOrientation);
+        }
+
+        private static float CorrectEPAResult(float a, Vector2 bc, Vector2 gbc)
+        {
+            return a == 0 || (bc[0] != 0 && gbc[0] != 0) || (bc[1] != 0 && gbc[1] != 0) ? 0 : a;
         }
 
         private static float InterpolateVelocity(float o, float p, float g)

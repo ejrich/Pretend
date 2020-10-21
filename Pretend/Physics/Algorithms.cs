@@ -21,6 +21,8 @@ namespace Pretend.Physics
             new Vector4(-0.5f, -0.5f, 0, 1), new Vector4(-0.5f, 0.5f, 0, 1)
         };
 
+        private const double DistanceFilter = 1e-4;
+
         public static GJKResult GJK(IEntity a, IEntity b)
         {
             var aPosition = a.GetComponent<PositionComponent>();
@@ -274,7 +276,7 @@ namespace Pretend.Physics
                 var distance = Vector3.Dot(support, edge.Normal);
 
                 intersection = edge.Normal * distance;
-                if (Math.Abs(distance - edge.Distance) < 1e-6)
+                if (Math.Abs(distance - edge.Distance) < DistanceFilter)
                     return FixError(intersection);
 
                 simplex.Insert(edge.Index, support);
@@ -326,7 +328,7 @@ namespace Pretend.Physics
                 var distance = Vector3.Dot(support, closestFace.Normal);
 
                 intersection = closestFace.Normal * distance;
-                if (Math.Abs(distance - closestFace.Distance) < 1e-6)
+                if (Math.Abs(distance - closestFace.Distance) < DistanceFilter)
                     return FixError(intersection);
 
                 var looseEdges = new List<Vector3[]>();
