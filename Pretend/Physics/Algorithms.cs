@@ -21,6 +21,8 @@ namespace Pretend.Physics
             new Vector4(-0.5f, -0.5f, 0, 1), new Vector4(-0.5f, 0.5f, 0, 1)
         };
 
+        private const double DistanceFilter = 1e-4;
+
         public static GJKResult GJK(IEntity a, IEntity b)
         {
             var aPosition = a.GetComponent<PositionComponent>();
@@ -248,6 +250,16 @@ namespace Pretend.Physics
         {
             if (!result.Collision) return Vector3.Zero;
 
+            return result.Simplex.Count switch
+            {
+                3 => EPA2D(result),
+                4 => EPA3D(result),
+                _ => Vector3.Zero
+            };
+        }
+
+        private static Vector3 EPA2D(GJKResult result)
+        {
             var simplex = result.Simplex;
 
             var e0 = (simplex[1].X - simplex[0].X) * (simplex[1].Y + simplex[0].Y);
@@ -255,8 +267,8 @@ namespace Pretend.Physics
             var e2 = (simplex[0].X - simplex[2].X) * (simplex[0].Y + simplex[2].Y);
 
             var clockWise = e0 + e1 + e2 > 0;
-            
-            var intersection = new Vector3();
+
+            var intersection = Vector3.Zero;
             for (var i = 0; i < 20; i++)
             {
                 var edge = FindClosestEdge(simplex, clockWise);
@@ -264,7 +276,7 @@ namespace Pretend.Physics
                 var distance = Vector3.Dot(support, edge.Normal);
 
                 intersection = edge.Normal * distance;
-                if (Math.Abs(distance - edge.Distance) < 0.000001)
+                if (Math.Abs(distance - edge.Distance) < DistanceFilter)
                     return FixError(intersection);
 
                 simplex.Insert(edge.Index, support);
@@ -283,20 +295,95 @@ namespace Pretend.Physics
             {
                 var j = i + 1 >= simplex.Count ? 0 : i + 1;
                 var (x, y, _) = simplex[j] - simplex[i];
-                var normal = clockWise ? new Vector3(y, -x, 0) : new Vector3(-y, x, 0);
-
-                normal.Normalize();
+                var normal = (clockWise ? new Vector3(y, -x, 0) : new Vector3(-y, x, 0)).Normalized();
 
                 var distance = Vector3.Dot(normal, simplex[i]);
-                if (distance < edge.Distance)
-                {
-                    edge.Distance = distance;
-                    edge.Normal = normal;
-                    edge.Index = j;
-                }
+                if (distance >= edge.Distance) continue;
+
+                edge.Distance = distance;
+                edge.Normal = normal;
+                edge.Index = j;
             }
 
             return edge;
+        }
+
+        private static Vector3 EPA3D(GJKResult result)
+        {
+            var simplex = result.Simplex;
+
+            var faces = new List<Face>
+            {
+                new Face(simplex[0], simplex[1], simplex[2]),
+                new Face(simplex[0], simplex[2], simplex[3]),
+                new Face(simplex[0], simplex[3], simplex[1]),
+                new Face(simplex[1], simplex[3], simplex[2]),
+            };
+
+            var intersection = Vector3.Zero;
+            for (int iteration = 0; iteration < 20; iteration++)
+            {
+                var closestFace = FindClosestFace(faces);
+                var support = Support(result.AVertices, result.BVertices, closestFace.Normal);
+                var distance = Vector3.Dot(support, closestFace.Normal);
+
+                intersection = closestFace.Normal * distance;
+                if (Math.Abs(distance - closestFace.Distance) < DistanceFilter)
+                    return FixError(intersection);
+
+                var looseEdges = new List<Vector3[]>();
+
+                for (var i = 0; i < faces.Count; i++)
+                {
+                    if (Vector3.Dot(faces[i].Normal, support - faces[i].Vertices[0]) <= 0) continue;
+
+                    for (var j = 0; j < 3; j++)
+                    {
+                        var currentEdge = new[] { faces[i].Vertices[j], faces[i].Vertices[(j + 1) % 3] };
+                        var edgeFound = false;
+                        for (var k = 0; k < looseEdges.Count; k++)
+                        {
+                            if (looseEdges[k][1] != currentEdge[0] || looseEdges[k][0] != currentEdge[1]) continue;
+
+                            looseEdges[k] = looseEdges[^1];
+                            looseEdges.Remove(looseEdges[^1]);
+                            edgeFound = true;
+                            k = looseEdges.Count;
+                        }
+
+                        if (!edgeFound)
+                        {
+                            if (looseEdges.Count >= 32) break;
+                            looseEdges.Add(currentEdge);
+                        }
+                    }
+
+                    faces[i] = faces[^1];
+                    faces.Remove(faces[^1]);
+                    i--;
+                }
+
+                foreach (var edge in looseEdges)
+                {
+                    if (faces.Count >= 64) break;
+                    var face = new Face(edge[0], edge[1], support);
+                    faces.Add(face);
+
+                    if (Vector3.Dot(face.Vertices[0], face.Normal) + 1e-6 >= 0) continue;
+
+                    face.Vertices[0] = edge[1];
+                    face.Vertices[1] = edge[0];
+                    face.Normal *= -1;
+                    face.Distance = Vector3.Dot(face.Vertices[0], face.Normal);
+                }
+            }
+
+            return intersection;
+        }
+
+        private static Face FindClosestFace(List<Face> faces)
+        {
+            return faces.Aggregate((min, x) => min == null || x.Distance < min.Distance ? x : min);
         }
 
         private static Vector3 FixError(Vector3 a)
@@ -310,6 +397,20 @@ namespace Pretend.Physics
             public float Distance { get; set; }
             public Vector3 Normal { get; set; }
             public int Index { get; set; }
+        }
+
+        private class Face
+        {
+            public Face(Vector3 a, Vector3 b, Vector3 c)
+            {
+                Vertices = new List<Vector3> { a, b, c };
+                Normal = Vector3.Cross(b - a, c - a).Normalized();
+                Distance = Vector3.Dot(a, Normal);
+            }
+
+            public List<Vector3> Vertices { get; }
+            public Vector3 Normal { get; set; }
+            public float Distance { get; set; }
         }
     }
 }
