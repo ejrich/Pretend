@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
-using OpenToolkit.Mathematics;
+using OpenTK.Mathematics;
 
 namespace Pretend.Graphics
 {
@@ -13,7 +13,7 @@ namespace Pretend.Graphics
         public float Z { get; set; }
         public uint Width { get; set; }
         public uint Height { get; set; }
-        public float Rotation { get; set; }
+        public Quaternion Rotation { get; set; }
         public Vector4 Color { get; set; } = Vector4.One;
         public ITexture2D Texture { get; set; }
     }
@@ -131,7 +131,7 @@ namespace Pretend.Graphics
         {
             var transform = Matrix4.Identity *
                             Matrix4.CreateScale(renderObject.Width, renderObject.Height, 1) *
-                            Matrix4.CreateRotationZ(MathHelper.DegreesToRadians(renderObject.Rotation)) *
+                            Matrix4.CreateFromQuaternion(renderObject.Rotation) *
                             Matrix4.CreateTranslation(renderObject.X, renderObject.Y, renderObject.Z);
 
             if (_submissions.Count / VerticesInSubmission == MaxSubmissions)

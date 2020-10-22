@@ -1,4 +1,4 @@
-using OpenToolkit.Mathematics;
+using OpenTK.Mathematics;
 
 namespace Pretend.Graphics
 {
@@ -26,7 +26,7 @@ namespace Pretend.Graphics
             {
                 _position = value;
                 var transform = Matrix4.Identity * Matrix4.CreateTranslation(_position);
-                Matrix4.Invert(ref transform, out _view);
+                Matrix4.Invert(in transform, out _view);
 
                 CalculateViewProjection();
             }

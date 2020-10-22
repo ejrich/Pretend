@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 
 namespace Pretend.ECS
@@ -32,7 +31,7 @@ namespace Pretend.ECS
         public List<IEntity> GetEntitiesWithComponent<T>() where T : IComponent
         {
             return _componentEntityDictionary.TryGetValue(typeof(T), out var entities) ?
-                entities : new List<IEntity>();
+                new List<IEntity>(entities) : new List<IEntity>();
         }
 
         public void AddComponent<T>(IEntity entity, T component) where T : IComponent
