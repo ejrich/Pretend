@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using OpenToolkit.Mathematics;
+using OpenTK.Mathematics;
 using Pretend;
 using Pretend.ECS;
 using Pretend.Physics;
