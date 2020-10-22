@@ -1,5 +1,5 @@
 using System;
-using OpenToolkit.Graphics.OpenGL4;
+using OpenTK.Graphics.OpenGL4;
 
 namespace Pretend.Graphics.OpenGL
 {

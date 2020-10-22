@@ -3,8 +3,8 @@ using System.IO;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
-using OpenToolkit.Graphics.OpenGL4;
-using OpenToolkit.Mathematics;
+using OpenTK.Graphics.OpenGL4;
+using OpenTK.Mathematics;
 
 namespace Pretend.Graphics.OpenGL
 {

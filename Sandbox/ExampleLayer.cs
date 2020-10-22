@@ -2,7 +2,7 @@ using Pretend;
 using Pretend.Events;
 using Pretend.Layers;
 using Pretend.Graphics;
-using OpenToolkit.Mathematics;
+using OpenTK.Mathematics;
 
 namespace Sandbox
 {

@@ -4,7 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using OpenToolkit.Mathematics;
+using OpenTK.Mathematics;
 using Pretend.ECS;
 
 namespace Pretend.Physics

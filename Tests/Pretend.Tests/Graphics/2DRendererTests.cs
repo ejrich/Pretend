@@ -2,7 +2,7 @@ using System;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using OpenToolkit.Mathematics;
+using OpenTK.Mathematics;
 using Pretend.Graphics;
 
 namespace Pretend.Tests.Graphics
