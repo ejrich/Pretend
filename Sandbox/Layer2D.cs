@@ -4,6 +4,7 @@ using Pretend.ECS;
 using Pretend.Events;
 using Pretend.Graphics;
 using Pretend.Layers;
+using Pretend.Physics;
 
 namespace Sandbox
 {
@@ -12,15 +13,17 @@ namespace Sandbox
         private readonly ICamera _camera;
         private readonly IFactory _factory;
         private readonly IScene _scene;
+        private readonly IPhysicsContainer _physicsContainer;
 
         private ITexture2D _texture;
         private ITexture2D _texture2;
 
-        public Layer2D(ICamera camera, IFactory factory, IScene scene)
+        public Layer2D(ICamera camera, IFactory factory, IScene scene, IPhysicsContainer physicsContainer)
         {
             _camera = camera;
             _factory = factory;
             _scene = scene;
+            _physicsContainer = physicsContainer;
         }
 
         public void Attach()
@@ -32,6 +35,7 @@ namespace Sandbox
             _texture2.SetData("Assets/picture2.png");
 
             _scene.Init();
+            _physicsContainer.Gravity = new Vector3(0, -800, 0);
 
             var entity = _scene.CreateEntity();
             _scene.AddComponent(entity, new CameraComponent {Camera = _camera, Active = true});
@@ -54,10 +58,17 @@ namespace Sandbox
             _scene.AddComponent(entity, new PositionComponent {X = -400, Y = -100});
             _scene.AddComponent(entity, new SizeComponent {Width = 300, Height = 300});
             _scene.AddComponent(entity, new TextureComponent {Texture = _texture2});
+            _scene.AddComponent(entity, new PhysicsComponent {Velocity = new Vector3(300, 500, 0)});
+
+            entity = _scene.CreateEntity();
+            _scene.AddComponent(entity, new PositionComponent {Y = -360});
+            _scene.AddComponent(entity, new SizeComponent {Width = 1280, Height = 10});
+            _scene.AddComponent(entity, new PhysicsComponent {Fixed = true });
         }
 
         public void Update(float timeStep)
         {
+            _physicsContainer.Simulate(timeStep, _scene.EntityContainer);
             _scene.Update(timeStep);
             _scene.Render();
         }

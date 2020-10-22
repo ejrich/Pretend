@@ -8,6 +8,7 @@ namespace Pretend.ECS
     {
         List<IEntity> Entities { get; }
         List<T> GetComponents<T>() where T : IComponent;
+        List<IEntity> GetEntitiesWithComponent<T>() where T : IComponent;
         void AddComponent<T>(IEntity entity, T component) where T : IComponent;
         IEntity CreateEntity();
         void DeleteEntity(IEntity entity);
@@ -17,6 +18,7 @@ namespace Pretend.ECS
     {
         private readonly IDictionary<Guid, IEntity> _entityDictionary = new Dictionary<Guid, IEntity>();
         private readonly IDictionary<Type, List<IComponent>> _components = new Dictionary<Type, List<IComponent>>();
+        private readonly IDictionary<Type, List<IEntity>> _componentEntityDictionary = new Dictionary<Type, List<IEntity>>();
 
         public List<IEntity> Entities => _entityDictionary.Values.ToList();
 
@@ -26,14 +28,23 @@ namespace Pretend.ECS
                 components.Select(_ => (T) _).ToList() : new List<T>();
         }
 
+        public List<IEntity> GetEntitiesWithComponent<T>() where T : IComponent
+        {
+            return _componentEntityDictionary.TryGetValue(typeof(T), out var entities) ?
+                new List<IEntity>(entities) : new List<IEntity>();
+        }
+
         public void AddComponent<T>(IEntity entity, T component) where T : IComponent
         {
             entity.AddComponent(component);
 
             if (!_components.TryGetValue(typeof(T), out var components))
                 _components[typeof(T)] = components = new List<IComponent>();
-
             components.Add(component);
+            
+            if (!_componentEntityDictionary.TryGetValue(typeof(T), out var entities))
+                _componentEntityDictionary[typeof(T)] = entities = new List<IEntity>();
+            entities.Add(entity);
         }
 
         public IEntity CreateEntity()
@@ -52,6 +63,9 @@ namespace Pretend.ECS
                 var type = component is IScriptComponent ? typeof(IScriptComponent) : component.GetType();
                 if (_components.TryGetValue(type, out var components))
                     components.Remove(component);
+
+                if (_componentEntityDictionary.TryGetValue(type, out var entities))
+                    entities.Remove(entity);
             }
         }
     }

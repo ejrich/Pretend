@@ -1,4 +1,6 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
+using OpenToolkit.Mathematics;
 using Pretend.Events;
 using Pretend.Graphics;
 
@@ -13,18 +15,20 @@ namespace Pretend.ECS
         void HandleEvent(IEvent evnt);
         void Update(float timeStep);
         void Render();
+        IEntityContainer EntityContainer { get; }
     }
 
     public class Scene : IScene
     {
         private readonly I2DRenderer _renderer;
-        private readonly IEntityContainer _entityContainer;
 
         public Scene(I2DRenderer renderer, IEntityContainer entityContainer)
         {
             _renderer = renderer;
-            _entityContainer = entityContainer;
+            EntityContainer = entityContainer;
         }
+
+        public IEntityContainer EntityContainer { get; }
 
         public void Init()
         {
@@ -33,7 +37,7 @@ namespace Pretend.ECS
 
         public IEntity CreateEntity()
         {
-            return _entityContainer.CreateEntity();
+            return EntityContainer.CreateEntity();
         }
 
         public void DeleteEntity(IEntity entity)
@@ -41,7 +45,7 @@ namespace Pretend.ECS
             if (entity == null) return;
 
             entity.GetComponent<IScriptComponent>()?.Detach();
-            _entityContainer.DeleteEntity(entity);
+            EntityContainer.DeleteEntity(entity);
         }
 
         public void AddComponent<T>(IEntity entity, T component) where T : IComponent
@@ -49,15 +53,15 @@ namespace Pretend.ECS
             if (component is IScriptComponent scriptComponent)
             {
                 scriptComponent.Attach();
-                _entityContainer.AddComponent(entity, scriptComponent);
+                EntityContainer.AddComponent(entity, scriptComponent);
                 return;
             }
-            _entityContainer.AddComponent(entity, component);
+            EntityContainer.AddComponent(entity, component);
         }
 
         public void HandleEvent(IEvent evnt)
         {
-            foreach (var script in _entityContainer.GetComponents<IScriptComponent>())
+            foreach (var script in EntityContainer.GetComponents<IScriptComponent>())
             {
                 script.HandleEvent(evnt);
             }
@@ -65,7 +69,7 @@ namespace Pretend.ECS
 
         public void Update(float timeStep)
         {
-            foreach (var script in _entityContainer.GetComponents<IScriptComponent>())
+            foreach (var script in EntityContainer.GetComponents<IScriptComponent>())
             {
                 script.Update(timeStep);
             }
@@ -73,12 +77,12 @@ namespace Pretend.ECS
 
         public void Render()
         {
-            var cameraComponent = _entityContainer.GetComponents<CameraComponent>()
+            var cameraComponent = EntityContainer.GetComponents<CameraComponent>()
                 .FirstOrDefault(camera => camera.Active);
 
             _renderer.Begin(cameraComponent?.Camera);
 
-            foreach (var entity in _entityContainer.Entities)
+            foreach (var entity in EntityContainer.Entities)
             {
                 var renderObject = new Renderable2DObject();
                 foreach (var component in entity.Components)
@@ -89,7 +93,7 @@ namespace Pretend.ECS
                             renderObject.X = position.X;
                             renderObject.Y = position.Y;
                             renderObject.Z = position.Z;
-                            renderObject.Rotation = position.Rotation;
+                            renderObject.Rotation = new Quaternion(ToRadians(position.Roll), ToRadians(position.Pitch), ToRadians(position.Yaw));
                             break;
                         case SizeComponent size:
                             renderObject.Width = size.Width;
@@ -108,5 +112,7 @@ namespace Pretend.ECS
 
             _renderer.End();
         }
+
+        private float ToRadians(float angle) => angle * ((float) Math.PI / 180f);
     }
 }

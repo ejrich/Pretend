@@ -13,7 +13,9 @@ namespace Pretend.ECS
         public float X { get; set; }
         public float Y { get; set; }
         public float Z { get; set; }
-        public float Rotation { get; set; }
+        public float Roll { get; set; }
+        public float Pitch { get; set; }
+        public float Yaw { get; set; }
     }
 
     public class SizeComponent : IComponent
@@ -44,5 +46,16 @@ namespace Pretend.ECS
         void Update(float timeStep);
         void HandleEvent(IEvent evnt) {}
         void Detach() {}
+    }
+
+    public class PhysicsComponent : IComponent
+    {
+        public bool Fixed { get; set; }
+        public bool Kinematic { get; set; }
+        public bool Solid { get; set; } = true;
+        public float Mass { get; set; }
+        public Vector3 Velocity { get; set; }
+        public Vector3 AngularVelocity { get; set; }
+        public Vector3 Force { get; set; }
     }
 }

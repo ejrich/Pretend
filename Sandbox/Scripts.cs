@@ -97,9 +97,90 @@ namespace Sandbox
         
         public void Update(float timeStep)
         {
-            _position.Rotation += 100 * timeStep;
-            if (_position.Rotation >= 360)
-                _position.Rotation = 0;
+            _position.Yaw += 100 * timeStep;
+            if (_position.Yaw >= 360)
+                _position.Yaw = 0;
+        }
+    }
+
+    public class ControlScript : IScriptComponent
+    {
+        private readonly PhysicsComponent _physics;
+
+        private float _leftSpeed;
+        private float _rightSpeed;
+        private bool _jump;
+
+        public ControlScript(PhysicsComponent physics)
+        {
+            _physics = physics;
+        }
+
+        public void Update(float timeStep)
+        {
+            var xSpeed = _rightSpeed - _leftSpeed;
+
+            if (_physics.Velocity.Y != 0) return;
+
+            if (_jump)
+                _physics.Force = new Vector3(0,100000, 0);
+
+            if (xSpeed == _physics.Velocity.X) return;
+            _physics.Velocity = new Vector3(xSpeed, _physics.Velocity.Y, _physics.Velocity.Z);
+        }
+
+        public void HandleEvent(IEvent evnt)
+        {
+            switch (evnt)
+            {
+                case KeyPressedEvent keyPressed:
+                    HandleKeyPress(keyPressed);
+                    break;
+                case KeyReleasedEvent keyReleased:
+                    HandleKeyRelease(keyReleased);
+                    break;
+            }
+        }
+
+        private void HandleKeyPress(KeyPressedEvent evnt)
+        {
+            switch (evnt.KeyCode)
+            {
+                case KeyCode.A:
+                    _leftSpeed = 200;
+                    break;
+                case KeyCode.D:
+                    _rightSpeed = 200;
+                    break;
+                case KeyCode.Space:
+                    _jump = true;
+                    break;
+                case KeyCode.W:
+                    _physics.AngularVelocity = new Vector3(0, 0, 90);
+                    break;
+                case KeyCode.X:
+                    _physics.AngularVelocity = new Vector3(0, 0, -90);
+                    break;
+                case KeyCode.S:
+                    _physics.AngularVelocity = Vector3.Zero;
+                    break;
+            }
+        }
+
+        private void HandleKeyRelease(KeyReleasedEvent evnt)
+        {
+            switch (evnt.KeyCode)
+            {
+                case KeyCode.A:
+                    _leftSpeed = 0;
+                    break;
+                case KeyCode.D:
+                    _rightSpeed = 0;
+                    break;
+                case KeyCode.Space:
+                    _jump = false;
+                    break;
+            }
         }
     }
 }
