@@ -16,13 +16,19 @@ steps:
 - checkout: self
   submodules: true
 
+- task: UseDotNet@2
+  inputs:
+    version: '5.0.x'
+    includePreviewVersions: true
+
 - task: DotNetCoreCLI@2
   displayName: 'Build'
   inputs:
     command: 'build'
-    arguments: '--configuration $(BuildConfiguration)'
+    arguments: '-c $(BuildConfiguration)'
 
 - task: DotNetCoreCLI@2
   displayName: 'Test'
   inputs:
     command: 'test'
+    arguments: '-c $(BuildConfiguration) --no-build'
