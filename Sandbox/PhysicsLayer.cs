@@ -1,5 +1,6 @@
 ﻿using OpenTK.Mathematics;
 using Pretend;
+using Pretend.Audio;
 using Pretend.ECS;
 using Pretend.Events;
 using Pretend.Graphics;
@@ -63,6 +64,8 @@ namespace Sandbox
             _scene.AddComponent(entity, new PhysicsComponent {Fixed = true });
 
             _physicsContainer.Start(144, _scene.EntityContainer);
+            var sound = new Sound();
+            sound.Play("Assets/sound.wav");
         }
 
         public void Update(float timeStep)
