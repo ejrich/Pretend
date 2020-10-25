@@ -8,6 +8,7 @@ namespace Pretend.Layers
         void PushLayer(ILayer layer);
         void RemoveLayer(ILayer layer);
         void Update(float timeStep);
+        void RemoveAll();
     }
 
     public class LayerContainer : ILayerContainer
@@ -39,6 +40,13 @@ namespace Pretend.Layers
             {
                 layer.Update(timeStep);
             }
+        }
+
+        public void RemoveAll()
+        {
+            foreach (var layer in _layers)
+                layer.Detach();
+            _layers.Clear();
         }
 
         private void HandleEvent(IEvent evnt)

@@ -1,4 +1,4 @@
-﻿using OpenToolkit.Mathematics;
+﻿using OpenTK.Mathematics;
 using Pretend;
 using Pretend.ECS;
 using Pretend.Events;
@@ -106,14 +106,16 @@ namespace Sandbox
     public class ControlScript : IScriptComponent
     {
         private readonly PhysicsComponent _physics;
+        private readonly SourceComponent _source;
 
         private float _leftSpeed;
         private float _rightSpeed;
         private bool _jump;
 
-        public ControlScript(PhysicsComponent physics)
+        public ControlScript(PhysicsComponent physics, SourceComponent source)
         {
             _physics = physics;
+            _source = source;
         }
 
         public void Update(float timeStep)
@@ -123,7 +125,10 @@ namespace Sandbox
             if (_physics.Velocity.Y != 0) return;
 
             if (_jump)
-                _physics.Force = new Vector3(0,100000, 0);
+            {
+                _physics.Force = new Vector3(0, 100000, 0);
+                _source.Play = true;
+            }
 
             if (xSpeed == _physics.Velocity.X) return;
             _physics.Velocity = new Vector3(xSpeed, _physics.Velocity.Y, _physics.Velocity.Z);

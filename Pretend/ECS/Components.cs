@@ -1,4 +1,5 @@
-﻿using OpenToolkit.Mathematics;
+﻿using OpenTK.Mathematics;
+using Pretend.Audio;
 using Pretend.Events;
 using Pretend.Graphics;
 
@@ -57,5 +58,19 @@ namespace Pretend.ECS
         public Vector3 Velocity { get; set; }
         public Vector3 AngularVelocity { get; set; }
         public Vector3 Force { get; set; }
+    }
+
+    public class ListenerComponent : IComponent
+    {
+        public bool Active { get; set; }
+        public float Gain { get; set; } = 1;
+    }
+
+    public class SourceComponent : IComponent
+    {
+        public ISource Source { get; set; }
+        public ISoundBuffer SoundBuffer { get; set; }
+        public bool Play { get; set; }
+        public bool Loop { get; set; }
     }
 }

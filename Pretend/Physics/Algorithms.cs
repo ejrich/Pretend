@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using OpenToolkit.Mathematics;
+using OpenTK.Mathematics;
 using Pretend.ECS;
 
 namespace Pretend.Physics
@@ -388,7 +388,7 @@ namespace Pretend.Physics
 
         private static Vector3 FixError(Vector3 a)
         {
-            const double error = 10e-10;
+            const double error = 1e-8;
             return new Vector3(Math.Abs(a.X) < error ? 0 : a.X, Math.Abs(a.Y) < error ? 0 : a.Y, Math.Abs(a.Z) < error ? 0 : a.Z);
         }
 

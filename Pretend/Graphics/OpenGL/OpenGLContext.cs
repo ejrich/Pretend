@@ -1,6 +1,6 @@
 using System;
-using OpenToolkit;
-using OpenToolkit.Graphics.OpenGL4;
+using OpenTK;
+using OpenTK.Graphics.OpenGL4;
 using SDL2;
 
 namespace Pretend.Graphics.OpenGL
