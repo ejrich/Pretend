@@ -38,7 +38,7 @@ namespace Sandbox
             texture.SetData("Assets/landscape.jpeg");
 
             var soundBuffer = _soundManager.CreateSoundBuffer();
-            soundBuffer.SetData("Assets/sound.wav");
+            soundBuffer.SetData("Assets/jump.wav");
 
             var source = _soundManager.CreateSource();
             source.Gain = 1f;
