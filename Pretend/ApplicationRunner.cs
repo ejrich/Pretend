@@ -48,6 +48,7 @@ namespace Pretend
                 _window.OnUpdate();
             }
 
+            _layerContainer.RemoveAll();
             _application.Stop();
             _window.Close();
         }
