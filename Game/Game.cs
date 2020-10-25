@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using OpenToolkit.Mathematics;
+using OpenTK.Mathematics;
 using Pretend;
 using Pretend.ECS;
 using Pretend.Physics;
@@ -11,7 +11,7 @@ namespace Game
     public interface IGame
     {
         bool Running { get; }
-        void Init(IScene scene, IPhysicsContainer physicsContainer, IEntity player);
+        void Init(IScene scene, IPhysicsContainer physicsContainer, IEntity player, IEntity theme);
         void Update(float timeStep);
         void Reset();
     }
@@ -25,17 +25,19 @@ namespace Game
         private IPhysicsContainer _physicsContainer;
         private IEntity _player;
         private PositionComponent _playerPosition;
+        private SourceComponent _themeSource;
 
         public Game() => _random = new Random();
 
         public bool Running { get; private set; } = true;
 
-        public void Init(IScene scene, IPhysicsContainer physicsContainer, IEntity player)
+        public void Init(IScene scene, IPhysicsContainer physicsContainer, IEntity player, IEntity theme)
         {
             _scene = scene;
             _physicsContainer = physicsContainer;
             _player = player;
             _playerPosition = player.GetComponent<PositionComponent>();
+            _themeSource = theme.GetComponent<SourceComponent>();
 
             ResetObstacles();
 
@@ -88,6 +90,7 @@ namespace Game
 
                 Running = false;
                 _physicsContainer.Stop();
+                _themeSource.Source.Stop();
                 return;
             }
 
@@ -107,6 +110,7 @@ namespace Game
             Running = true;
             ResetObstacles();
             _physicsContainer.Start(144, _scene.EntityContainer);
+            _themeSource.Play = true;
         }
     }
 }

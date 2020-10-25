@@ -1,5 +1,6 @@
-using OpenToolkit.Mathematics;
+using OpenTK.Mathematics;
 using Pretend;
+using Pretend.Audio;
 using Pretend.ECS;
 using Pretend.Events;
 using Pretend.Graphics;
@@ -13,13 +14,16 @@ namespace Game
         private readonly ICamera _camera;
         private readonly IScene _scene;
         private readonly IPhysicsContainer _physicsContainer;
+        private readonly ISoundManager _soundManager;
         private readonly IGame _game;
 
-        public GameLayer(ICamera camera, IScene scene, IPhysicsContainer physicsContainer, IGame game)
+        public GameLayer(ICamera camera, IScene scene, IPhysicsContainer physicsContainer, ISoundManager soundManager,
+            IGame game)
         {
             _camera = camera;
             _scene = scene;
             _physicsContainer = physicsContainer;
+            _soundManager = soundManager;
             _game = game;
         }
 
@@ -30,21 +34,33 @@ namespace Game
             var cameraEntity = _scene.CreateEntity();
             _scene.AddComponent(cameraEntity, new CameraComponent { Camera = _camera, Active = true });
 
+            var jumpSound = _soundManager.CreateSoundBuffer();
+            jumpSound.SetData("Assets/jump.wav");
+            var playerSource = _soundManager.CreateSource();
+
             var playerEntity = _scene.CreateEntity();
-            var playerPosition = new PositionComponent { Y = 450 };
-            var physicsComponent = new PhysicsComponent();
-            _scene.AddComponent(playerEntity, playerPosition);
+            _scene.AddComponent(playerEntity, new PositionComponent { Y = 450 });
             _scene.AddComponent(playerEntity, new SizeComponent { Width = 30, Height = 30 });
             _scene.AddComponent(playerEntity, new ColorComponent { Color = new Vector4(1, 0, 0, 1) });
-            _scene.AddComponent(playerEntity, physicsComponent);
-            _scene.AddComponent(playerEntity, new PlayerScript(physicsComponent));
+            _scene.AddComponent(playerEntity, new PhysicsComponent());
+            _scene.AddComponent(playerEntity, new SourceComponent { Source = playerSource, SoundBuffer = jumpSound });
+            _scene.AddComponent(playerEntity, new PlayerScript(playerEntity));
 
             var floorEntity = _scene.CreateEntity();
             _scene.AddComponent(floorEntity, new PositionComponent { Y = -25 });
             _scene.AddComponent(floorEntity, new SizeComponent { Width = 1280, Height = 20 });
             _scene.AddComponent(floorEntity, new PhysicsComponent { Fixed = true });
 
-            _game.Init(_scene, _physicsContainer, playerEntity);
+            var theme= _soundManager.CreateSoundBuffer();
+            theme.SetData("Assets/theme.wav");
+            var themeSource = _soundManager.CreateSource();
+            themeSource.Gain = 0.1f;
+
+            var themeEntity = _scene.CreateEntity();
+            _scene.AddComponent(themeEntity, new SourceComponent { Source = themeSource, SoundBuffer = theme, Play = true, Loop = true });
+
+            _game.Init(_scene, _physicsContainer, playerEntity, themeEntity);
+            _soundManager.Start(60, _scene.EntityContainer);
         }
 
         public void Update(float timeStep)
@@ -54,6 +70,13 @@ namespace Game
 
             _scene.Update(timeStep);
             _scene.Render();
+        }
+
+        public void Detach()
+        {
+            _physicsContainer.Stop();
+            _soundManager.Stop();
+            _soundManager.Dispose();
         }
 
         public void HandleEvent(IEvent evnt)

@@ -1,4 +1,4 @@
-﻿using OpenToolkit.Mathematics;
+﻿using OpenTK.Mathematics;
 using Pretend;
 using Pretend.ECS;
 using Pretend.Events;
@@ -11,10 +11,12 @@ namespace Game
         private const float RotationSpeed = 360;
 
         private readonly PhysicsComponent _physics;
+        private readonly SourceComponent _source;
 
-        public PlayerScript(PhysicsComponent physics)
+        public PlayerScript(IEntity playerEntity)
         {
-            _physics = physics;
+            _physics = playerEntity.GetComponent<PhysicsComponent>();
+            _source = playerEntity.GetComponent<SourceComponent>();
             _physics.AngularVelocity = new Vector3(0, 0, RotationSpeed);
         }
 
@@ -31,6 +33,7 @@ namespace Game
                     {
                         _physics.Velocity = new Vector3(0, JumpSpeed, 0);
                         _physics.AngularVelocity = new Vector3(0, 0, RotationSpeed);
+                        _source.Play = true;
                     }
                     break;
             }
