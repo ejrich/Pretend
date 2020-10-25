@@ -56,6 +56,7 @@ namespace Pretend.Tests
             _mockWindow.Setup(_ => _.Close());
             _mockWindow.Setup(_ => _.OnUpdate()).Callback(() => _target.OnClose(new WindowCloseEvent()));
             _mockLayerContainer.Setup(_ => _.Update(It.IsAny<float>()));
+            _mockLayerContainer.Setup(_ => _.RemoveAll());
 
             _target.Run();
 

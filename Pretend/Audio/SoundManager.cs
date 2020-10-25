@@ -24,6 +24,7 @@ namespace Pretend.Audio
     public class SoundManager : ISoundManager
     {
         private readonly IAudioContext _context;
+        private readonly IFactory _factory;
         private readonly IListener _listener;
 
         private readonly List<ISoundBuffer> _buffers = new List<ISoundBuffer>();
@@ -32,9 +33,10 @@ namespace Pretend.Audio
         public SoundManager(IAudioContext context, IFactory factory)
         {
             _context = context;
-            _context.Create();
+            _factory = factory;
 
-            _listener = new Listener();
+            _context.Create();
+            _listener = _factory.Create<IListener>();
         }
 
         public bool Running { get; private set; }
@@ -101,7 +103,7 @@ namespace Pretend.Audio
 
         public ISoundBuffer CreateSoundBuffer()
         {
-            var buffer = new SoundBuffer();
+            var buffer = _factory.Create<ISoundBuffer>();
             _buffers.Add(buffer);
 
             return buffer;
@@ -115,7 +117,7 @@ namespace Pretend.Audio
 
         public ISource CreateSource()
         {
-            var source =  new Source();
+            var source =  _factory.Create<ISource>();
             _sources.Add(source);
 
             return source;

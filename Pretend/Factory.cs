@@ -66,7 +66,10 @@ namespace Pretend
 
             // Audio API
             _services.AddSingleton<IAudioContext, AudioContext>();
+            _services.AddTransient<IListener, Listener>();
+            _services.AddTransient<ISoundBuffer, SoundBuffer>();
             _services.AddTransient<ISoundManager, SoundManager>();
+            _services.AddTransient<ISource, Source>();
 
             // Application
             _services.AddTransient(typeof(IApplication), typeof(TApp));

@@ -63,7 +63,7 @@ namespace Pretend.ECS
     public class ListenerComponent : IComponent
     {
         public bool Active { get; set; }
-        public float Gain { get; set; }
+        public float Gain { get; set; } = 1;
     }
 
     public class SourceComponent : IComponent
