@@ -15,13 +15,15 @@ namespace Sandbox
         private readonly IScene _scene;
         private readonly IPhysicsContainer _physicsContainer;
         private readonly IFactory _factory;
+        private readonly ISoundManager _soundManager;
 
-        public PhysicsLayer(ICamera camera, IScene scene, IPhysicsContainer physicsContainer, IFactory factory)
+        public PhysicsLayer(ICamera camera, IScene scene, IPhysicsContainer physicsContainer, IFactory factory, ISoundManager soundManager)
         {
             _camera = camera;
             _scene = scene;
             _physicsContainer = physicsContainer;
             _factory = factory;
+            _soundManager = soundManager;
         }
 
         public void Attach()
@@ -35,13 +37,21 @@ namespace Sandbox
             var texture = _factory.Create<ITexture2D>();
             texture.SetData("Assets/landscape.jpeg");
 
+            var soundBuffer = _soundManager.CreateSoundBuffer();
+            soundBuffer.SetData("Assets/sound.wav");
+
+            var source = _soundManager.CreateSource();
+            source.Gain = 1f;
+
             entity = _scene.CreateEntity();
             _scene.AddComponent(entity, new PositionComponent {X = -400, Y = -100});
             _scene.AddComponent(entity, new SizeComponent {Width = 100, Height = 100});
             _scene.AddComponent(entity, new TextureComponent { Texture = texture});
             var physicsComponent = new PhysicsComponent();
             _scene.AddComponent(entity, physicsComponent);
-            _scene.AddComponent(entity, new ControlScript(physicsComponent));
+            var sourceComponent = new SourceComponent { Source = source, SoundBuffer = soundBuffer };
+            _scene.AddComponent(entity, sourceComponent);
+            _scene.AddComponent(entity, new ControlScript(physicsComponent, sourceComponent));
 
             entity = _scene.CreateEntity();
             _scene.AddComponent(entity, new PositionComponent {Y = -360});
@@ -64,14 +74,20 @@ namespace Sandbox
             _scene.AddComponent(entity, new PhysicsComponent {Fixed = true });
 
             _physicsContainer.Start(144, _scene.EntityContainer);
-            var sound = new Sound();
-            sound.Play("Assets/sound.wav");
+            _soundManager.Start(60, _scene.EntityContainer);
         }
 
         public void Update(float timeStep)
         {
             _scene.Update(timeStep);
             _scene.Render();
+        }
+
+        public void Detach()
+        {
+            _physicsContainer.Stop();
+            _soundManager.Stop();
+            _soundManager.Dispose();
         }
 
         public void HandleEvent(IEvent evnt)

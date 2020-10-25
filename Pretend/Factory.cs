@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Pretend.Audio;
 using Pretend.ECS;
 using Pretend.Events;
 using Pretend.Graphics;
@@ -62,6 +63,10 @@ namespace Pretend
             _services.AddTransient<IVertexArray, VertexArray>();
             _services.AddTransient<IShader, Shader>();
             _services.AddTransient<ITexture2D, Texture2D>();
+
+            // Audio API
+            _services.AddSingleton<IAudioContext, AudioContext>();
+            _services.AddTransient<ISoundManager, SoundManager>();
 
             // Application
             _services.AddTransient(typeof(IApplication), typeof(TApp));
