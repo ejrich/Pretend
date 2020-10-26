@@ -53,6 +53,7 @@ namespace Pretend
             // Core graphics
             _services.AddSingleton<IRenderer, Renderer>();
             _services.AddSingleton<I2DRenderer, Renderer2D>();
+            _services.AddSingleton<ITextRenderer, TextRenderer>();
             _services.AddTransient<ICamera, OrthographicCamera>();
 
             // Graphics API
