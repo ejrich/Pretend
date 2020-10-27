@@ -1,6 +1,7 @@
 ﻿using FreeTypeSharp;
 using FreeTypeSharp.Native;
 using OpenTK.Mathematics;
+using Pretend.Text;
 
 namespace Pretend.Graphics
 {
@@ -32,9 +33,8 @@ namespace Pretend.Graphics
 
         public void RenderText(string text, int size, Vector3 position, Vector3 orientation, Vector4 color)
         {
-            var lib = new FreeTypeLibrary();
-            FT.FT_New_Face(lib.Native, "", 0, out var face);
-
+            var font = new Font();
+            font.Load("Assets/Roboto-Medium.ttf");
             foreach (var character in text)
             {
                 var renderObject = new Renderable2DObject();
