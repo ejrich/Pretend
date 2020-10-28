@@ -1,4 +1,5 @@
-﻿using OpenTK.Mathematics;
+﻿using System;
+using OpenTK.Mathematics;
 using Pretend.Text;
 
 namespace Pretend.Graphics
@@ -37,10 +38,10 @@ namespace Pretend.Graphics
             // {
             var renderObject = new Renderable2DObject
             {
-                Width = 231,
-                Height = 142,
-                Rotation = new Quaternion(0, 0, 0),
-                Texture = texture
+                Width = texture.x,
+                Height = texture.y,
+                Rotation = new Quaternion(0, 0, (float) Math.PI),
+                Texture = texture.text
             };
             _renderer.Submit(renderObject);
             // }

@@ -7,12 +7,12 @@ namespace Pretend.Text
 {
     public class Font
     {
-        public ITexture2D Load(string font)
+        public (ITexture2D text, uint x, uint y) Load(string font)
         {
             var lib = new FreeTypeLibrary();
             FT.FT_New_Face(lib.Native, font, 0, out var facePtr);
             var face = new FreeTypeFaceFacade(lib, facePtr);
-            face.SelectCharSize(20, 1280, 720);
+            face.SelectCharSize(20, 300, 0);
             var index = face.GetCharIndex('A');
             FT.FT_Load_Glyph(face.Face, index, FT.FT_LOAD_RENDER);
             unsafe
@@ -24,7 +24,7 @@ namespace Pretend.Text
                 var texture = new Texture2D();
                 texture.SetData(buffer, (int) rows, (int) width);
 
-                return texture;
+                return (texture, width, rows);
             }
 
             // FT.FT_Done_Face(face.Face);

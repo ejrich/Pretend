@@ -44,6 +44,7 @@ namespace Pretend.Graphics.OpenGL
         {
             Bind();
 
+            GL.PixelStore(PixelStoreParameter.UnpackAlignment, 1);
             GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.CompressedRed,
                 columns, rows, 0, PixelFormat.Red, PixelType.UnsignedByte, buffer);
 
