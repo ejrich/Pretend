@@ -1,6 +1,4 @@
-﻿using FreeTypeSharp;
-using FreeTypeSharp.Native;
-using OpenTK.Mathematics;
+﻿using OpenTK.Mathematics;
 using Pretend.Text;
 
 namespace Pretend.Graphics
@@ -34,12 +32,18 @@ namespace Pretend.Graphics
         public void RenderText(string text, int size, Vector3 position, Vector3 orientation, Vector4 color)
         {
             var font = new Font();
-            font.Load("Assets/Roboto-Medium.ttf");
-            foreach (var character in text)
+            var texture = font.Load("Assets/Roboto-Medium.ttf");
+            // foreach (var character in text)
+            // {
+            var renderObject = new Renderable2DObject
             {
-                var renderObject = new Renderable2DObject();
-                _renderer.Submit(renderObject);
-            }
+                Width = 231,
+                Height = 142,
+                Rotation = new Quaternion(0, 0, 0),
+                Texture = texture
+            };
+            _renderer.Submit(renderObject);
+            // }
         }
     }
 }

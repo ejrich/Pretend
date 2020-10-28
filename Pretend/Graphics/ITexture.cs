@@ -1,3 +1,5 @@
+using System;
+
 namespace Pretend.Graphics
 {
     public interface ITexture
@@ -8,5 +10,6 @@ namespace Pretend.Graphics
     public interface ITexture2D : ITexture
     {
         void SetData(string file);
+        public void SetData(IntPtr buffer, int rows, int columns);
     }
 }
