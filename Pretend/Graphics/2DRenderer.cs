@@ -70,10 +70,10 @@ namespace Pretend.Graphics
 
             _vertices = new[]
             {
-                new Vector4(0.5f, 0.5f, 0, 1), new Vector4(0.5f, -0.5f, 0, 1), new Vector4(-0.5f, -0.5f, 0, 1),
-                new Vector4(-0.5f, 0.5f, 0, 1)
+                new Vector4(0.5f, 0.5f, 0, 1), new Vector4(0.5f, -0.5f, 0, 1),
+                new Vector4(-0.5f, -0.5f, 0, 1), new Vector4(-0.5f, 0.5f, 0, 1)
             };
-            _textureCoordinates = new[] {new Vector2(1, 1), new Vector2(1, 0), new Vector2(0, 0), new Vector2(0, 1)};
+            _textureCoordinates = new[] {new Vector2(1, 0), new Vector2(1, 1), new Vector2(0, 1), new Vector2(0, 0)};
 
             var vertexBuffer = _factory.Create<IVertexBuffer>();
             vertexBuffer.SetSize<Renderable2DBuffer>(MaxSubmissions * VerticesInSubmission);

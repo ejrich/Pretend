@@ -25,7 +25,6 @@ namespace Pretend.Graphics.OpenGL
 
             using (var image = new Bitmap(file))
             {
-                image.RotateFlip(RotateFlipType.Rotate180FlipX);
                 var data = image.LockBits(new Rectangle(0, 0, image.Width, image.Height),
                     System.Drawing.Imaging.ImageLockMode.ReadOnly, DrawingPixelFormat.Format32bppArgb);
 
