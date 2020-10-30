@@ -56,7 +56,7 @@ namespace Pretend.Graphics
                 var renderObject = new Renderable2DObject
                 {
                     X = x,
-                    Y = y,
+                    Y = y + ((float) glyph.Height / 2) - (glyph.Height - glyph.BearingY),
                     Z = z,
                     Width = glyph.Width,
                     Height = glyph.Height,
