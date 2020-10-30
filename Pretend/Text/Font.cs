@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using FreeTypeSharp;
 using FreeTypeSharp.Native;
 using Pretend.Graphics;
@@ -8,44 +9,50 @@ namespace Pretend.Text
 {
     public class Font
     {
-        ~Font()
-        {
-            FT.FT_Done_Face(_face.Face);
-        }
+        ~Font() => FT.FT_Done_Face(_face.Face);
+
         private FreeTypeFaceFacade _face;
 
-        public (ITexture2D text, uint x, uint y) Load(FreeTypeLibrary lib, string font)
+        public void Load(FreeTypeLibrary lib, string font)
         {
             FT.FT_New_Face(lib.Native, font, 0, out var facePtr);
             _face = new FreeTypeFaceFacade(lib, facePtr);
-            
-            // TODO Remove this block once texture atlases are working
-            {
-                FT.FT_Set_Pixel_Sizes(_face.Face, 0, 60);
-
-                var glyph = LoadGlyph(_face.GetCharIndex('B'));
-
-                var texture = new Texture2D();
-                texture.SetData(glyph.Buffer, (int)glyph.Height, (int)glyph.Width);
-
-                return (texture, glyph.Width, glyph.Height);
-            }
         }
 
-        public IDictionary<char, Glyph> LoadTextureAtlas(uint size)
+        public (IDictionary<char, Glyph> charMap, ITexture2D texture) LoadTextureAtlas(uint size)
         {
             FT.FT_Set_Pixel_Sizes(_face.Face, 0, size);
 
             var character = FT.FT_Get_First_Char(_face.Face, out var index);
+            uint width = 0, height = 0;
 
             var charMap = new Dictionary<char, Glyph>();
             do
             {
-                charMap.Add((char) character, LoadGlyph(index));
+                var glyph = LoadGlyph(index);
+
+                width += glyph.Width + 1;
+                if (height < glyph.Height)
+                    height = glyph.Height;
+
+                charMap.Add((char) character, glyph);
                 character = FT.FT_Get_Next_Char(_face.Face, character, out index);
             } while (index != 0 && charMap.Count <= 128);
 
-            return charMap;
+            // TODO Change this to _factory.Create<ITexture2D>();
+            var texture = new Texture2D();
+            texture.SetSize((int) height, (int) width);
+
+            uint xOffset = 0;
+            foreach (var glyph in charMap.Values)
+            {
+                var buffer = LoadCharacterBuffer(glyph.Index);
+                texture.SetSubData(buffer, (int) xOffset, 0, (int) glyph.Height, (int) glyph.Width);
+                glyph.XOffset = xOffset;
+                xOffset += glyph.Width + 1;
+            }
+
+            return (charMap, texture);
         }
 
         private Glyph LoadGlyph(uint index)
@@ -55,13 +62,22 @@ namespace Pretend.Text
             {
                 return new Glyph
                 {
-                    Buffer = _face.GlyphSlot->bitmap.buffer,
+                    Index = index,
                     Width = _face.GlyphSlot->bitmap.width,
                     Height = _face.GlyphSlot->bitmap.rows,
                     BearingX = _face.GlyphSlot->bitmap_left,
                     BearingY = _face.GlyphSlot->bitmap_top,
                     Advance = (uint)_face.GlyphSlot->advance.x >> 6
                 };
+            }
+        }
+        
+        private IntPtr LoadCharacterBuffer(uint index)
+        {
+            FT.FT_Load_Glyph(_face.Face, index, FT.FT_LOAD_RENDER);
+            unsafe
+            {
+                return _face.GlyphSlot->bitmap.buffer;
             }
         }
     }

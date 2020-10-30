@@ -1,5 +1,6 @@
 using System;
 using System.Drawing;
+using System.Linq;
 using OpenTK.Graphics.OpenGL4;
 using DrawingPixelFormat = System.Drawing.Imaging.PixelFormat;
 
@@ -9,15 +10,12 @@ namespace Pretend.Graphics.OpenGL
     {
         private readonly int _id;
 
-        public Texture2D()
-        {
-            _id = GL.GenTexture();
-        }
+        public Texture2D() => _id = GL.GenTexture();
 
-        ~Texture2D()
-        {
-            GL.DeleteTexture(_id);
-        }
+        ~Texture2D() => GL.DeleteTexture(_id);
+
+        public int Width { get; private set; }
+        public int Height { get; private set; }
 
         public void SetData(string file)
         {
@@ -25,6 +23,8 @@ namespace Pretend.Graphics.OpenGL
 
             using (var image = new Bitmap(file))
             {
+                Width = image.Width;
+                Height = image.Height;
                 var data = image.LockBits(new Rectangle(0, 0, image.Width, image.Height),
                     System.Drawing.Imaging.ImageLockMode.ReadOnly, DrawingPixelFormat.Format32bppArgb);
 
@@ -32,26 +32,48 @@ namespace Pretend.Graphics.OpenGL
                     image.Width, image.Height, 0, PixelFormat.Bgra, PixelType.UnsignedByte, data.Scan0);
             }
 
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Linear);
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Linear);
-
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.Repeat);
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.Repeat);
+            SetTextureParameters(TextureMinFilter.Linear, TextureMagFilter.Linear, TextureWrapMode.Repeat);
         }
 
         public void SetData(IntPtr buffer, int rows, int columns)
         {
             Bind();
 
+            Width = columns;
+            Height = rows;
             GL.PixelStore(PixelStoreParameter.UnpackAlignment, 1);
             GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.CompressedRed,
                 columns, rows, 0, PixelFormat.Red, PixelType.UnsignedByte, buffer);
 
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Linear);
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Linear);
+            SetTextureParameters(TextureMinFilter.Linear, TextureMagFilter.Linear, TextureWrapMode.ClampToEdge);
+        }
 
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.ClampToEdge);
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToEdge);
+        public void SetSize(int height, int width)
+        {
+            var bytes = Enumerable.Range(0, height * width).Select(_ => (byte) 0).ToArray();
+            unsafe
+            {
+                fixed (byte* ptr = bytes)
+                    SetData((IntPtr) ptr, height, width);
+            }
+        }
+
+        private static void SetTextureParameters(TextureMinFilter minFilter, TextureMagFilter magFilter, TextureWrapMode wrapMode)
+        {
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)minFilter);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)magFilter);
+
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)wrapMode);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)wrapMode);
+        }
+
+        public void SetSubData(IntPtr buffer, int xOffset, int yOffset, int rows, int columns)
+        {
+            Bind();
+
+            GL.PixelStore(PixelStoreParameter.UnpackAlignment, 1);
+            GL.TexSubImage2D(TextureTarget.Texture2D, 0, xOffset, yOffset, columns, rows,
+                PixelFormat.Red, PixelType.UnsignedByte, buffer);
         }
 
         public void Bind(int slot = 0)

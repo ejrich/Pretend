@@ -16,6 +16,8 @@ namespace Pretend.Graphics
         public Quaternion Rotation { get; set; } = Quaternion.Identity;
         public Vector4 Color { get; set; } = Vector4.One;
         public ITexture2D Texture { get; set; }
+        public float SubTextureOffsetX { get; set; }
+        public float SubTextureOffsetY { get; set; }
     }
 
     public interface I2DRenderer : IRenderer
@@ -142,7 +144,13 @@ namespace Pretend.Graphics
 
             foreach (var vertex in Enumerable.Range(0, VerticesInSubmission))
             {
-                _submissions.Add(new Renderable2DBuffer(_vertices[vertex] * transform, _textureCoordinates[vertex],
+                var textureCoord = _textureCoordinates[vertex];
+                if (renderObject.Texture != null && (renderObject.SubTextureOffsetX != 0 || renderObject.SubTextureOffsetY != 0))
+                {
+                    textureCoord.X = ((textureCoord.X * renderObject.Width) + renderObject.SubTextureOffsetX) / renderObject.Texture.Width;
+                    textureCoord.Y = ((textureCoord.Y * renderObject.Height) + renderObject.SubTextureOffsetY) / renderObject.Texture.Height;
+                }
+                _submissions.Add(new Renderable2DBuffer(_vertices[vertex] * transform, textureCoord,
                     renderObject.Color, GetTextureIndex(renderObject.Texture)));
             }
         }

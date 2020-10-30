@@ -18,7 +18,7 @@ namespace Pretend.Graphics
         private readonly FreeTypeLibrary _lib;
 
         private readonly IDictionary<string, Font> _fonts = new Dictionary<string, Font>();
-        private readonly IDictionary<uint, IDictionary<char, Glyph>> _characterMappings = new Dictionary<uint, IDictionary<char, Glyph>>();
+        private readonly IDictionary<uint, (IDictionary<char, Glyph> charMap, ITexture2D texture)> _characterMappings = new Dictionary<uint, (IDictionary<char, Glyph>, ITexture2D)>();
 
         public TextRenderer(I2DRenderer renderer)
         {
@@ -41,25 +41,32 @@ namespace Pretend.Graphics
         public void RenderText(string text, string fontPath, uint size, Vector3 position, Vector3 orientation, Vector4 color)
         {
             if (!_fonts.TryGetValue(fontPath, out var font))
+            {
                 _fonts[fontPath] = font = new Font();
-
-            // TODO Remove me and put in block above once the texture atlas is working
-            var texture = font.Load(_lib, fontPath);
+                font.Load(_lib, fontPath);
+            }
 
             if (!_characterMappings.TryGetValue(size, out var textureAtlas))
                 _characterMappings[size] = textureAtlas = font.LoadTextureAtlas(size);
-
+ 
+            var pos = new Vector3(position);
             foreach (var character in text)
             {
-                var glyph = textureAtlas[character];
+                var glyph = textureAtlas.charMap[character];
                 var renderObject = new Renderable2DObject
                 {
+                    X = pos.X,
+                    Y = pos.Y,
+                    Z = pos.Z,
                     Width = glyph.Width,
                     Height = glyph.Height,
-                    Texture = texture.text,
+                    SubTextureOffsetX = glyph.XOffset,
+                    SubTextureOffsetY = glyph.YOffset,
+                    Texture = textureAtlas.texture,
                     Color = color
                 };
                 _renderer.Submit(renderObject);
+                pos.X += glyph.Advance;
             }
         }
     }
