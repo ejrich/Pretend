@@ -48,16 +48,16 @@ namespace Pretend.Graphics
 
             if (!_characterMappings.TryGetValue(size, out var textureAtlas))
                 _characterMappings[size] = textureAtlas = font.LoadTextureAtlas(size);
- 
-            var pos = new Vector3(position);
+
+            var (x, y, z) = position;
             foreach (var character in text)
             {
                 var glyph = textureAtlas.charMap[character];
                 var renderObject = new Renderable2DObject
                 {
-                    X = pos.X,
-                    Y = pos.Y,
-                    Z = pos.Z,
+                    X = x,
+                    Y = y,
+                    Z = z,
                     Width = glyph.Width,
                     Height = glyph.Height,
                     SubTextureOffsetX = glyph.XOffset,
@@ -66,7 +66,7 @@ namespace Pretend.Graphics
                     Color = color
                 };
                 _renderer.Submit(renderObject);
-                pos.X += glyph.Advance;
+                x += glyph.Advance;
             }
         }
     }

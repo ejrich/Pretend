@@ -41,8 +41,7 @@ namespace Pretend.Graphics.OpenGL
 
             Width = columns;
             Height = rows;
-            GL.PixelStore(PixelStoreParameter.UnpackAlignment, 1);
-            GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.CompressedRed,
+            GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.R8,
                 columns, rows, 0, PixelFormat.Red, PixelType.UnsignedByte, buffer);
 
             SetTextureParameters(TextureMinFilter.Linear, TextureMagFilter.Linear, TextureWrapMode.ClampToEdge);
