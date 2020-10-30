@@ -13,7 +13,7 @@ namespace Pretend.Graphics
         public float Z { get; set; }
         public uint Width { get; set; }
         public uint Height { get; set; }
-        public Quaternion Rotation { get; set; }
+        public Quaternion Rotation { get; set; } = Quaternion.Identity;
         public Vector4 Color { get; set; } = Vector4.One;
         public ITexture2D Texture { get; set; }
     }

@@ -1,4 +1,5 @@
-﻿using FreeTypeSharp;
+﻿using System.Collections.Generic;
+using FreeTypeSharp;
 using FreeTypeSharp.Native;
 using Pretend.Graphics;
 using Pretend.Graphics.OpenGL;
@@ -17,30 +18,38 @@ namespace Pretend.Text
         {
             FT.FT_New_Face(lib.Native, font, 0, out var facePtr);
             _face = new FreeTypeFaceFacade(lib, facePtr);
-            _face.SelectCharSize(20, 300, 0);
-
-            var glyph = LoadGlyph('B');
-
-            var texture = new Texture2D();
-            texture.SetData(glyph.Buffer, (int) glyph.Height, (int) glyph.Width);
-
-            return (texture, glyph.Width, glyph.Height);
-        }
-
-        public void LoadTextureAtlas(int size)
-        {
             
+            // TODO Remove this block once texture atlases are working
+            {
+                FT.FT_Set_Pixel_Sizes(_face.Face, 0, 60);
+
+                var glyph = LoadGlyph(_face.GetCharIndex('B'));
+
+                var texture = new Texture2D();
+                texture.SetData(glyph.Buffer, (int)glyph.Height, (int)glyph.Width);
+
+                return (texture, glyph.Width, glyph.Height);
+            }
         }
 
-        // private char LoadChar(uint index)
-        // {
-        //     var c = FT.FT_Load_Char(_face.Face, index, FT.FT_LOAD_RENDER);
-        //     return 'A';
-        // }
-
-        private Glyph LoadGlyph(char c)
+        public IDictionary<char, Glyph> LoadTextureAtlas(uint size)
         {
-            var index = _face.GetCharIndex(c);
+            FT.FT_Set_Pixel_Sizes(_face.Face, 0, size);
+
+            var character = FT.FT_Get_First_Char(_face.Face, out var index);
+
+            var charMap = new Dictionary<char, Glyph>();
+            do
+            {
+                charMap.Add((char) character, LoadGlyph(index));
+                character = FT.FT_Get_Next_Char(_face.Face, character, out index);
+            } while (index != 0 && charMap.Count <= 128);
+
+            return charMap;
+        }
+
+        private Glyph LoadGlyph(uint index)
+        {
             FT.FT_Load_Glyph(_face.Face, index, FT.FT_LOAD_RENDER);
             unsafe
             {

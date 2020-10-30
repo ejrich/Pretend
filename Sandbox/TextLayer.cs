@@ -27,7 +27,7 @@ namespace Sandbox
         {
             _renderer.Begin(_camera);
 
-            _textRenderer.RenderText("Hello world!", 14, Vector3.Zero);
+            _textRenderer.RenderText("Hello world!", "Assets/Roboto-Medium.ttf", 60, Vector3.Zero);
 
             _renderer.End();
         }
