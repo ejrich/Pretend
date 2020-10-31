@@ -55,7 +55,7 @@ namespace Pretend.Graphics
                 var glyph = textureAtlas.charMap[character];
                 var renderObject = new Renderable2DObject
                 {
-                    X = x,
+                    X = x + ((float) glyph.Width / 2),
                     Y = y + ((float) glyph.Height / 2) - (glyph.Height - glyph.BearingY),
                     Z = z,
                     Width = glyph.Width,
