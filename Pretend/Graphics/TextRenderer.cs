@@ -15,14 +15,16 @@ namespace Pretend.Graphics
     public class TextRenderer : ITextRenderer
     {
         private readonly I2DRenderer _renderer;
+        private readonly IFactory _factory;
         private readonly FreeTypeLibrary _lib;
 
-        private readonly IDictionary<string, Font> _fonts = new Dictionary<string, Font>();
+        private readonly IDictionary<string, IFont> _fonts = new Dictionary<string, IFont>();
         private readonly IDictionary<uint, (IDictionary<char, Glyph> charMap, ITexture2D texture)> _characterMappings = new Dictionary<uint, (IDictionary<char, Glyph>, ITexture2D)>();
 
-        public TextRenderer(I2DRenderer renderer)
+        public TextRenderer(I2DRenderer renderer, IFactory factory)
         {
             _renderer = renderer;
+            _factory = factory;
             _lib = new FreeTypeLibrary();
         }
 
@@ -42,7 +44,7 @@ namespace Pretend.Graphics
         {
             if (!_fonts.TryGetValue(fontPath, out var font))
             {
-                _fonts[fontPath] = font = new Font();
+                _fonts[fontPath] = font = _factory.Create<IFont>();
                 font.Load(_lib, fontPath);
             }
 

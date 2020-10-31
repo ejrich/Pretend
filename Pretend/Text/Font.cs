@@ -3,15 +3,23 @@ using System.Collections.Generic;
 using FreeTypeSharp;
 using FreeTypeSharp.Native;
 using Pretend.Graphics;
-using Pretend.Graphics.OpenGL;
 
 namespace Pretend.Text
 {
-    public class Font
+    public interface IFont
     {
-        ~Font() => FT.FT_Done_Face(_face.Face);
+        void Load(FreeTypeLibrary lib, string fontPath);
+        (IDictionary<char, Glyph> charMap, ITexture2D texture) LoadTextureAtlas(uint size);
+    }
 
+    public class Font : IFont
+    {
+        private readonly IFactory _factory;
         private FreeTypeFaceFacade _face;
+
+        public Font(IFactory factory) => _factory = factory;
+
+        ~Font() => FT.FT_Done_Face(_face.Face);
 
         public void Load(FreeTypeLibrary lib, string font)
         {
@@ -39,8 +47,7 @@ namespace Pretend.Text
                 character = FT.FT_Get_Next_Char(_face.Face, character, out index);
             } while (index != 0 && charMap.Count <= 128);
 
-            // TODO Change this to _factory.Create<ITexture2D>();
-            var texture = new Texture2D();
+            var texture = _factory.Create<ITexture2D>();
             texture.SetSize((int) height, (int) width);
 
             uint xOffset = 0;
