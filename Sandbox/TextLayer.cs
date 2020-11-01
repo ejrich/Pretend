@@ -29,7 +29,8 @@ namespace Sandbox
             {
                 Text = "Hello world! yogurt pretty good",
                 Font = "Assets/Roboto-Medium.ttf",
-                Size = 60
+                Size = 60,
+                Orientation = new Vector3(0, 0, 45)
             });
         }
 

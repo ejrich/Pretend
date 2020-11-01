@@ -81,16 +81,10 @@ namespace Pretend.Text
                 _ => 0
             };
 
-            // _renderer.Submit(new Renderable2DObject
-            // {
-            //     Z = -0.9f,
-            //     Width = (uint)(x - textObject.Position.X),
-            //     Height = textObject.Size,
-            //     Color = new Vector4(1, 0, 0, 1)
-            // });
             foreach (var renderObject in renderObjects)
             {
                 renderObject.X -= dx;
+                Rotate(renderObject);
                 _renderer.Submit(renderObject);
             }
         }
@@ -111,6 +105,15 @@ namespace Pretend.Text
             sizeMappings[size] = textureAtlas = font.LoadTextureAtlas(size);
 
             return textureAtlas;
+        }
+
+        private static void Rotate(Renderable2DObject renderObject)
+        {
+            var (x, y, z) = new Vector3(renderObject.X, renderObject.Y, renderObject.Z) *
+                Matrix3.CreateFromQuaternion(renderObject.Rotation);
+            renderObject.X = x;
+            renderObject.Y = y;
+            renderObject.Z = z;
         }
     }
 }
