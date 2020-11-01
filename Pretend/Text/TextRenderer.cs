@@ -28,7 +28,8 @@ namespace Pretend.Text
         private readonly FreeTypeLibrary _lib;
 
         private readonly IDictionary<string, IFont> _fonts = new Dictionary<string, IFont>();
-        private readonly IDictionary<uint, (IDictionary<char, Glyph> charMap, ITexture2D texture)> _characterMappings = new Dictionary<uint, (IDictionary<char, Glyph>, ITexture2D)>();
+        private readonly IDictionary<string, IDictionary<uint, (IDictionary<char, Glyph> charMap, ITexture2D texture)>> _characterMappings
+            = new Dictionary<string, IDictionary<uint, (IDictionary<char, Glyph> charMap, ITexture2D texture)>>();
 
         public TextRenderer(I2DRenderer renderer, IFactory factory)
         {
@@ -43,14 +44,7 @@ namespace Pretend.Text
         {
             if (string.IsNullOrWhiteSpace(textObject.FontPath)) return;
 
-            if (!_fonts.TryGetValue(textObject.FontPath, out var font))
-            {
-                _fonts[textObject.FontPath] = font = _factory.Create<IFont>();
-                font.Load(_lib, textObject.FontPath);
-            }
-
-            if (!_characterMappings.TryGetValue(textObject.Size, out var textureAtlas))
-                _characterMappings[textObject.Size] = textureAtlas = font.LoadTextureAtlas(textObject.Size);
+            var textureAtlas = LoadTextureAtlas(textObject.FontPath, textObject.Size);
  
             var (x, y, z) = textObject.Position;
             var (pitch, roll, yaw) = textObject.Orientation;
@@ -87,12 +81,6 @@ namespace Pretend.Text
                 _ => 0
             };
 
-            foreach (var renderObject in renderObjects)
-            {
-                renderObject.X -= dx;
-                _renderer.Submit(renderObject);
-            }
-
             // _renderer.Submit(new Renderable2DObject
             // {
             //     Z = -0.9f,
@@ -100,6 +88,29 @@ namespace Pretend.Text
             //     Height = textObject.Size,
             //     Color = new Vector4(1, 0, 0, 1)
             // });
+            foreach (var renderObject in renderObjects)
+            {
+                renderObject.X -= dx;
+                _renderer.Submit(renderObject);
+            }
+        }
+
+        private (IDictionary<char, Glyph> charMap, ITexture2D texture) LoadTextureAtlas(string fontPath, uint size)
+        {
+            if (!_characterMappings.TryGetValue(fontPath, out var sizeMappings))
+                _characterMappings[fontPath] = sizeMappings = new Dictionary<uint, (IDictionary<char, Glyph> charMap, ITexture2D texture)>();
+
+            if (sizeMappings.TryGetValue(size, out var textureAtlas))
+                return textureAtlas;
+
+            if (!_fonts.TryGetValue(fontPath, out var font))
+            {
+                _fonts[fontPath] = font = _factory.Create<IFont>();
+                font.Load(_lib, fontPath);
+            }
+            sizeMappings[size] = textureAtlas = font.LoadTextureAtlas(size);
+
+            return textureAtlas;
         }
     }
 }
