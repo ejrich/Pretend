@@ -35,11 +35,8 @@ namespace Sandbox
 
         public void Update(float timeStep)
         {
-            _renderer.Begin(_camera);
-
-            _textRenderer.RenderText(_textObject);
-
-            _renderer.End();
+            _scene.Update(timeStep);
+            _scene.Render();
         }
 
         public void HandleEvent(IEvent evnt)
