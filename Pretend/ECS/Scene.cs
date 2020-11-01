@@ -1,5 +1,4 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using OpenTK.Mathematics;
 using Pretend.Events;
 using Pretend.Graphics;
@@ -93,7 +92,8 @@ namespace Pretend.ECS
                             renderObject.X = position.X;
                             renderObject.Y = position.Y;
                             renderObject.Z = position.Z;
-                            renderObject.Rotation = new Quaternion(ToRadians(position.Roll), ToRadians(position.Pitch), ToRadians(position.Yaw));
+                            renderObject.Rotation = new Quaternion(MathHelper.DegreesToRadians(position.Roll),
+                                MathHelper.DegreesToRadians(position.Pitch), MathHelper.DegreesToRadians(position.Yaw));
                             break;
                         case SizeComponent size:
                             renderObject.Width = size.Width;
@@ -112,7 +112,5 @@ namespace Pretend.ECS
 
             _renderer.End();
         }
-
-        private float ToRadians(float angle) => angle * ((float) Math.PI / 180f);
     }
 }

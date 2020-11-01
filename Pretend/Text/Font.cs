@@ -56,7 +56,7 @@ namespace Pretend.Text
                 var buffer = LoadCharacterBuffer(glyph.Index);
                 texture.SetSubData(buffer, (int) xOffset, 0, (int) glyph.Height, (int) glyph.Width);
                 glyph.XOffset = xOffset;
-                xOffset += glyph.Width + 1;
+                xOffset += glyph.Width + 2;
             }
 
             return (charMap, texture);

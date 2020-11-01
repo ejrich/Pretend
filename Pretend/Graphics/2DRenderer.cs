@@ -18,6 +18,7 @@ namespace Pretend.Graphics
         public ITexture2D Texture { get; set; }
         public float SubTextureOffsetX { get; set; }
         public float SubTextureOffsetY { get; set; }
+        public bool SingleChannel { get; set; }
     }
 
     public interface I2DRenderer : IRenderer
@@ -27,20 +28,23 @@ namespace Pretend.Graphics
 
     public class Renderer2D : I2DRenderer
     {
-        [StructLayout(LayoutKind.Explicit, Size = 40)]
+        [StructLayout(LayoutKind.Explicit, Size = 44)]
         internal struct Renderable2DBuffer
         {
             [FieldOffset(0)] private readonly Vector3 Position;
             [FieldOffset(12)] private readonly Vector2 TextureLocation;
             [FieldOffset(20)] private readonly Vector4 Color;
             [FieldOffset(36)] private readonly int Texture;
+            [FieldOffset(40)] private readonly int SingleChannel;
 
-            public Renderable2DBuffer(Vector4 position, Vector2 textureLocation, Vector4 color, int texture)
+            public Renderable2DBuffer(Vector4 position, Vector2 textureLocation, Vector4 color,
+                int texture, bool singleChannel)
             {
                 Position = position.Xyz;
                 TextureLocation = textureLocation;
                 Color = color;
                 Texture = texture;
+                SingleChannel = singleChannel ? 1 : 0;
             }
         }
 
@@ -82,6 +86,7 @@ namespace Pretend.Graphics
             vertexBuffer.AddLayout<float>(3);
             vertexBuffer.AddLayout<float>(2);
             vertexBuffer.AddLayout<float>(4);
+            vertexBuffer.AddLayout<float>(1);
             vertexBuffer.AddLayout<float>(1);
 
             var indices = Enumerable.Range(0, MaxSubmissions)
@@ -151,7 +156,7 @@ namespace Pretend.Graphics
                     textureCoord.Y = ((textureCoord.Y * renderObject.Height) + renderObject.SubTextureOffsetY) / renderObject.Texture.Height;
                 }
                 _submissions.Add(new Renderable2DBuffer(_vertices[vertex] * transform, textureCoord,
-                    renderObject.Color, GetTextureIndex(renderObject.Texture)));
+                    renderObject.Color, GetTextureIndex(renderObject.Texture), renderObject.SingleChannel));
             }
         }
 
