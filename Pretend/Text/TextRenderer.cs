@@ -42,9 +42,9 @@ namespace Pretend.Text
 
         public void RenderText(RenderableTextObject textObject)
         {
-            if (string.IsNullOrWhiteSpace(textObject.FontPath)) return;
+            if (string.IsNullOrWhiteSpace(textObject.FontPath) || string.IsNullOrWhiteSpace(textObject.Text)) return;
 
-            var textureAtlas = LoadTextureAtlas(textObject.FontPath, textObject.Size);
+            var (charMap, texture) = LoadTextureAtlas(textObject.FontPath, textObject.Size);
  
             var (x, y, z) = textObject.Position;
             var (pitch, roll, yaw) = textObject.Orientation;
@@ -53,7 +53,7 @@ namespace Pretend.Text
             var renderObjects = new List<Renderable2DObject>();
             foreach (var character in textObject.Text)
             {
-                var glyph = textureAtlas.charMap[character];
+                var glyph = charMap[character];
                 var renderObject = new Renderable2DObject
                 {
                     X = x + (float) glyph.Width / 2 + glyph.BearingX,
@@ -64,7 +64,7 @@ namespace Pretend.Text
                     Rotation = new Quaternion(MathHelper.DegreesToRadians(pitch),
                         MathHelper.DegreesToRadians(roll), MathHelper.DegreesToRadians(yaw)),
                     Color = textObject.Color,
-                    Texture = textureAtlas.texture,
+                    Texture = texture,
                     SubTextureOffsetX = glyph.XOffset,
                     SubTextureOffsetY = glyph.YOffset,
                     SingleChannel = true

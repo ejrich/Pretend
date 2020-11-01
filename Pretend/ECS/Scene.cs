@@ -2,6 +2,7 @@
 using OpenTK.Mathematics;
 using Pretend.Events;
 using Pretend.Graphics;
+using Pretend.Text;
 
 namespace Pretend.ECS
 {
@@ -20,10 +21,12 @@ namespace Pretend.ECS
     public class Scene : IScene
     {
         private readonly I2DRenderer _renderer;
+        private readonly ITextRenderer _textRenderer;
 
-        public Scene(I2DRenderer renderer, IEntityContainer entityContainer)
+        public Scene(I2DRenderer renderer, IEntityContainer entityContainer, ITextRenderer textRenderer)
         {
             _renderer = renderer;
+            _textRenderer = textRenderer;
             EntityContainer = entityContainer;
         }
 
@@ -105,12 +108,40 @@ namespace Pretend.ECS
                         case TextureComponent texture:
                             renderObject.Texture = texture.Texture;
                             break;
+                        case TextComponent text:
+                            RenderText(text, entity);
+                            break;
                     }
                 }
                 _renderer.Submit(renderObject);
             }
 
             _renderer.End();
+        }
+
+        private void RenderText(TextComponent textComponent, IEntity entity)
+        {
+            if (string.IsNullOrWhiteSpace(textComponent.Text) || string.IsNullOrWhiteSpace(textComponent.Font) || textComponent.Size == 0)
+                return;
+
+            var textObject = new RenderableTextObject
+            {
+                Text = textComponent.Text,
+                FontPath = textComponent.Font,
+                Size = textComponent.Size,
+                Alignment = textComponent.Alignment,
+                Position = textComponent.RelativePosition,
+                Color = textComponent.Color
+            };
+
+            var position = entity.GetComponent<PositionComponent>();
+            if (position != null)
+            {
+                textObject.Position += new Vector3(position.X, position.Y, position.Z);
+                textObject.Orientation = new Vector3(position.Pitch, position.Roll, position.Yaw);
+            }
+
+            _textRenderer.RenderText(textObject);
         }
     }
 }
