@@ -131,15 +131,13 @@ namespace Pretend.ECS
                 Size = textComponent.Size,
                 Alignment = textComponent.Alignment,
                 Position = textComponent.RelativePosition,
+                Orientation = textComponent.Orientation,
                 Color = textComponent.Color
             };
 
             var position = entity.GetComponent<PositionComponent>();
             if (position != null)
-            {
                 textObject.Position += new Vector3(position.X, position.Y, position.Z);
-                textObject.Orientation = new Vector3(position.Pitch, position.Roll, position.Yaw);
-            }
 
             _textRenderer.RenderText(textObject);
         }

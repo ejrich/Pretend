@@ -82,6 +82,7 @@ namespace Pretend.ECS
         public uint Size { get; set; }
         public TextAlignment Alignment { get; set; } = TextAlignment.Center;
         public Vector3 RelativePosition { get; set; } = Vector3.Zero;
+        public Vector3 Orientation { get; set; } = Vector3.Zero;
         public Vector4 Color { get; set; } = Vector4.One;
     }
 }
