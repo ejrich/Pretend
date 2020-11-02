@@ -1,8 +1,0 @@
-{
-    "dotnet-test-explorer.testProjectPath": "**/*.Tests.csproj",
-    "files.exclude":
-    {
-      "**/obj": true,
-      "**/TestResults": true,
-    }
-}

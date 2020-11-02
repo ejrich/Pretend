@@ -12,6 +12,10 @@ namespace Pretend.Graphics.OpenGL
 
         public void CreateContext(IntPtr windowPointer)
         {
+            #if DEBUG
+            SDL.SDL_GL_SetAttribute(SDL.SDL_GLattr.SDL_GL_CONTEXT_MAJOR_VERSION, 4);
+            SDL.SDL_GL_SetAttribute(SDL.SDL_GLattr.SDL_GL_CONTEXT_MINOR_VERSION, 6);
+            #endif
             _window = windowPointer;
             _context = SDL.SDL_GL_CreateContext(windowPointer);
 
