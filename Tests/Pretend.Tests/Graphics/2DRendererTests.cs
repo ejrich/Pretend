@@ -66,7 +66,7 @@ namespace Pretend.Tests.Graphics
             _target.Init();
             _target.Begin(new Mock<ICamera>().Object);
 
-            foreach (var i in Enumerable.Range(0, submissions))
+            foreach (var i in Enumerable.Range(1, submissions))
             {
                 _target.Submit(new Renderable2DObject
                 {

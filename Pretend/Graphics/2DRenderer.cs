@@ -136,6 +136,8 @@ namespace Pretend.Graphics
 
         public void Submit(Renderable2DObject renderObject)
         {
+            if (renderObject.Width == 0 && renderObject.Height == 0) return;
+
             var transform = Matrix4.Identity *
                             Matrix4.CreateScale(renderObject.Width, renderObject.Height, 1) *
                             Matrix4.CreateFromQuaternion(renderObject.Rotation) *
