@@ -129,7 +129,7 @@ namespace Pretend.Text
                 TextAlignment.Right => x1 - x0,
                 _ => 0
             };
-            
+
             foreach (var renderObject in line)
             {
                 renderObject.X -= xAdjustment;
