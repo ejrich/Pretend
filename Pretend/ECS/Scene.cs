@@ -1,8 +1,8 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using OpenTK.Mathematics;
 using Pretend.Events;
 using Pretend.Graphics;
+using Pretend.Text;
 
 namespace Pretend.ECS
 {
@@ -21,10 +21,12 @@ namespace Pretend.ECS
     public class Scene : IScene
     {
         private readonly I2DRenderer _renderer;
+        private readonly ITextRenderer _textRenderer;
 
-        public Scene(I2DRenderer renderer, IEntityContainer entityContainer)
+        public Scene(I2DRenderer renderer, ITextRenderer textRenderer, IEntityContainer entityContainer)
         {
             _renderer = renderer;
+            _textRenderer = textRenderer;
             EntityContainer = entityContainer;
         }
 
@@ -93,7 +95,8 @@ namespace Pretend.ECS
                             renderObject.X = position.X;
                             renderObject.Y = position.Y;
                             renderObject.Z = position.Z;
-                            renderObject.Rotation = new Quaternion(ToRadians(position.Roll), ToRadians(position.Pitch), ToRadians(position.Yaw));
+                            renderObject.Rotation = new Quaternion(MathHelper.DegreesToRadians(position.Roll),
+                                MathHelper.DegreesToRadians(position.Pitch), MathHelper.DegreesToRadians(position.Yaw));
                             break;
                         case SizeComponent size:
                             renderObject.Width = size.Width;
@@ -105,6 +108,9 @@ namespace Pretend.ECS
                         case TextureComponent texture:
                             renderObject.Texture = texture.Texture;
                             break;
+                        case TextComponent text:
+                            RenderText(text, entity);
+                            break;
                     }
                 }
                 _renderer.Submit(renderObject);
@@ -113,6 +119,27 @@ namespace Pretend.ECS
             _renderer.End();
         }
 
-        private float ToRadians(float angle) => angle * ((float) Math.PI / 180f);
+        private void RenderText(TextComponent textComponent, IEntity entity)
+        {
+            if (string.IsNullOrWhiteSpace(textComponent.Text) || string.IsNullOrWhiteSpace(textComponent.Font) || textComponent.Size == 0)
+                return;
+
+            var textObject = new RenderableTextObject
+            {
+                Text = textComponent.Text,
+                FontPath = textComponent.Font,
+                Size = textComponent.Size,
+                Alignment = textComponent.Alignment,
+                Position = textComponent.RelativePosition,
+                Orientation = textComponent.Orientation,
+                Color = textComponent.Color
+            };
+
+            var position = entity.GetComponent<PositionComponent>();
+            if (position != null)
+                textObject.Position += new Vector3(position.X, position.Y, position.Z);
+
+            _textRenderer.RenderText(textObject);
+        }
     }
 }

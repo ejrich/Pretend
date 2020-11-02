@@ -11,6 +11,7 @@ using Pretend.Graphics;
 using Pretend.Graphics.OpenGL;
 using Pretend.Layers;
 using Pretend.Physics;
+using Pretend.Text;
 using Pretend.Windows;
 
 namespace Pretend
@@ -70,6 +71,10 @@ namespace Pretend
             _services.AddTransient<ISoundBuffer, SoundBuffer>();
             _services.AddTransient<ISoundManager, SoundManager>();
             _services.AddTransient<ISource, Source>();
+
+            // Text API
+            _services.AddSingleton<ITextRenderer, TextRenderer>();
+            _services.AddSingleton<IFont, Font>();
 
             // Application
             _services.AddTransient(typeof(IApplication), typeof(TApp));

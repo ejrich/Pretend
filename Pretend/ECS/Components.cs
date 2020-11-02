@@ -2,6 +2,7 @@
 using Pretend.Audio;
 using Pretend.Events;
 using Pretend.Graphics;
+using Pretend.Text;
 
 namespace Pretend.ECS
 {
@@ -72,5 +73,16 @@ namespace Pretend.ECS
         public ISoundBuffer SoundBuffer { get; set; }
         public bool Play { get; set; }
         public bool Loop { get; set; }
+    }
+
+    public class TextComponent : IComponent
+    {
+        public string Text { get; set; }
+        public string Font { get; set; }
+        public uint Size { get; set; }
+        public TextAlignment Alignment { get; set; } = TextAlignment.Center;
+        public Vector3 RelativePosition { get; set; } = Vector3.Zero;
+        public Vector3 Orientation { get; set; } = Vector3.Zero;
+        public Vector4 Color { get; set; } = Vector4.One;
     }
 }

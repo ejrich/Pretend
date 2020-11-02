@@ -13,9 +13,12 @@ namespace Pretend.Graphics
         public float Z { get; set; }
         public uint Width { get; set; }
         public uint Height { get; set; }
-        public Quaternion Rotation { get; set; }
+        public Quaternion Rotation { get; set; } = Quaternion.Identity;
         public Vector4 Color { get; set; } = Vector4.One;
         public ITexture2D Texture { get; set; }
+        public float SubTextureOffsetX { get; set; }
+        public float SubTextureOffsetY { get; set; }
+        public bool SingleChannel { get; set; }
     }
 
     public interface I2DRenderer : IRenderer
@@ -25,20 +28,23 @@ namespace Pretend.Graphics
 
     public class Renderer2D : I2DRenderer
     {
-        [StructLayout(LayoutKind.Explicit, Size = 40)]
+        [StructLayout(LayoutKind.Explicit, Size = 44)]
         internal struct Renderable2DBuffer
         {
             [FieldOffset(0)] private readonly Vector3 Position;
             [FieldOffset(12)] private readonly Vector2 TextureLocation;
             [FieldOffset(20)] private readonly Vector4 Color;
             [FieldOffset(36)] private readonly int Texture;
+            [FieldOffset(40)] private readonly int SingleChannel;
 
-            public Renderable2DBuffer(Vector4 position, Vector2 textureLocation, Vector4 color, int texture)
+            public Renderable2DBuffer(Vector4 position, Vector2 textureLocation, Vector4 color,
+                int texture, bool singleChannel)
             {
                 Position = position.Xyz;
                 TextureLocation = textureLocation;
                 Color = color;
                 Texture = texture;
+                SingleChannel = singleChannel ? 1 : 0;
             }
         }
 
@@ -70,16 +76,17 @@ namespace Pretend.Graphics
 
             _vertices = new[]
             {
-                new Vector4(0.5f, 0.5f, 0, 1), new Vector4(0.5f, -0.5f, 0, 1), new Vector4(-0.5f, -0.5f, 0, 1),
-                new Vector4(-0.5f, 0.5f, 0, 1)
+                new Vector4(0.5f, 0.5f, 0, 1), new Vector4(0.5f, -0.5f, 0, 1),
+                new Vector4(-0.5f, -0.5f, 0, 1), new Vector4(-0.5f, 0.5f, 0, 1)
             };
-            _textureCoordinates = new[] {new Vector2(1, 1), new Vector2(1, 0), new Vector2(0, 0), new Vector2(0, 1)};
+            _textureCoordinates = new[] {new Vector2(1, 0), new Vector2(1, 1), new Vector2(0, 1), new Vector2(0, 0)};
 
             var vertexBuffer = _factory.Create<IVertexBuffer>();
             vertexBuffer.SetSize<Renderable2DBuffer>(MaxSubmissions * VerticesInSubmission);
             vertexBuffer.AddLayout<float>(3);
             vertexBuffer.AddLayout<float>(2);
             vertexBuffer.AddLayout<float>(4);
+            vertexBuffer.AddLayout<float>(1);
             vertexBuffer.AddLayout<float>(1);
 
             var indices = Enumerable.Range(0, MaxSubmissions)
@@ -129,6 +136,8 @@ namespace Pretend.Graphics
 
         public void Submit(Renderable2DObject renderObject)
         {
+            if (renderObject.Width == 0 && renderObject.Height == 0) return;
+
             var transform = Matrix4.Identity *
                             Matrix4.CreateScale(renderObject.Width, renderObject.Height, 1) *
                             Matrix4.CreateFromQuaternion(renderObject.Rotation) *
@@ -142,8 +151,14 @@ namespace Pretend.Graphics
 
             foreach (var vertex in Enumerable.Range(0, VerticesInSubmission))
             {
-                _submissions.Add(new Renderable2DBuffer(_vertices[vertex] * transform, _textureCoordinates[vertex],
-                    renderObject.Color, GetTextureIndex(renderObject.Texture)));
+                var textureCoord = _textureCoordinates[vertex];
+                if (renderObject.Texture != null && (renderObject.SubTextureOffsetX != 0 || renderObject.SubTextureOffsetY != 0))
+                {
+                    textureCoord.X = ((textureCoord.X * renderObject.Width) + renderObject.SubTextureOffsetX) / renderObject.Texture.Width;
+                    textureCoord.Y = ((textureCoord.Y * renderObject.Height) + renderObject.SubTextureOffsetY) / renderObject.Texture.Height;
+                }
+                _submissions.Add(new Renderable2DBuffer(_vertices[vertex] * transform, textureCoord,
+                    renderObject.Color, GetTextureIndex(renderObject.Texture), renderObject.SingleChannel));
             }
         }
 
