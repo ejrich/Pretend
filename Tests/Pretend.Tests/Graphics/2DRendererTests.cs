@@ -49,7 +49,7 @@ namespace Pretend.Tests.Graphics
             _target.Init();
 
             _mockVertexBuffer.Verify(_ => _.SetSize<Renderer2D.Renderable2DBuffer>(Renderer2D.MaxSubmissions * Renderer2D.VerticesInSubmission), Times.Once);
-            _mockVertexBuffer.Verify(_ => _.AddLayout<float>(It.IsAny<int>(), false), Times.Exactly(4));
+            _mockVertexBuffer.Verify(_ => _.AddLayout<float>(It.IsAny<int>(), false), Times.Exactly(5));
             _mockIndexBuffer.Verify(_ => _.AddData(It.IsAny<uint[]>()), Times.Once);
             _mockShader.Verify(_ => _.Compile(It.IsAny<string>()), Times.Once);
             _mockShader.Verify(_ => _.SetIntArray(It.IsAny<string>(), It.IsAny<int[]>()), Times.Once);
