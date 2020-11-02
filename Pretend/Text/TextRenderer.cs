@@ -60,6 +60,7 @@ namespace Pretend.Text
                     AdjustLine(line, textObject.Alignment, textObject.Position.X, x);
                     yAdjust += textObject.Size;
                     x = textObject.Position.X;
+                    continue;
                 }
 
                 if (!charMap.TryGetValue(character, out var glyph))
