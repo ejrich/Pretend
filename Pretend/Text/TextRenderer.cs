@@ -42,7 +42,8 @@ namespace Pretend.Text
 
         public void RenderText(RenderableTextObject textObject)
         {
-            if (string.IsNullOrWhiteSpace(textObject.FontPath) || string.IsNullOrWhiteSpace(textObject.Text)) return;
+            if (string.IsNullOrWhiteSpace(textObject.FontPath) || string.IsNullOrWhiteSpace(textObject.Text) || textObject.Size == 0)
+                return;
 
             var (charMap, texture) = LoadTextureAtlas(textObject.FontPath, textObject.Size);
  
@@ -51,9 +52,19 @@ namespace Pretend.Text
             var yAdjust = (float)textObject.Size / 4;
 
             var renderObjects = new List<Renderable2DObject>();
+            var line = new List<Renderable2DObject>();
             foreach (var character in textObject.Text)
             {
-                var glyph = charMap[character];
+                if (character == '\n')
+                {
+                    AdjustLine(line, textObject.Alignment, textObject.Position.X, x);
+                    yAdjust += textObject.Size;
+                    x = textObject.Position.X;
+                }
+
+                if (!charMap.TryGetValue(character, out var glyph))
+                    continue;
+
                 var renderObject = new Renderable2DObject
                 {
                     X = x + (float) glyph.Width / 2 + glyph.BearingX,
@@ -70,21 +81,13 @@ namespace Pretend.Text
                     SingleChannel = true
                 };
                 renderObjects.Add(renderObject);
+                line.Add(renderObject);
                 x += glyph.Advance;
             }
-
-            var dx = textObject.Alignment switch
-            {
-                TextAlignment.Left => 0,
-                TextAlignment.Center => (x - textObject.Position.X) / 2,
-                TextAlignment.Right => x - textObject.Position.X,
-                _ => 0
-            };
+            AdjustLine(line, textObject.Alignment, textObject.Position.X, x);
 
             foreach (var renderObject in renderObjects)
             {
-                renderObject.X -= dx;
-                Rotate(renderObject);
                 _renderer.Submit(renderObject);
             }
         }
@@ -114,6 +117,24 @@ namespace Pretend.Text
             renderObject.X = x;
             renderObject.Y = y;
             renderObject.Z = z;
+        }
+
+        private static void AdjustLine(List<Renderable2DObject> line, TextAlignment alignment, float x0, float x1)
+        {
+            var xAdjustment = alignment switch
+            {
+                TextAlignment.Left => 0,
+                TextAlignment.Center => (x1 - x0) / 2,
+                TextAlignment.Right => x1 - x0,
+                _ => 0
+            };
+            
+            foreach (var renderObject in line)
+            {
+                renderObject.X -= xAdjustment;
+                Rotate(renderObject);
+            }
+            line.Clear();
         }
     }
 }

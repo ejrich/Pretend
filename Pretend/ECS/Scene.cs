@@ -23,7 +23,7 @@ namespace Pretend.ECS
         private readonly I2DRenderer _renderer;
         private readonly ITextRenderer _textRenderer;
 
-        public Scene(I2DRenderer renderer, IEntityContainer entityContainer, ITextRenderer textRenderer)
+        public Scene(I2DRenderer renderer, ITextRenderer textRenderer, IEntityContainer entityContainer)
         {
             _renderer = renderer;
             _textRenderer = textRenderer;

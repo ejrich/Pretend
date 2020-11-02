@@ -2,6 +2,7 @@
 using Moq;
 using Pretend.ECS;
 using Pretend.Graphics;
+using Pretend.Text;
 
 namespace Pretend.Tests.ECS
 {
@@ -11,15 +12,17 @@ namespace Pretend.Tests.ECS
         private IScene _target;
         
         private Mock<I2DRenderer> _mockRenderer;
+        private Mock<ITextRenderer> _mockTextRenderer;
         private Mock<IEntityContainer> _mockEntityContainer;
 
         [TestInitialize]
         public void TestInitialize()
         {
             _mockRenderer = new Mock<I2DRenderer>(MockBehavior.Strict);
+            _mockTextRenderer = new Mock<ITextRenderer>(MockBehavior.Strict);
             _mockEntityContainer = new Mock<IEntityContainer>(MockBehavior.Strict);
 
-            _target = new Scene(_mockRenderer.Object, _mockEntityContainer.Object);
+            _target = new Scene(_mockRenderer.Object, _mockTextRenderer.Object, _mockEntityContainer.Object);
         }
 
         [TestCleanup]

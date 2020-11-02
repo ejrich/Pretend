@@ -3,6 +3,7 @@ using Pretend.ECS;
 using Pretend.Events;
 using Pretend.Graphics;
 using Pretend.Layers;
+using Pretend.Text;
 
 namespace Sandbox
 {
@@ -27,10 +28,11 @@ namespace Sandbox
             var entity = _scene.CreateEntity();
             _scene.AddComponent(entity, new TextComponent
             {
-                Text = "Hello world! yogurt pretty good",
+                Text = "Hello world! yogurt pretty good\nHello again!",
                 Font = "Assets/Roboto-Medium.ttf",
-                Size = 60,
-                Orientation = new Vector3(0, 0, 45)
+                Size = 15,
+                // Alignment = TextAlignment.Left,
+                // Orientation = new Vector3(0, 0, 45)
             });
         }
 
@@ -42,6 +44,12 @@ namespace Sandbox
 
         public void HandleEvent(IEvent evnt)
         {
+            switch (evnt)
+            {
+                case WindowResizeEvent resize:
+                    _camera.Resize(resize.Width, resize.Height);
+                    break;
+            }
         }
     }
 }
