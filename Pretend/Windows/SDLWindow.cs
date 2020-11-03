@@ -1,4 +1,5 @@
 using System;
+using System.Threading;
 using Pretend.Events;
 using Pretend.Graphics;
 using SDL2;
@@ -11,8 +12,13 @@ namespace Pretend.Windows
         private readonly IEventDispatcher _eventDispatcher;
         private readonly IGraphicsContext _context;
         private readonly IWindowAttributesProvider _windowAttributes;
+        private readonly SpinWait _spinWait;
 
-        private ulong lastTime;
+        private ulong _lastTime;
+        private float _performanceFrequency;
+
+        private uint _maxFps;
+        private float _maxTimestep;
 
         public SDLWindow(IEventDispatcher eventDispatcher, IGraphicsContext context,
             IWindowAttributesProvider windowAttributes)
@@ -20,26 +26,30 @@ namespace Pretend.Windows
             _eventDispatcher = eventDispatcher;
             _context = context;
             _windowAttributes = windowAttributes;
+            _spinWait = new SpinWait();
         }
 
-        public void Init()
+        public void Init()//ISettingsManager settings)
         {
             SDL.SDL_Init(SDL.SDL_INIT_VIDEO);
             _window = SDL.SDL_CreateWindow(_windowAttributes.Title, SDL.SDL_WINDOWPOS_CENTERED, SDL.SDL_WINDOWPOS_CENTERED,
                 _windowAttributes.Width, _windowAttributes.Height, SDL.SDL_WindowFlags.SDL_WINDOW_OPENGL | SDL.SDL_WindowFlags.SDL_WINDOW_RESIZABLE);
 
             _context.CreateContext(_window);
+            _context.Vsync = false;
 
-            SDL.SDL_GL_SetSwapInterval(1);
+            _performanceFrequency = SDL.SDL_GetPerformanceFrequency();
+            _maxFps = 144;
+            _maxTimestep = 1f / _maxFps;
         }
 
         public float GetTimestep()
         {
             var now = SDL.SDL_GetPerformanceCounter();
-            if (lastTime == 0) lastTime = now;
+            if (_lastTime == 0) _lastTime = now;
 
-            var step = (now - lastTime) / (float) SDL.SDL_GetPerformanceFrequency();
-            lastTime = now;
+            var step = (now - _lastTime) / _performanceFrequency;
+            _lastTime = now;
 
             return step;
         }
@@ -49,6 +59,25 @@ namespace Pretend.Windows
             while (SDL.SDL_PollEvent(out var evnt) != 0) HandleEvent(evnt);
 
             _context.UpdateWindow();
+
+            if (_maxFps == 0) return;
+
+            {
+                var now = SDL.SDL_GetPerformanceCounter();
+                var step = (int)(1000 * (_maxTimestep - (now - _lastTime) / _performanceFrequency));
+
+                if (step > 0) Thread.Sleep(step);
+            }
+
+            while (true)
+            {
+                var now = SDL.SDL_GetPerformanceCounter();
+                var step = (now - _lastTime) / _performanceFrequency;
+                if (step >= _maxTimestep)
+                    return;
+
+                Thread.SpinWait(1000);
+            }
         }
 
         public void Close()
