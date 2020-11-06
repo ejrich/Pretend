@@ -12,7 +12,6 @@ namespace Pretend.Windows
         private readonly IEventDispatcher _eventDispatcher;
         private readonly IGraphicsContext _context;
         private readonly IWindowAttributesProvider _windowAttributes;
-        private readonly SpinWait _spinWait;
 
         private ulong _lastTime;
         private float _performanceFrequency;
@@ -26,7 +25,6 @@ namespace Pretend.Windows
             _eventDispatcher = eventDispatcher;
             _context = context;
             _windowAttributes = windowAttributes;
-            _spinWait = new SpinWait();
         }
 
         public void Init()//ISettingsManager settings)
@@ -66,7 +64,9 @@ namespace Pretend.Windows
                 var now = SDL.SDL_GetPerformanceCounter();
                 var step = (int)(1000 * (_maxTimestep - (now - _lastTime) / _performanceFrequency));
 
-                if (step > 0) Thread.Sleep(step);
+                if (step <= 0) return;
+
+                Thread.Sleep(step);
             }
 
             while (true)
