@@ -6,7 +6,7 @@ namespace Pretend
 {
     public interface IApplicationRunner
     {
-        void Run();
+        void Run(string title);
     }
 
     public class ApplicationRunner : IApplicationRunner
@@ -16,28 +16,26 @@ namespace Pretend
         private readonly IEventDispatcher _eventDispatcher;
         private readonly ILayerContainer _layerContainer;
         private readonly IRenderContext _renderContext;
-        private readonly ILog<ApplicationRunner> _log;
+        private readonly ISettingsManager _settingsManager;
 
         private bool _running = true;
 
         public ApplicationRunner(IApplication application, IWindow window, IEventDispatcher eventDispatcher,
-            ILayerContainer layerContainer, IRenderContext renderContext, ILog<ApplicationRunner> log)
+            ILayerContainer layerContainer, IRenderContext renderContext, ISettingsManager settingsManager)
         {
             _application = application;
             _window = window;
             _eventDispatcher = eventDispatcher;
             _layerContainer = layerContainer;
             _renderContext = renderContext;
-            _log = log;
+            _settingsManager = settingsManager;
         }
 
-        public void Run()
+        public void Run(string title)
         {
             RegisterEvents();
 
-            _log.Info("Hello World");
-
-            _window.Init();
+            _window.Init(title, _settingsManager);
             _application.Start();
 
             while (_running)

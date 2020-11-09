@@ -11,7 +11,6 @@ namespace Pretend.Windows
         private IntPtr _window;
         private readonly IEventDispatcher _eventDispatcher;
         private readonly IGraphicsContext _context;
-        private readonly IWindowAttributesProvider _windowAttributes;
 
         private ulong _lastTime;
         private float _performanceFrequency;
@@ -19,25 +18,23 @@ namespace Pretend.Windows
         private uint _maxFps;
         private float _maxTimestep;
 
-        public SDLWindow(IEventDispatcher eventDispatcher, IGraphicsContext context,
-            IWindowAttributesProvider windowAttributes)
+        public SDLWindow(IEventDispatcher eventDispatcher, IGraphicsContext context)
         {
             _eventDispatcher = eventDispatcher;
             _context = context;
-            _windowAttributes = windowAttributes;
         }
 
-        public void Init()//ISettingsManager settings)
+        public void Init(string title, ISettingsManager settings)
         {
             SDL.SDL_Init(SDL.SDL_INIT_VIDEO);
-            _window = SDL.SDL_CreateWindow(_windowAttributes.Title, SDL.SDL_WINDOWPOS_CENTERED, SDL.SDL_WINDOWPOS_CENTERED,
-                _windowAttributes.Width, _windowAttributes.Height, SDL.SDL_WindowFlags.SDL_WINDOW_OPENGL | SDL.SDL_WindowFlags.SDL_WINDOW_RESIZABLE);
+            _window = SDL.SDL_CreateWindow(title, SDL.SDL_WINDOWPOS_CENTERED, SDL.SDL_WINDOWPOS_CENTERED,
+                settings.Resolution.X, settings.Resolution.Y, GetWindowFlags(settings.WindowMode));
 
             _context.CreateContext(_window);
-            _context.Vsync = false;
+            _context.Vsync = settings.Vsync;
 
             _performanceFrequency = SDL.SDL_GetPerformanceFrequency();
-            _maxFps = 144;
+            _maxFps = settings.MaxFps;
             _maxTimestep = 1f / _maxFps;
         }
 
@@ -86,6 +83,19 @@ namespace Pretend.Windows
 
             SDL.SDL_DestroyWindow(_window);
             SDL.SDL_Quit();
+        }
+
+        private static SDL.SDL_WindowFlags GetWindowFlags(WindowMode windowMode)
+        {
+            var flags = SDL.SDL_WindowFlags.SDL_WINDOW_OPENGL | SDL.SDL_WindowFlags.SDL_WINDOW_RESIZABLE;
+
+            if ((windowMode & WindowMode.Fullscreen) != 0)
+                flags |= SDL.SDL_WindowFlags.SDL_WINDOW_FULLSCREEN;
+
+            if ((windowMode & WindowMode.Borderless) != 0)
+                flags |= SDL.SDL_WindowFlags.SDL_WINDOW_BORDERLESS;
+
+            return flags;
         }
 
         private void HandleEvent(SDL.SDL_Event evnt)

@@ -29,9 +29,4 @@ namespace Sandbox
             // _layerContainer.PushLayer(_exampleLayer);
         }
     }
-    
-    public class WindowAttributes : IWindowAttributesProvider
-    {
-        public string Title => "Sandbox";
-    }
 }

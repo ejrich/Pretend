@@ -2,17 +2,16 @@ namespace Pretend
 {
     public class Entrypoint
     {
-        public static void Start<TApp, TWA>()
+        public static void Start<TApp>(string title)
             where TApp : IApplication
-            where TWA : IWindowAttributesProvider
         {
             var factory = new Factory();
-            factory.RegisterServices<TApp, TWA>();
+            factory.RegisterServices<TApp>();
             factory.BuildContainer();
 
             var applicationRunner = factory.Create<IApplicationRunner>();
 
-            applicationRunner.Run();
+            applicationRunner.Run(title);
         }
     }
 }

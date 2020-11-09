@@ -1,17 +1,20 @@
+using System;
+
 namespace Pretend
 {
+    [Flags]
+    public enum WindowMode
+    {
+        Windowed = 1,
+        Fullscreen = 2,
+        Borderless = 4
+    }
+
     public interface IWindow
     {
-        void Init();
+        void Init(string title, ISettingsManager settings);
         float GetTimestep();
         void OnUpdate();
         void Close();
-    }
-
-    public interface IWindowAttributesProvider
-    {
-        string Title { get; }
-        int Width { get => 1280; }
-        int Height { get => 720; }
     }
 }
