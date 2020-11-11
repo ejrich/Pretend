@@ -29,9 +29,11 @@ namespace Pretend.Windows
             SDL.SDL_Init(SDL.SDL_INIT_VIDEO);
             _window = SDL.SDL_CreateWindow(title, SDL.SDL_WINDOWPOS_CENTERED, SDL.SDL_WINDOWPOS_CENTERED,
                 settings.Resolution.X, settings.Resolution.Y, GetWindowFlags(settings.WindowMode));
+            SDL.SDL_SetHint("SDL_VIDEO_MINIMIZE_ON_FOCUS_LOSS", "0");
 
             _context.CreateContext(_window);
             _context.Vsync = settings.Vsync;
+            SDL.SDL_SetWindowGrab(_window, settings.MouseGrab ? SDL.SDL_bool.SDL_TRUE : SDL.SDL_bool.SDL_FALSE);
 
             _performanceFrequency = SDL.SDL_GetPerformanceFrequency();
             _maxFps = settings.MaxFps;
