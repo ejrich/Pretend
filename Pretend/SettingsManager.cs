@@ -26,9 +26,9 @@ namespace Pretend
         }
 
         public bool Vsync { get; set; } = true;
-        public ushort MaxFps { get; set; } = 0;
+        public ushort MaxFps { get; set; }
         public Vector2i Resolution { get; set; } = new Vector2i(1920, 1080);
-        public WindowMode WindowMode { get; set; } = WindowMode.Fullscreen;
+        public WindowMode WindowMode { get; set; }
         public bool MouseGrab { get; set; }
 
         public void Apply()

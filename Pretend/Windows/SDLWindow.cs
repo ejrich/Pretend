@@ -1,5 +1,6 @@
 using System;
 using System.Threading;
+using OpenTK.Mathematics;
 using Pretend.Events;
 using Pretend.Graphics;
 using SDL2;
@@ -26,18 +27,20 @@ namespace Pretend.Windows
 
         public void Init(string title, ISettingsManager settings)
         {
+            // Initialize window and other SDL fields
             SDL.SDL_Init(SDL.SDL_INIT_VIDEO);
             _window = SDL.SDL_CreateWindow(title, SDL.SDL_WINDOWPOS_CENTERED, SDL.SDL_WINDOWPOS_CENTERED,
                 settings.Resolution.X, settings.Resolution.Y, GetWindowFlags(settings.WindowMode));
             SDL.SDL_SetHint("SDL_VIDEO_MINIMIZE_ON_FOCUS_LOSS", "0");
-
-            _context.CreateContext(_window);
-            _context.Vsync = settings.Vsync;
-            SDL.SDL_SetWindowGrab(_window, settings.MouseGrab ? SDL.SDL_bool.SDL_TRUE : SDL.SDL_bool.SDL_FALSE);
-
             _performanceFrequency = SDL.SDL_GetPerformanceFrequency();
-            _maxFps = settings.MaxFps;
-            _maxTimestep = 1f / _maxFps;
+
+            // Initialize graphics context
+            _context.CreateContext(_window);
+
+            // Apply settings from ISettingsManager
+            _context.Vsync = settings.Vsync;
+            MaxFps = settings.MaxFps;
+            MouseGrab = settings.MouseGrab;
         }
 
         public float GetTimestep()
@@ -85,6 +88,34 @@ namespace Pretend.Windows
 
             SDL.SDL_DestroyWindow(_window);
             SDL.SDL_Quit();
+        }
+
+        public Vector2i Resolution { set => SDL.SDL_SetWindowSize(_window, value.X, value.Y); }
+
+        public ushort MaxFps
+        {
+            set
+            {
+                _maxFps = value;
+                _maxTimestep = 1f / _maxFps;
+            }
+        }
+
+        public WindowMode WindowMode
+        {
+            set
+            {
+                var fullscreen = (value & WindowMode.Fullscreen) != 0;
+                SDL.SDL_SetWindowFullscreen(_window, fullscreen ? (uint)SDL.SDL_WindowFlags.SDL_WINDOW_FULLSCREEN : 0);
+
+                var borderless = (value & WindowMode.Borderless) != 0;
+                SDL.SDL_SetWindowBordered(_window, borderless ? SDL.SDL_bool.SDL_TRUE : SDL.SDL_bool.SDL_FALSE);
+            }
+        }
+
+        public bool MouseGrab
+        {
+            set => SDL.SDL_SetWindowGrab(_window, value ? SDL.SDL_bool.SDL_TRUE : SDL.SDL_bool.SDL_FALSE);
         }
 
         private static SDL.SDL_WindowFlags GetWindowFlags(WindowMode windowMode)
