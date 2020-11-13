@@ -25,12 +25,12 @@ namespace Pretend.Windows
             _context = context;
         }
 
-        public void Init(string title, ISettingsManager settings)
+        public void Init(string title, Settings settings)
         {
             // Initialize window and other SDL fields
             SDL.SDL_Init(SDL.SDL_INIT_VIDEO);
             _window = SDL.SDL_CreateWindow(title, SDL.SDL_WINDOWPOS_CENTERED, SDL.SDL_WINDOWPOS_CENTERED,
-                settings.Resolution.X, settings.Resolution.Y, GetWindowFlags(settings.WindowMode));
+                settings.ResolutionX, settings.ResolutionY, GetWindowFlags(settings.WindowMode));
             SDL.SDL_SetHint("SDL_VIDEO_MINIMIZE_ON_FOCUS_LOSS", "0");
             _performanceFrequency = SDL.SDL_GetPerformanceFrequency();
 

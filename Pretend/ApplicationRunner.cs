@@ -16,26 +16,26 @@ namespace Pretend
         private readonly IEventDispatcher _eventDispatcher;
         private readonly ILayerContainer _layerContainer;
         private readonly IRenderContext _renderContext;
-        private readonly ISettingsManager _settingsManager;
+        private readonly Settings _settings;
 
         private bool _running = true;
 
         public ApplicationRunner(IApplication application, IWindow window, IEventDispatcher eventDispatcher,
-            ILayerContainer layerContainer, IRenderContext renderContext, ISettingsManager settingsManager)
+            ILayerContainer layerContainer, IRenderContext renderContext, Settings settings)
         {
             _application = application;
             _window = window;
             _eventDispatcher = eventDispatcher;
             _layerContainer = layerContainer;
             _renderContext = renderContext;
-            _settingsManager = settingsManager;
+            _settings = settings;
         }
 
         public void Run(string title)
         {
             RegisterEvents();
 
-            _window.Init(title, _settingsManager);
+            _window.Init(title, _settings);
             _application.Start();
 
             while (_running)

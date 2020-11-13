@@ -16,7 +16,7 @@ namespace Pretend.Tests
         [TestMethod]
         public void RegisterServices_RegistersDefaultServices()
         {
-            _target.RegisterServices<TestApplication>();
+            _target.RegisterServices<TestApplication, Settings>();
             _target.BuildContainer();
 
             var testApplication = _target.Create<IApplication>();
@@ -27,7 +27,7 @@ namespace Pretend.Tests
         [TestMethod]
         public void RegisterServices_RegistersDefinedInterfacesAndClasses()
         {
-            _target.RegisterServices<TestApplication>();
+            _target.RegisterServices<TestApplication, Settings>();
             _target.BuildContainer();
 
             var serviceInterface = _target.Create<IService>();

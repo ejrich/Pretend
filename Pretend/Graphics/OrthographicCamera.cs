@@ -8,9 +8,9 @@ namespace Pretend.Graphics
         private Matrix4 _projection;
         private Vector3 _position;
 
-        public OrthographicCamera(ISettingsManager settings)
+        public OrthographicCamera(Settings settings)
         {
-            Matrix4.CreateOrthographic(settings.Resolution.X, settings.Resolution.Y, -1f, 1f, out _projection);
+            Matrix4.CreateOrthographic(settings.ResolutionX, settings.ResolutionY, -1f, 1f, out _projection);
             _view = Matrix4.Identity;
             _position = new Vector3();
 

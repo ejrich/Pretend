@@ -28,7 +28,7 @@ namespace Pretend
 
         public Factory() => _services = new ServiceCollection();
 
-        public void RegisterServices<TApp>()
+        public void RegisterServices<TApp, TSettings>() where TSettings : Settings, new()
         {
             // Logging
             _services.AddLogging(configure => configure.AddDebug());
@@ -38,8 +38,14 @@ namespace Pretend
             _services.AddTransient<IApplicationRunner, ApplicationRunner>();
             _services.AddSingleton<IEventDispatcher, EventDispatcher>();
             _services.AddSingleton<ILayerContainer, LayerContainer>();
-            _services.AddSingleton<ISettingsManager, SettingsManager>();
             _services.AddSingleton<IFactory, Factory>(_ => this);
+ 
+            // Settings
+            _services.AddSingleton<SettingsManager<TSettings>>();
+            _services.AddSingleton<ISettingsManager<TSettings>>(serviceProvider => serviceProvider.GetService<SettingsManager<TSettings>>());
+            _services.AddSingleton<ISettingsManager<Settings>>(serviceProvider => serviceProvider.GetService<SettingsManager<TSettings>>());
+            _services.AddSingleton<Settings>(serviceProvider => serviceProvider.GetService<SettingsManager<TSettings>>().Settings);
+            _services.AddSingleton(serviceProvider => serviceProvider.GetService<SettingsManager<TSettings>>().Settings);
 
             // Windows
             _services.AddSingleton<IWindow, SDLWindow>();

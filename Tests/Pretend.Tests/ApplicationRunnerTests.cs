@@ -16,7 +16,7 @@ namespace Pretend.Tests
         private Mock<IEventDispatcher> _mockEventDispatcher;
         private Mock<ILayerContainer> _mockLayerContainer;
         private Mock<IRenderContext> _mockRenderContext;
-        private Mock<ISettingsManager> _mockSettingsManager;
+        private Settings _settings;
 
         [TestInitialize]
         public void TestInitialize()
@@ -26,10 +26,10 @@ namespace Pretend.Tests
             _mockEventDispatcher = new Mock<IEventDispatcher>(MockBehavior.Strict);
             _mockLayerContainer = new Mock<ILayerContainer>(MockBehavior.Strict);
             _mockRenderContext = new Mock<IRenderContext>(MockBehavior.Strict);
-            _mockSettingsManager = new Mock<ISettingsManager>(MockBehavior.Strict);
+            _settings = new Settings();
 
             _target = new ApplicationRunner(_mockApplication.Object, _mockWindow.Object, _mockEventDispatcher.Object,
-                _mockLayerContainer.Object, _mockRenderContext.Object, _mockSettingsManager.Object);
+                _mockLayerContainer.Object, _mockRenderContext.Object, _settings);
         }
 
         [TestCleanup]
@@ -40,7 +40,6 @@ namespace Pretend.Tests
             _mockEventDispatcher.VerifyAll();
             _mockLayerContainer.VerifyAll();
             _mockRenderContext.VerifyAll();
-            _mockSettingsManager.VerifyAll();
         }
 
         [TestMethod]
@@ -50,7 +49,7 @@ namespace Pretend.Tests
             _mockEventDispatcher.Setup(_ => _.Register<WindowResizeEvent>(_target.OnResize));
             _mockApplication.Setup(_ => _.Start());
             _mockApplication.Setup(_ => _.Stop());
-            _mockWindow.Setup(_ => _.Init("Test", _mockSettingsManager.Object));
+            _mockWindow.Setup(_ => _.Init("Test", _settings));
             _mockWindow.Setup(_ => _.GetTimestep()).Returns(0);
             _mockWindow.Setup(_ => _.Close());
             _mockWindow.Setup(_ => _.OnUpdate()).Callback(() => _target.OnClose(new WindowCloseEvent()));
