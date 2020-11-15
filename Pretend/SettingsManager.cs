@@ -1,5 +1,8 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Text.Json;
+using System.Threading.Tasks;
+using OpenTK.Mathematics;
 using Pretend.Graphics;
 
 namespace Pretend
@@ -14,10 +17,10 @@ namespace Pretend
         public bool MouseGrab { get; set; }
     }
 
-    public interface ISettingsManager<out T> where T : Settings
+    public interface ISettingsManager<out T> where T : Settings, new()
     {
         T Settings { get; }
-        void Apply();
+        void Apply(Action<T> apply = null);
         void Reset();
     }
 
@@ -36,26 +39,57 @@ namespace Pretend
             if (!File.Exists(SettingsFile))
             {
                 Settings = new T();
-                var settingsString = JsonSerializer.Serialize(Settings, new JsonSerializerOptions { WriteIndented = true });
-                File.WriteAllText(SettingsFile, settingsString);
+                WriteSettings();
             }
             else
             {
-                var settingsFile= File.ReadAllText(SettingsFile);
-                Settings = JsonSerializer.Deserialize<T>(settingsFile);
+                ReadSettings();
             }
         }
         
-        public T Settings { get; }
+        public T Settings { get; private set; }
 
-        public void Apply()
+        public void Apply(Action<T> apply = null)
         {
-            throw new System.NotImplementedException();
+            _graphicsContext.Vsync = Settings.Vsync;
+            _window.MaxFps = Settings.MaxFps;
+            _window.Resolution = new Vector2i(Settings.ResolutionX, Settings.ResolutionY);
+            _window.WindowMode = Settings.WindowMode;
+            _window.MouseGrab = Settings.MouseGrab;
+
+            apply?.Invoke(Settings);
+
+            WriteSettings();
         }
 
         public void Reset()
         {
-            throw new System.NotImplementedException();
+            ReadSettings();
+        }
+
+        private void ReadSettings()
+        {
+            // Try to read the settings.json file
+            try
+            {
+                var settingsFile = File.ReadAllText(SettingsFile);
+                Settings = JsonSerializer.Deserialize<T>(settingsFile);
+            }
+            // If unable to read from the settings.json file, set the settings back to default
+            catch
+            {
+                Settings = new T();
+                WriteSettings();
+            }
+        }
+
+        private void WriteSettings()
+        {
+            Task.Run(() =>
+            {
+                using var fileStream = File.Create(SettingsFile);
+                return JsonSerializer.SerializeAsync(fileStream, Settings, new JsonSerializerOptions { WriteIndented = true });
+            });
         }
     }
 }
