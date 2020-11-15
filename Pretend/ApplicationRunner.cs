@@ -42,6 +42,7 @@ namespace Pretend
             {
                 var timeStep = _window.GetTimestep();
 
+                _renderContext.Clear();
                 _layerContainer.Update(timeStep);
                 _window.OnUpdate();
             }

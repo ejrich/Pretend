@@ -58,6 +58,7 @@ namespace Pretend.Graphics
         private readonly List<Renderable2DBuffer> _submissions = new List<Renderable2DBuffer>();
         private readonly IDictionary<ITexture2D, int> _textures = new Dictionary<ITexture2D, int>();
 
+        private bool _initialized;
         private Vector4[] _vertices;
         private Vector2[] _textureCoordinates;
         private Matrix4 _viewProjection;
@@ -72,6 +73,8 @@ namespace Pretend.Graphics
 
         public void Init()
         {
+            if (_initialized) return;
+
             _renderContext.Init();
 
             _vertices = new[]
@@ -109,13 +112,13 @@ namespace Pretend.Graphics
             _objectShader = _factory.Create<IShader>();
             _objectShader.Compile("Pretend.Graphics.Shaders.2DObject.glsl");
             _objectShader.SetIntArray("textures[0]", Enumerable.Range(0, 32).ToArray());
+
+            _initialized = true;
         }
 
         public void Begin(ICamera camera)
         {
             _viewProjection = camera.ViewProjection;
-
-            _renderContext.Clear();
         }
 
         public void End()
