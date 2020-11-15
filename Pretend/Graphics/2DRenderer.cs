@@ -95,8 +95,8 @@ namespace Pretend.Graphics
                     var startingIndex = Convert.ToUInt32(i * VerticesInSubmission);
                     return new[]
                     {
-                        0 + startingIndex, 1 + startingIndex, 3 + startingIndex, 1 + startingIndex,
-                        2 + startingIndex, 3 + startingIndex
+                        0 + startingIndex, 1 + startingIndex, 3 + startingIndex,
+                        1 + startingIndex, 2 + startingIndex, 3 + startingIndex
                     };
                 }).ToArray();
             var indexBuffer = _factory.Create<IIndexBuffer>();
