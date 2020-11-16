@@ -25,9 +25,9 @@ namespace Sandbox
 
         public void Start()
         {
-            _layerContainer.PushLayer(_exampleLayer);
-            _layerContainer.PushLayer(_layer2D);
-            _layerContainer.PushLayer(_physicsLayer);
+            // _layerContainer.PushLayer(_exampleLayer);
+            // _layerContainer.PushLayer(_layer2D);
+            // _layerContainer.PushLayer(_physicsLayer);
             _layerContainer.PushLayer(_textLayer);
             _layerContainer.PushLayer(_settingsLayer);
         }

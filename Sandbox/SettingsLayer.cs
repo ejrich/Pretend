@@ -47,6 +47,12 @@ namespace Sandbox
         public void HandleEvent(IEvent evnt)
         {
             _scene.HandleEvent(evnt);
+            switch (evnt)
+            {
+                case WindowResizeEvent resize:
+                    _camera.Resize(resize.Width, resize.Height);
+                    break;
+            }
         }
     }
 }
