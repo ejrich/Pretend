@@ -1,4 +1,5 @@
-﻿using OpenTK.Mathematics;
+﻿using System;
+using OpenTK.Mathematics;
 using Pretend;
 using Pretend.ECS;
 using Pretend.Events;
@@ -184,6 +185,39 @@ namespace Sandbox
                     break;
                 case KeyCode.Space:
                     _jump = false;
+                    break;
+            }
+        }
+    }
+
+    public class SettingsScript : IScriptComponent
+    {
+        private readonly Settings _settings;
+        private readonly Func<Settings> _set;
+        private readonly PositionComponent _position;
+        private readonly SizeComponent _size;
+
+        public SettingsScript() { }
+
+        public SettingsScript(Settings settings, Func<Settings> set, PositionComponent position, SizeComponent size)
+        {
+            _settings = settings;
+            _set = set;
+            _position = position;
+            _size = size;
+        }
+
+        public void Update(float timeStep)
+        {
+        }
+
+        public void HandleEvent(IEvent evnt)
+        {
+            switch (evnt)
+            {
+                case MouseButtonPressedEvent mousePressed:
+                    Console.WriteLine("Mouse Pressed");
+                    evnt.Processed = true;
                     break;
             }
         }
