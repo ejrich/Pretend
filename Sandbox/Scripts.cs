@@ -197,6 +197,7 @@ namespace Sandbox
         private readonly PositionComponent _position;
         private readonly SizeComponent _size;
 
+        // TODO Remove later
         public SettingsScript() { }
 
         public SettingsScript(Settings settings, Func<Settings> set, PositionComponent position, SizeComponent size)

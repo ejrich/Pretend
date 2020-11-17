@@ -13,6 +13,8 @@ namespace Sandbox
         private readonly IScene _scene;
         private readonly ISettingsManager<Settings> _settingsManager;
 
+        private bool _visible;
+
         public SettingsLayer(ICamera camera, IScene scene, ISettingsManager<Settings> settingsManager)
         {
             _camera = camera;
@@ -103,18 +105,27 @@ namespace Sandbox
 
         public void Update(float timeStep)
         {
+            if (!_visible) return;
+
             _scene.Render();
         }
 
         public void HandleEvent(IEvent evnt)
         {
-            _scene.HandleEvent(evnt);
             switch (evnt)
             {
                 case WindowResizeEvent resize:
                     _camera.Resize(resize.Width, resize.Height);
                     break;
+                case KeyPressedEvent keyPressed:
+                    if (keyPressed.KeyCode == KeyCode.Escape)
+                        _visible = !_visible;
+                    break;
             }
+
+            if (!_visible) return;
+
+            _scene.HandleEvent(evnt);
         }
     }
 }
