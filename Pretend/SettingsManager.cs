@@ -29,7 +29,7 @@ namespace Pretend
         private readonly IWindow _window;
         private readonly IGraphicsContext _graphicsContext;
 
-        private const string SettingsFile = "settings.json";
+        internal const string SettingsFile = "settings.json";
 
         public SettingsManager(IWindow window, IGraphicsContext graphicsContext)
         {

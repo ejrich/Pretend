@@ -1,3 +1,4 @@
+using System.IO;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Pretend.Tests
@@ -36,6 +37,34 @@ namespace Pretend.Tests
             Assert.IsTrue(serviceInterface is Service);
             Assert.IsTrue(serviceClass is Service);
         }
+
+        [TestMethod]
+        public void RegisterServices_RegistersCustomSettings()
+        {
+            try
+            {
+                _target.RegisterServices<TestApplication, CustomSettings>();
+                _target.BuildContainer();
+
+                var settingsManager = _target.Create<ISettingsManager<Settings>>();
+                settingsManager.Settings.Vsync = false;
+                var customSettingsManager = _target.Create<ISettingsManager<CustomSettings>>();
+                customSettingsManager.Settings.CustomSetting = false;
+                var settings = _target.Create<Settings>();
+                var customSettings = (CustomSettings)_target.Create<Settings>();
+
+                Assert.AreSame(settingsManager.Settings, settings);
+                Assert.AreSame(customSettingsManager.Settings, customSettings);
+
+                Assert.IsFalse(settings.Vsync);
+                Assert.IsFalse(customSettings.Vsync);
+                Assert.IsFalse(customSettings.CustomSetting);
+            }
+            finally
+            {
+                File.Delete(SettingsManager<Settings>.SettingsFile);
+            }
+        }
     }
 
     public class TestApplication : IApplication
@@ -48,5 +77,10 @@ namespace Pretend.Tests
 
     public class Service : IService
     {
+    }
+
+    public class CustomSettings : Settings
+    {
+        public bool CustomSetting { get; set; } = true;
     }
 }

@@ -43,9 +43,8 @@ namespace Pretend
             // Settings
             _services.AddSingleton<SettingsManager<TSettings>>();
             _services.AddSingleton<ISettingsManager<TSettings>>(serviceProvider => serviceProvider.GetService<SettingsManager<TSettings>>());
-            _services.AddSingleton<ISettingsManager<Settings>>(serviceProvider => serviceProvider.GetService<SettingsManager<TSettings>>());
-            _services.AddSingleton<Settings>(serviceProvider => serviceProvider.GetService<SettingsManager<TSettings>>().Settings);
-            _services.AddSingleton(serviceProvider => serviceProvider.GetService<SettingsManager<TSettings>>().Settings);
+            _services.AddSingleton<ISettingsManager<Settings>>(serviceProvider => serviceProvider.GetService<ISettingsManager<TSettings>>());
+            _services.AddSingleton(serviceProvider => serviceProvider.GetService<ISettingsManager<Settings>>().Settings);
 
             // Windows
             _services.AddSingleton<IWindow, SDLWindow>();
