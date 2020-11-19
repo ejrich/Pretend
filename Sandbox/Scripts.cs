@@ -192,24 +192,40 @@ namespace Sandbox
 
     public class SettingsScript : IScriptComponent
     {
-        private readonly Settings _settings;
-        private readonly Func<Settings> _set;
-        private readonly PositionComponent _position;
-        private readonly SizeComponent _size;
+        private readonly ISettingsManager<Settings> _settings;
+        private readonly Action<ISettingsManager<Settings>> _set;
+        private readonly Func<ISettingsManager<Settings>, bool> _active;
+        private readonly ColorComponent _color;
+        private readonly Vector2i _min;
+        private readonly Vector2i _max;
 
-        // TODO Remove later
-        public SettingsScript() { }
+        private static readonly Vector4 SelectedColor = new Vector4(0, 1, 1, 1);
 
-        public SettingsScript(Settings settings, Func<Settings> set, PositionComponent position, SizeComponent size)
+        public SettingsScript(ISettingsManager<Settings> settings, Action<ISettingsManager<Settings>> set,
+            Func<ISettingsManager<Settings>, bool> active, IEntity entity)
         {
             _settings = settings;
             _set = set;
-            _position = position;
-            _size = size;
+            _active = active;
+            _color = entity.GetComponent<ColorComponent>();
+
+            var position = entity.GetComponent<PositionComponent>();
+            var size = entity.GetComponent<SizeComponent>();
+
+            _min = new Vector2i((int)position.X - (int)size.Width / 2, (int)position.Y - (int)size.Height / 2);
+            _max = new Vector2i((int)position.X + (int)size.Width / 2, (int)position.Y + (int)size.Height / 2);
         }
 
         public void Update(float timeStep)
         {
+            if (_active(_settings))
+            {
+                if (_color.Color == Vector4.One)
+                    _color.Color = SelectedColor;
+            }
+            else
+                if (_color.Color == SelectedColor)
+                    _color.Color = Vector4.One;
         }
 
         public void HandleEvent(IEvent evnt)
@@ -217,10 +233,19 @@ namespace Sandbox
             switch (evnt)
             {
                 case MouseButtonPressedEvent mousePressed:
-                    Console.WriteLine("Mouse Pressed");
-                    evnt.Processed = true;
+                    HandleMousePress(mousePressed);
                     break;
             }
+        }
+
+        private void HandleMousePress(MouseButtonPressedEvent mousePressed)
+        {
+            if (_min.X > mousePressed.X || _max.X < mousePressed.X ||
+                _min.Y > mousePressed.Y || _max.Y < mousePressed.Y)
+                return;
+
+            _set(_settings);
+            mousePressed.Processed = true;
         }
     }
 }

@@ -94,14 +94,7 @@ namespace Pretend.Windows
             SDL.SDL_Quit();
         }
 
-        public Vector2i Resolution
-        {
-            set
-            {
-                SDL.SDL_SetWindowSize(_window, value.X, value.Y);
-                SetResolution(value);
-            }
-        }
+        public Vector2i Resolution { set => SDL.SDL_SetWindowSize(_window, value.X, value.Y); }
 
         private void SetResolution(Vector2i resolution)
         {
@@ -137,7 +130,7 @@ namespace Pretend.Windows
 
         private static SDL.SDL_WindowFlags GetWindowFlags(WindowMode windowMode)
         {
-            var flags = SDL.SDL_WindowFlags.SDL_WINDOW_OPENGL | SDL.SDL_WindowFlags.SDL_WINDOW_RESIZABLE;
+            var flags = SDL.SDL_WindowFlags.SDL_WINDOW_OPENGL;
 
             if ((windowMode & WindowMode.Fullscreen) != 0)
                 flags |= SDL.SDL_WindowFlags.SDL_WINDOW_FULLSCREEN;
@@ -161,6 +154,8 @@ namespace Pretend.Windows
                     switch (windowEvent.windowEvent)
                     {
                         case SDL.SDL_WindowEventID.SDL_WINDOWEVENT_RESIZED:
+                        case SDL.SDL_WindowEventID.SDL_WINDOWEVENT_SIZE_CHANGED:
+                            SetResolution(new Vector2i(windowEvent.data1, windowEvent.data2));
                             _eventDispatcher.DispatchEvent(new WindowResizeEvent { Width = windowEvent.data1, Height = windowEvent.data2 });
                             break;
                     }

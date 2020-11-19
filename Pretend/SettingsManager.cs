@@ -87,8 +87,8 @@ namespace Pretend
         {
             Task.Run(() =>
             {
-                using var fileStream = File.Create(SettingsFile);
-                return JsonSerializer.SerializeAsync(fileStream, Settings, new JsonSerializerOptions { WriteIndented = true });
+                var settingsString = JsonSerializer.Serialize(Settings, new JsonSerializerOptions { WriteIndented = true });
+                File.WriteAllText(SettingsFile, settingsString);
             });
         }
     }
