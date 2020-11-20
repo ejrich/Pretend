@@ -13,11 +13,19 @@ namespace Pretend.Layers
 
     public class LayerContainer : ILayerContainer
     {
+        private readonly IFactory _factory;
         private readonly List<ILayer> _layers = new List<ILayer>();
 
-        public LayerContainer(IEventDispatcher eventDispatcher)
+        public LayerContainer(IEventDispatcher eventDispatcher, IFactory factory)
         {
+            _factory = factory;
             eventDispatcher.Register(HandleEvent);
+        }
+
+        public void PushLayer<T>() where T : ILayer
+        {
+            var layer = _factory.Create<T>();
+            PushLayer(layer);
         }
 
         public void PushLayer(ILayer layer)
