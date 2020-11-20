@@ -6,7 +6,7 @@ namespace Game
     {
         static void Main(string[] args)
         {
-            Entrypoint.Start<Application>("Possible Game");
+            Entrypoint.Start<Application, GameSettings>("Possible Game");
         }
     }
 }

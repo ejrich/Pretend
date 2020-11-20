@@ -12,6 +12,8 @@ namespace Game
     public interface IGame
     {
         bool Running { get; }
+        bool Music { set; }
+        bool SoundEffects { set; }
         void Init(IScene scene, IPhysicsContainer physicsContainer, IEntity player, IEntity theme);
         void Update(float timeStep);
         void Reset();
@@ -34,6 +36,8 @@ namespace Game
         public Game() => _random = new Random();
 
         public bool Running { get; private set; }
+        public bool Music { set => _themeSource.Source.Gain = value ? 0.1f : 0; }
+        public bool SoundEffects { set => _player.GetComponent<SourceComponent>().Source.Gain = value ? 0.5f : 0; }
 
         public void Init(IScene scene, IPhysicsContainer physicsContainer, IEntity player, IEntity theme)
         {

@@ -16,15 +16,17 @@ namespace Game
         private readonly IPhysicsContainer _physicsContainer;
         private readonly ISoundManager _soundManager;
         private readonly IGame _game;
+        private readonly GameSettings _gameSettings;
 
         public GameLayer(ICamera camera, IScene scene, IPhysicsContainer physicsContainer, ISoundManager soundManager,
-            IGame game)
+            IGame game, Settings gameSettings)
         {
             _camera = camera;
             _scene = scene;
             _physicsContainer = physicsContainer;
             _soundManager = soundManager;
             _game = game;
+            _gameSettings = (GameSettings)gameSettings;
         }
 
         public void Attach()
@@ -54,12 +56,13 @@ namespace Game
             var theme= _soundManager.CreateSoundBuffer();
             theme.SetData("Assets/theme.wav");
             var themeSource = _soundManager.CreateSource();
-            themeSource.Gain = 0.1f;
 
             var themeEntity = _scene.CreateEntity();
             _scene.AddComponent(themeEntity, new SourceComponent { Source = themeSource, SoundBuffer = theme, Play = true, Loop = true });
 
             _game.Init(_scene, _physicsContainer, playerEntity, themeEntity);
+            _game.Music = _gameSettings.Music;
+            _game.SoundEffects = _gameSettings.SoundEffects;
             _soundManager.Start(60, _scene.EntityContainer);
         }
 

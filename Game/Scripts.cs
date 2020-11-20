@@ -1,4 +1,5 @@
-﻿using OpenTK.Mathematics;
+﻿using System;
+using OpenTK.Mathematics;
 using Pretend;
 using Pretend.ECS;
 using Pretend.Events;
@@ -37,6 +38,65 @@ namespace Game
                     }
                     break;
             }
+        }
+    }
+
+    public class SettingsScript : IScriptComponent
+    {
+        private readonly ISettingsManager<GameSettings> _settings;
+        private readonly Action<ISettingsManager<GameSettings>> _set;
+        private readonly Func<ISettingsManager<GameSettings>, bool> _active;
+        private readonly ColorComponent _color;
+        private readonly Vector2i _min;
+        private readonly Vector2i _max;
+
+        private static readonly Vector4 SelectedColor = new Vector4(0, 1, 1, 1);
+
+        public SettingsScript(ISettingsManager<GameSettings> settings, Action<ISettingsManager<GameSettings>> set,
+            Func<ISettingsManager<GameSettings>, bool> active, IEntity entity)
+        {
+            _settings = settings;
+            _set = set;
+            _active = active;
+            _color = entity.GetComponent<ColorComponent>();
+
+            var position = entity.GetComponent<PositionComponent>();
+            var size = entity.GetComponent<SizeComponent>();
+
+            _min = new Vector2i((int)position.X - (int)size.Width / 2, (int)position.Y - (int)size.Height / 2);
+            _max = new Vector2i((int)position.X + (int)size.Width / 2, (int)position.Y + (int)size.Height / 2);
+        }
+
+        public void Update(float timeStep)
+        {
+            if (_active(_settings))
+            {
+                if (_color.Color == Vector4.One)
+                    _color.Color = SelectedColor;
+            }
+            else
+                if (_color.Color == SelectedColor)
+                    _color.Color = Vector4.One;
+        }
+
+        public void HandleEvent(IEvent evnt)
+        {
+            switch (evnt)
+            {
+                case MouseButtonPressedEvent mousePressed:
+                    HandleMousePress(mousePressed);
+                    break;
+            }
+        }
+
+        private void HandleMousePress(MouseButtonPressedEvent mousePressed)
+        {
+            if (_min.X > mousePressed.X || _max.X < mousePressed.X ||
+                _min.Y > mousePressed.Y || _max.Y < mousePressed.Y)
+                return;
+
+            _set(_settings);
+            mousePressed.Processed = true;
         }
     }
 }
