@@ -28,7 +28,7 @@ namespace Pretend
 
         public Factory() => _services = new ServiceCollection();
 
-        public void RegisterServices<TApp, TWA>()
+        public void RegisterServices<TApp, TSettings>() where TSettings : Settings, new()
         {
             // Logging
             _services.AddLogging(configure => configure.AddDebug());
@@ -39,10 +39,16 @@ namespace Pretend
             _services.AddSingleton<IEventDispatcher, EventDispatcher>();
             _services.AddSingleton<ILayerContainer, LayerContainer>();
             _services.AddSingleton<IFactory, Factory>(_ => this);
+ 
+            // Settings
+            _services.AddSingleton<SettingsManager<TSettings>>();
+            _services.AddSingleton<ISettingsManager<TSettings>>(serviceProvider => serviceProvider.GetService<SettingsManager<TSettings>>());
+            _services.AddSingleton<ISettingsManager<Settings>>(serviceProvider => serviceProvider.GetService<SettingsManager<TSettings>>());
+            _services.AddSingleton<Settings>(serviceProvider => serviceProvider.GetService<SettingsManager<TSettings>>().Settings);
 
             // Windows
-            _services.AddTransient<IWindow, SDLWindow>();
-            _services.AddTransient<IInput, SDLInput>();
+            _services.AddSingleton<IWindow, SDLWindow>();
+            _services.AddSingleton<IInput, SDLInput>();
 
             // ECS
             _services.AddTransient<IScene, Scene>();
@@ -78,7 +84,6 @@ namespace Pretend
 
             // Application
             _services.AddTransient(typeof(IApplication), typeof(TApp));
-            _services.AddTransient(typeof(IWindowAttributesProvider), typeof(TWA));
 
             var assembly = typeof(TApp).Assembly;
             var classes = new HashSet<TypeInfo>();

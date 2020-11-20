@@ -28,7 +28,7 @@ namespace Pretend.ECS
 
     public class ColorComponent : IComponent
     {
-        public Vector4 Color { get; set; }
+        public Vector4 Color { get; set; } = Vector4.One;
     }
 
     public class TextureComponent : IComponent

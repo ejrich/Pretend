@@ -28,9 +28,6 @@ namespace Pretend.Graphics
         public void Begin(ICamera camera)
         {
             _viewProjection = camera.ViewProjection;
-
-            _renderContext.BackgroundColor(1, 0, 1, 1);
-            _renderContext.Clear();
         }
 
         public void End()

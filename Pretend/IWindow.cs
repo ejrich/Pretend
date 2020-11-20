@@ -1,17 +1,25 @@
+using System;
+using OpenTK.Mathematics;
+
 namespace Pretend
 {
+    [Flags]
+    public enum WindowMode
+    {
+        Windowed = 0,
+        Fullscreen = 1,
+        Borderless = 2
+    }
+
     public interface IWindow
     {
-        void Init();
+        void Init(string title, Settings settings);
         float GetTimestep();
         void OnUpdate();
         void Close();
-    }
-
-    public interface IWindowAttributesProvider
-    {
-        string Title { get; }
-        int Width { get => 1280; }
-        int Height { get => 720; }
+        Vector2i Resolution { get; set; }
+        ushort MaxFps { set; }
+        WindowMode WindowMode { set; }
+        bool MouseGrab { set; }
     }
 }

@@ -108,12 +108,13 @@ namespace Pretend.ECS
                         case TextureComponent texture:
                             renderObject.Texture = texture.Texture;
                             break;
-                        case TextComponent text:
-                            RenderText(text, entity);
-                            break;
                     }
                 }
                 _renderer.Submit(renderObject);
+
+                var text = entity.GetComponent<TextComponent>();
+                if (text != null)
+                    RenderText(text, entity);
             }
 
             _renderer.End();
