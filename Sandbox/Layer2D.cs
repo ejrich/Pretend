@@ -68,12 +68,19 @@ namespace Sandbox
             _scene.AddComponent(entity, new PhysicsComponent {Fixed = true });
         }
 
+        public bool Paused { get; }
+
         public void Update(float timeStep)
         {
             if (_sandbox.ActiveLayer != ActiveLayer.Layer2D) return;
 
             _physicsContainer.Simulate(timeStep, _scene.EntityContainer);
             _scene.Update(timeStep);
+        }
+
+        public void Render()
+        {
+            if (_sandbox.ActiveLayer != ActiveLayer.Layer2D) return;
             _scene.Render();
         }
 

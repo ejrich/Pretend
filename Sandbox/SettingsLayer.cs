@@ -130,11 +130,20 @@ namespace Sandbox
             _scene.AddComponent(resetButton, CreateButtonText("Reset"));
         }
 
+        public bool Paused { get; }
+
         public void Update(float timeStep)
         {
             if (!_visible) return;
 
             _scene.Update(timeStep);
+            _scene.Render();
+        }
+
+        public void Render()
+        {
+            if (!_visible) return;
+
             _scene.Render();
         }
 

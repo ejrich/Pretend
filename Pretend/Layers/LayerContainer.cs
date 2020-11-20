@@ -36,7 +36,9 @@ namespace Pretend.Layers
         {
             foreach (var layer in _layers)
             {
-                layer.Update(timeStep);
+                if (!layer.Paused)
+                    layer.Update(timeStep);
+                layer.Render();
             }
         }
 

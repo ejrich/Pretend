@@ -71,6 +71,8 @@ namespace Sandbox
             _position = _camera.Position;
         }
 
+        public bool Paused { get; }
+
         public void Update(float timeStep)
         {
             if (_sandbox.ActiveLayer != ActiveLayer.ExampleLayer) return;
@@ -83,7 +85,11 @@ namespace Sandbox
             _position.Y += ySpeed * timeStep;
 
             _camera.Position = _position;
+        }
 
+        public void Render()
+        {
+            if (_sandbox.ActiveLayer != ActiveLayer.ExampleLayer) return;
             _renderer.Begin(_camera);
 
             _texture.Bind();
