@@ -94,13 +94,7 @@ namespace Pretend.Windows
             SDL.SDL_Quit();
         }
 
-        public Vector2i Resolution { set => SDL.SDL_SetWindowSize(_window, value.X, value.Y); }
-
-        private void SetResolution(Vector2i resolution)
-        {
-            _resolution = resolution;
-            _halfResolution = resolution / 2;
-        }
+        public Vector2i Resolution { get => _resolution; set => SDL.SDL_SetWindowSize(_window, value.X, value.Y); }
 
         public ushort MaxFps
         {
@@ -139,6 +133,12 @@ namespace Pretend.Windows
                 flags |= SDL.SDL_WindowFlags.SDL_WINDOW_BORDERLESS;
 
             return flags;
+        }
+
+        private void SetResolution(Vector2i resolution)
+        {
+            _resolution = resolution;
+            _halfResolution = resolution / 2;
         }
 
         private void HandleEvent(SDL.SDL_Event evnt)

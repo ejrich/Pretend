@@ -17,7 +17,7 @@ namespace Pretend
         float GetTimestep();
         void OnUpdate();
         void Close();
-        Vector2i Resolution { set; }
+        Vector2i Resolution { get; set; }
         ushort MaxFps { set; }
         WindowMode WindowMode { set; }
         bool MouseGrab { set; }

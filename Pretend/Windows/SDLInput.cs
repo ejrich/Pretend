@@ -4,6 +4,13 @@ namespace Pretend.Windows
 {
     public class SDLInput : IInput
     {
+        private readonly IWindow _window;
+
+        public SDLInput(IWindow window)
+        {
+            _window = window;
+        }
+
         public bool IsKeyPressed(KeyCode keyCode)
         {
             var scancode = SDL.SDL_GetScancodeFromKey((SDL.SDL_Keycode) keyCode);
@@ -27,8 +34,9 @@ namespace Pretend.Windows
         public (int x, int y) GetMousePosition()
         {
             SDL.SDL_GetMouseState(out var x, out var y);
+            var (w, h) = _window.Resolution;
 
-            return (x, y);
+            return (x - w / 2, h / 2 - y);
         }
 
         public int GetMouseX()
