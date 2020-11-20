@@ -5,6 +5,7 @@ using OpenTK.Mathematics;
 using Pretend;
 using Pretend.ECS;
 using Pretend.Physics;
+using Pretend.Text;
 
 namespace Game
 {
@@ -26,10 +27,13 @@ namespace Game
         private IEntity _player;
         private PositionComponent _playerPosition;
         private SourceComponent _themeSource;
+        private TextComponent _title;
+        private TextComponent _scoreText;
+        private float _score;
 
         public Game() => _random = new Random();
 
-        public bool Running { get; private set; } = true;
+        public bool Running { get; private set; }
 
         public void Init(IScene scene, IPhysicsContainer physicsContainer, IEntity player, IEntity theme)
         {
@@ -39,10 +43,29 @@ namespace Game
             _playerPosition = player.GetComponent<PositionComponent>();
             _themeSource = theme.GetComponent<SourceComponent>();
 
+            var titleEntity = _scene.CreateEntity();
+            _title = new TextComponent
+            {
+                Text = "Possible Game\n\nPress Enter to Start,\nSpace to Jump",
+                Font = "Assets/Roboto-Thin.ttf",
+                Size = 60,
+                RelativePosition = new Vector3(0, 300, 0)
+            };
+            _scene.AddComponent(titleEntity, _title);
+
+            var scoreEntity = _scene.CreateEntity();
+            _scoreText = new TextComponent
+            {
+                Font = "Assets/Roboto-Thin.ttf",
+                Size = 45,
+                Alignment = TextAlignment.Left,
+                RelativePosition = new Vector3(-620, 300, 0)
+            };
+            _scene.AddComponent(scoreEntity, _scoreText);
+
             ResetObstacles();
 
             _physicsContainer.Gravity = new Vector3(0, -800, 0);
-            _physicsContainer.Start(144, _scene.EntityContainer);
         }
 
         private void AddObstacle(float x = 640)
@@ -73,6 +96,7 @@ namespace Game
 
         public void Update(float timeStep)
         {
+            _scoreText.Text = $"Score: {(int)_score}";
             if (!Running) return;
 
             // Recalculate obstacle positions and determine the floor height
@@ -89,10 +113,13 @@ namespace Game
                 if (penetrationVector.X <= 1e-7) continue;
 
                 Running = false;
+                _title.Text = "Press Enter to Restart";
                 _physicsContainer.Stop();
                 _themeSource.Source.Stop();
                 return;
             }
+
+            _score += timeStep * 10;
 
             // Filter the passed obstacles and determine whether to add a new one
             var furthestObstacle = _obstacles.FirstOrDefault();
@@ -111,6 +138,8 @@ namespace Game
             ResetObstacles();
             _physicsContainer.Start(144, _scene.EntityContainer);
             _themeSource.Play = true;
+            _title.Text = string.Empty;
+            _score = 0;
         }
     }
 }
