@@ -31,6 +31,8 @@ namespace Pretend.Graphics.OpenGL
         {
             SDL.SDL_GL_DeleteContext(_context);
         }
+
+        public bool Vsync { set => SDL.SDL_GL_SetSwapInterval(value ? 1 : 0); }
     }
 
     public class SDLContext : IBindingsContext

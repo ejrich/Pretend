@@ -175,7 +175,6 @@ namespace Pretend.Tests.Graphics
 
         private void SetupRenderMocks()
         {
-            _mockRenderContext.Setup(_ => _.Clear());
             _mockRenderContext.Setup(_ => _.Draw(_mockVertexArray.Object, It.IsAny<int>()));
             _mockVertexBuffer.Setup(_ => _.AddData(It.IsAny<Renderer2D.Renderable2DBuffer[]>()));
             _mockShader.Setup(_ => _.Bind());

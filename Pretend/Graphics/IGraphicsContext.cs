@@ -7,5 +7,6 @@ namespace Pretend.Graphics
         void CreateContext(IntPtr windowPointer);
         void UpdateWindow();
         void DeleteContext();
+        bool Vsync { set; }
     }
 }

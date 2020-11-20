@@ -14,10 +14,10 @@ namespace Sandbox
 
         private readonly float[] _vertices =
         {
-             400f,  300f, 0.0f, 1.0f, 1.0f, // top right
-             400f, -300f, 0.0f, 1.0f, 0.0f, // bottom right
-            -400f, -300f, 0.0f, 0.0f, 0.0f, // bottom left
-            -400f,  300f, 0.0f, 0.0f, 1.0f  // top left
+             400f,  300f, 0.0f, 1.0f, 0.0f, // top right
+             400f, -300f, 0.0f, 1.0f, 1.0f, // bottom right
+            -400f, -300f, 0.0f, 0.0f, 1.0f, // bottom left
+            -400f,  300f, 0.0f, 0.0f, 0.0f  // top left
         };
 
         private readonly uint[] _indices =
