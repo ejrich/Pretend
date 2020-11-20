@@ -11,6 +11,7 @@ namespace Sandbox
         private readonly IRenderer _renderer;
         private readonly ICamera _camera;
         private readonly IFactory _factory;
+        private readonly ISandbox _sandbox;
 
         private readonly float[] _vertices =
         {
@@ -36,11 +37,12 @@ namespace Sandbox
         private float _upSpeed;
         private float _downSpeed;
 
-        public ExampleLayer(IRenderer renderer, ICamera camera, IFactory factory)
+        public ExampleLayer(IRenderer renderer, ICamera camera, IFactory factory, ISandbox sandbox)
         {
             _renderer = renderer;
             _camera = camera;
             _factory = factory;
+            _sandbox = sandbox;
         }
 
         public void Attach()
@@ -71,6 +73,8 @@ namespace Sandbox
 
         public void Update(float timeStep)
         {
+            if (_sandbox.ActiveLayer != ActiveLayer.ExampleLayer) return;
+
             // Calculate location by speed
             var xSpeed = _rightSpeed - _leftSpeed;
             var ySpeed = _upSpeed - _downSpeed;

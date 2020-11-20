@@ -12,14 +12,16 @@ namespace Sandbox
         private readonly ICamera _camera;
         private readonly IScene _scene;
         private readonly ISettingsManager<Settings> _settingsManager;
+        private readonly ISandbox _sandbox;
 
         private bool _visible;
 
-        public SettingsLayer(ICamera camera, IScene scene, ISettingsManager<Settings> settingsManager)
+        public SettingsLayer(ICamera camera, IScene scene, ISettingsManager<Settings> settingsManager, ISandbox sandbox)
         {
             _camera = camera;
             _scene = scene;
             _settingsManager = settingsManager;
+            _sandbox = sandbox;
         }
 
         public void Attach()
@@ -144,8 +146,24 @@ namespace Sandbox
                     _camera.Resize(resize.Width, resize.Height);
                     break;
                 case KeyPressedEvent keyPressed:
-                    if (keyPressed.KeyCode == KeyCode.Escape)
-                        _visible = !_visible;
+                    switch (keyPressed.KeyCode)
+                    {
+                        case KeyCode.Escape:
+                            _visible = !_visible;
+                            break;
+                        case KeyCode.One:
+                            _sandbox.ActiveLayer = ActiveLayer.ExampleLayer;
+                            break;
+                        case KeyCode.Two:
+                            _sandbox.ActiveLayer = ActiveLayer.Layer2D;
+                            break;
+                        case KeyCode.Three:
+                            _sandbox.ActiveLayer = ActiveLayer.PhysicsLayer;
+                            break;
+                        case KeyCode.Four:
+                            _sandbox.ActiveLayer = ActiveLayer.TextLayer;
+                            break;
+                    }
                     break;
             }
 

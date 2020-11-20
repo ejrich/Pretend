@@ -13,12 +13,10 @@ namespace Pretend.Layers
 
     public class LayerContainer : ILayerContainer
     {
-        private readonly List<ILayer> _layers;
+        private readonly List<ILayer> _layers = new List<ILayer>();
 
         public LayerContainer(IEventDispatcher eventDispatcher)
         {
-            _layers = new List<ILayer>();
-
             eventDispatcher.Register(HandleEvent);
         }
 
