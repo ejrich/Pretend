@@ -19,9 +19,4 @@ namespace Game
             _layerContainer.PushLayer(_gameLayer);
         }
     }
-
-    public class WindowAttributes : IWindowAttributesProvider
-    {
-        public string Title => "Possible Game";
-    }
 }
