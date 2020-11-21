@@ -105,14 +105,14 @@ namespace Sandbox
 
         public void Update(float timeStep)
         {
-            if (_sandbox.ActiveLayer != ActiveLayer.PhysicsLayer) return;
+            // if (_sandbox.ActiveLayer != ActiveLayer.PhysicsLayer) return;
 
             _scene.Update(timeStep);
         }
 
         public void Render()
         {
-            if (_sandbox.ActiveLayer != ActiveLayer.PhysicsLayer) return;
+            // if (_sandbox.ActiveLayer != ActiveLayer.PhysicsLayer) return;
             _scene.Render();
         }
 

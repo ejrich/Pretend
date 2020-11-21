@@ -13,15 +13,18 @@ namespace Sandbox
         private readonly IScene _scene;
         private readonly ISettingsManager<Settings> _settingsManager;
         private readonly ISandbox _sandbox;
+        private readonly ILayerContainer _layerContainer;
 
         private bool _visible;
 
-        public SettingsLayer(ICamera camera, IScene scene, ISettingsManager<Settings> settingsManager, ISandbox sandbox)
+        public SettingsLayer(ICamera camera, IScene scene, ISettingsManager<Settings> settingsManager, ISandbox sandbox,
+            ILayerContainer layerContainer)
         {
             _camera = camera;
             _scene = scene;
             _settingsManager = settingsManager;
             _sandbox = sandbox;
+            _layerContainer = layerContainer;
         }
 
         public void Attach()
@@ -161,15 +164,19 @@ namespace Sandbox
                             _visible = !_visible;
                             break;
                         case KeyCode.One:
+                            _layerContainer.SetLayerOrder(typeof(ExampleLayer), typeof(SettingsLayer));
                             _sandbox.ActiveLayer = ActiveLayer.ExampleLayer;
                             break;
                         case KeyCode.Two:
+                            _layerContainer.SetLayerOrder(typeof(Layer2D), typeof(SettingsLayer));
                             _sandbox.ActiveLayer = ActiveLayer.Layer2D;
                             break;
                         case KeyCode.Three:
+                            _layerContainer.SetLayerOrder(typeof(PhysicsLayer), typeof(SettingsLayer));
                             _sandbox.ActiveLayer = ActiveLayer.PhysicsLayer;
                             break;
                         case KeyCode.Four:
+                            _layerContainer.SetLayerOrder(typeof(TextLayer), typeof(SettingsLayer));
                             _sandbox.ActiveLayer = ActiveLayer.TextLayer;
                             break;
                     }

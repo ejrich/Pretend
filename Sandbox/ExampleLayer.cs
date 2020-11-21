@@ -75,7 +75,7 @@ namespace Sandbox
 
         public void Update(float timeStep)
         {
-            if (_sandbox.ActiveLayer != ActiveLayer.ExampleLayer) return;
+            // if (_sandbox.ActiveLayer != ActiveLayer.ExampleLayer) return;
 
             // Calculate location by speed
             var xSpeed = _rightSpeed - _leftSpeed;
@@ -89,7 +89,7 @@ namespace Sandbox
 
         public void Render()
         {
-            if (_sandbox.ActiveLayer != ActiveLayer.ExampleLayer) return;
+            // if (_sandbox.ActiveLayer != ActiveLayer.ExampleLayer) return;
             _renderer.Begin(_camera);
 
             _texture.Bind();

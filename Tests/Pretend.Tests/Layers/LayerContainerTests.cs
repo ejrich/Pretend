@@ -12,14 +12,16 @@ namespace Pretend.Tests.Layers
         private ILayerContainer _target;
 
         private Mock<IEventDispatcher> _mockEventDispatcher;
+        private Mock<IFactory> _mockFactory;
 
         [TestInitialize]
         public void TestInitialize()
         {
             _mockEventDispatcher = new Mock<IEventDispatcher>(MockBehavior.Strict);
             _mockEventDispatcher.Setup(_ => _.Register(It.IsAny<Action<IEvent>>()));
+            _mockFactory = new Mock<IFactory>(MockBehavior.Strict);
 
-            _target = new LayerContainer(_mockEventDispatcher.Object);
+            _target = new LayerContainer(_mockEventDispatcher.Object, _mockFactory.Object);
         }
 
         [TestCleanup]

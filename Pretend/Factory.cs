@@ -19,6 +19,7 @@ namespace Pretend
     public interface IFactory
     {
         T Create<T>();
+        T Create<T>(Type type);
     }
 
     public class Factory : IFactory
@@ -121,6 +122,11 @@ namespace Pretend
         public T Create<T>()
         {
             return _serviceProvider.GetService<T>();
+        }
+
+        public T Create<T>(Type type)
+        {
+            return (T)_serviceProvider.GetService(type);
         }
 
         private static bool IsSingleton(Type type)
