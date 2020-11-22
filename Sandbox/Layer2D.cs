@@ -14,18 +14,16 @@ namespace Sandbox
         private readonly IFactory _factory;
         private readonly IScene _scene;
         private readonly IPhysicsContainer _physicsContainer;
-        private readonly ISandbox _sandbox;
 
         private ITexture2D _texture;
         private ITexture2D _texture2;
 
-        public Layer2D(ICamera camera, IFactory factory, IScene scene, IPhysicsContainer physicsContainer, ISandbox sandbox)
+        public Layer2D(ICamera camera, IFactory factory, IScene scene, IPhysicsContainer physicsContainer)
         {
             _camera = camera;
             _factory = factory;
             _scene = scene;
             _physicsContainer = physicsContainer;
-            _sandbox = sandbox;
         }
 
         public void Attach()
@@ -77,15 +75,12 @@ namespace Sandbox
 
         public void Update(float timeStep)
         {
-            // if (_sandbox.ActiveLayer != ActiveLayer.Layer2D) return;
-
             _physicsContainer.Simulate(timeStep, _scene.EntityContainer);
             _scene.Update(timeStep);
         }
 
         public void Render()
         {
-            // if (_sandbox.ActiveLayer != ActiveLayer.Layer2D) return;
             _scene.Render();
         }
 

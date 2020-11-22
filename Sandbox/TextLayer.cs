@@ -11,13 +11,11 @@ namespace Sandbox
     {
         private readonly ICamera _camera;
         private readonly IScene _scene;
-        private readonly ISandbox _sandbox;
 
-        public TextLayer(ICamera camera, IScene scene, ISandbox sandbox)
+        public TextLayer(ICamera camera, IScene scene)
         {
             _camera = camera;
             _scene = scene;
-            _sandbox = sandbox;
         }
 
         public void Attach()
@@ -42,15 +40,11 @@ namespace Sandbox
 
         public void Update(float timeStep)
         {
-            // if (_sandbox.ActiveLayer != ActiveLayer.TextLayer) return;
-
             _scene.Update(timeStep);
         }
 
         public void Render()
         {
-            // if (_sandbox.ActiveLayer != ActiveLayer.TextLayer) return;
-
             _scene.Render();
         }
 

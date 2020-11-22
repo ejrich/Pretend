@@ -16,17 +16,15 @@ namespace Sandbox
         private readonly IPhysicsContainer _physicsContainer;
         private readonly IFactory _factory;
         private readonly ISoundManager _soundManager;
-        private readonly ISandbox _sandbox;
 
         public PhysicsLayer(ICamera camera, IScene scene, IPhysicsContainer physicsContainer, IFactory factory,
-            ISoundManager soundManager, ISandbox sandbox)
+            ISoundManager soundManager)
         {
             _camera = camera;
             _scene = scene;
             _physicsContainer = physicsContainer;
             _factory = factory;
             _soundManager = soundManager;
-            _sandbox = sandbox;
         }
 
         public void Attach()
@@ -105,14 +103,11 @@ namespace Sandbox
 
         public void Update(float timeStep)
         {
-            // if (_sandbox.ActiveLayer != ActiveLayer.PhysicsLayer) return;
-
             _scene.Update(timeStep);
         }
 
         public void Render()
         {
-            // if (_sandbox.ActiveLayer != ActiveLayer.PhysicsLayer) return;
             _scene.Render();
         }
 
