@@ -140,7 +140,6 @@ namespace Sandbox
             if (!_visible) return;
 
             _scene.Update(timeStep);
-            _scene.Render();
         }
 
         public void Render()

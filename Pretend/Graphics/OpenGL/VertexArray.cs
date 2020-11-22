@@ -51,9 +51,16 @@ namespace Pretend.Graphics.OpenGL
             GL.DeleteVertexArray(_id);
         }
 
-        public void Bind()
+        public void Bind() => Bind(false);
+
+        public void Bind(bool bindBuffers)
         {
             GL.BindVertexArray(_id);
+            if (bindBuffers)
+            {
+                _vertexBuffer?.Bind();
+                _indexBuffer?.Bind();
+            }
         }
 
         public void Unbind()
@@ -61,7 +68,7 @@ namespace Pretend.Graphics.OpenGL
             GL.BindVertexArray(0);
         }
 
-        private VertexAttribPointerType GetPointerType(Type type)
+        private static VertexAttribPointerType GetPointerType(Type type)
         {
             return type switch
             {

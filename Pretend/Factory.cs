@@ -64,8 +64,8 @@ namespace Pretend
             _services.AddTransient<ICamera, OrthographicCamera>();
 
             // Graphics API
-            _services.AddTransient<IGraphicsContext, OpenGLContext>();
-            _services.AddTransient<IRenderContext, RenderContext>();
+            _services.AddSingleton<IGraphicsContext, OpenGLContext>();
+            _services.AddSingleton<IRenderContext, RenderContext>();
             _services.AddTransient<IVertexBuffer, VertexBuffer>();
             _services.AddTransient<IIndexBuffer, IndexBuffer>();
             _services.AddTransient<IVertexArray, VertexArray>();

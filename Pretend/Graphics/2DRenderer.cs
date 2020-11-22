@@ -180,7 +180,7 @@ namespace Pretend.Graphics
 
             _textures.Clear();
 
-            _vertexArray.Bind();
+            _vertexArray.Bind(true);
 
             _renderContext.Draw(_vertexArray, submissionCount * IndicesInSubmission);
         }
