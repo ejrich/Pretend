@@ -69,6 +69,13 @@ namespace Sandbox
             _position = _camera.Position;
         }
 
+        public void Detach()
+        {
+            _vertexArray.Dispose();
+            _texture.Dispose();
+            _shader.Dispose();
+        }
+
         public bool Paused { get; }
 
         public void Update(float timeStep)

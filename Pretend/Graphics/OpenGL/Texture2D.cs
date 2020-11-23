@@ -9,10 +9,9 @@ namespace Pretend.Graphics.OpenGL
     public class Texture2D : ITexture2D
     {
         private readonly int _id;
+        private bool _disposed;
 
         public Texture2D() => _id = GL.GenTexture();
-
-        ~Texture2D() => GL.DeleteTexture(_id);
 
         public int Width { get; private set; }
         public int Height { get; private set; }
@@ -81,9 +80,21 @@ namespace Pretend.Graphics.OpenGL
             GL.BindTexture(TextureTarget.Texture2D, _id);
         }
 
-        private static TextureUnit ConvertTextureUnit(int slot)
+        private static TextureUnit ConvertTextureUnit(int slot) => (TextureUnit) slot + 0x84C0;
+
+        public void Dispose()
         {
-            return (TextureUnit) slot + 0x84C0;
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (_disposed) return;
+
+            GL.DeleteTexture(_id);
+
+            _disposed = true;
         }
     }
 }

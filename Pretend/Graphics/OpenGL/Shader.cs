@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
@@ -11,28 +12,14 @@ namespace Pretend.Graphics.OpenGL
     public class Shader : IShader
     {
         private readonly int _id;
-        private readonly IDictionary<string, int> _uniforms;
+        private readonly IDictionary<string, int> _uniforms = new Dictionary<string, int>();
+        private bool _disposed;
 
-        public Shader()
-        {
-            _id = GL.CreateProgram();
-            _uniforms = new Dictionary<string, int>();
-        }
+        public Shader() => _id = GL.CreateProgram();
 
-        ~Shader()
-        {
-            GL.DeleteProgram(_id);
-        }
+        public void Bind() => GL.UseProgram(_id);
 
-        public void Bind()
-        {
-            GL.UseProgram(_id);
-        }
-
-        public void Unbind()
-        {
-            GL.UseProgram(0);
-        }
+        public void Unbind() => GL.UseProgram(0);
 
         public void Compile(string embeddedFile)
         {
@@ -141,38 +128,53 @@ namespace Pretend.Graphics.OpenGL
 
         public void SetBool(string name, bool value)
         {
-            GL.UseProgram(_id);
+            Bind();
             GL.Uniform1(_uniforms[name], value ? 1 : 0);
         }
 
         public void SetInt(string name, int value)
         {
-            GL.UseProgram(_id);
+            Bind();
             GL.Uniform1(_uniforms[name], value);
         }
 
         public void SetFloat(string name, float value)
         {
-            GL.UseProgram(_id);
+            Bind();
             GL.Uniform1(_uniforms[name], value);
         }
 
         public void SetIntArray(string name, int[] value)
         {
-            GL.UseProgram(_id);
+            Bind();
             GL.Uniform1(_uniforms[name], value.Length, value);
         }
 
         public void SetVec4(string name, Vector4 value)
         {
-            GL.UseProgram(_id);
+            Bind();
             GL.Uniform4(_uniforms[name], value);
         }
 
         public void SetMat4(string name, Matrix4 value)
         {
-            GL.UseProgram(_id);
+            Bind();
             GL.UniformMatrix4(_uniforms[name], true, ref value);
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (_disposed) return;
+
+            GL.DeleteProgram(_id);
+
+            _disposed = true;
         }
     }
 }
