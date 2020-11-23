@@ -68,7 +68,6 @@ namespace Sandbox
 
         public void Detach()
         {
-            _physicsContainer.Stop();
             _texture.Dispose();
             _texture2.Dispose();
         }
