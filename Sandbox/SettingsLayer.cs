@@ -12,14 +12,17 @@ namespace Sandbox
         private readonly ICamera _camera;
         private readonly IScene _scene;
         private readonly ISettingsManager<Settings> _settingsManager;
+        private readonly ILayerContainer _layerContainer;
 
         private bool _visible;
 
-        public SettingsLayer(ICamera camera, IScene scene, ISettingsManager<Settings> settingsManager)
+        public SettingsLayer(ICamera camera, IScene scene, ISettingsManager<Settings> settingsManager,
+            ILayerContainer layerContainer)
         {
             _camera = camera;
             _scene = scene;
             _settingsManager = settingsManager;
+            _layerContainer = layerContainer;
         }
 
         public void Attach()
@@ -128,11 +131,19 @@ namespace Sandbox
             _scene.AddComponent(resetButton, CreateButtonText("Reset"));
         }
 
+        public bool Paused { get; }
+
         public void Update(float timeStep)
         {
             if (!_visible) return;
 
             _scene.Update(timeStep);
+        }
+
+        public void Render()
+        {
+            if (!_visible) return;
+
             _scene.Render();
         }
 
@@ -144,8 +155,24 @@ namespace Sandbox
                     _camera.Resize(resize.Width, resize.Height);
                     break;
                 case KeyPressedEvent keyPressed:
-                    if (keyPressed.KeyCode == KeyCode.Escape)
-                        _visible = !_visible;
+                    switch (keyPressed.KeyCode)
+                    {
+                        case KeyCode.Escape:
+                            _visible = !_visible;
+                            break;
+                        case KeyCode.One:
+                            _layerContainer.SetLayerOrder(typeof(ExampleLayer), typeof(SettingsLayer));
+                            break;
+                        case KeyCode.Two:
+                            _layerContainer.SetLayerOrder(typeof(Layer2D), typeof(SettingsLayer));
+                            break;
+                        case KeyCode.Three:
+                            _layerContainer.SetLayerOrder(typeof(PhysicsLayer), typeof(SettingsLayer));
+                            break;
+                        case KeyCode.Four:
+                            _layerContainer.SetLayerOrder(typeof(TextLayer), typeof(SettingsLayer));
+                            break;
+                    }
                     break;
             }
 

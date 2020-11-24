@@ -36,9 +36,15 @@ namespace Sandbox
             });
         }
 
+        public bool Paused { get; }
+
         public void Update(float timeStep)
         {
             _scene.Update(timeStep);
+        }
+
+        public void Render()
+        {
             _scene.Render();
         }
 

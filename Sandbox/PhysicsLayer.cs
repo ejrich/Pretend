@@ -17,7 +17,8 @@ namespace Sandbox
         private readonly IFactory _factory;
         private readonly ISoundManager _soundManager;
 
-        public PhysicsLayer(ICamera camera, IScene scene, IPhysicsContainer physicsContainer, IFactory factory, ISoundManager soundManager)
+        public PhysicsLayer(ICamera camera, IScene scene, IPhysicsContainer physicsContainer, IFactory factory,
+            ISoundManager soundManager)
         {
             _camera = camera;
             _scene = scene;
@@ -77,17 +78,37 @@ namespace Sandbox
             _soundManager.Start(60, _scene.EntityContainer);
         }
 
-        public void Update(float timeStep)
-        {
-            _scene.Update(timeStep);
-            _scene.Render();
-        }
-
         public void Detach()
         {
             _physicsContainer.Stop();
             _soundManager.Stop();
             _soundManager.Dispose();
+        }
+
+        public void Pause()
+        {
+            _physicsContainer.Stop();
+            _soundManager.Stop();
+            Paused = true;
+        }
+
+        public void Resume()
+        {
+            _physicsContainer.Start(144, _scene.EntityContainer);
+            _soundManager.Start(60, _scene.EntityContainer);
+            Paused = false;
+        }
+
+        public bool Paused { get; private set; }
+
+        public void Update(float timeStep)
+        {
+            _scene.Update(timeStep);
+        }
+
+        public void Render()
+        {
+            _scene.Render();
         }
 
         public void HandleEvent(IEvent evnt)
@@ -102,10 +123,10 @@ namespace Sandbox
                 case KeyPressedEvent keyPressed:
                     if (keyPressed.KeyCode == KeyCode.P)
                     {
-                        if (_physicsContainer.Running)
-                            _physicsContainer.Stop();
+                        if (Paused)
+                            Resume();
                         else
-                            _physicsContainer.Start(144, _scene.EntityContainer);
+                            Pause();
                     }
                     break;
             }

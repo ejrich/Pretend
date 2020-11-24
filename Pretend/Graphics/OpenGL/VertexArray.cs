@@ -8,6 +8,7 @@ namespace Pretend.Graphics.OpenGL
         private readonly int _id;
         private IVertexBuffer _vertexBuffer;
         private IIndexBuffer _indexBuffer;
+        private bool _disposed;
 
         public IVertexBuffer VertexBuffer
         {
@@ -46,22 +47,21 @@ namespace Pretend.Graphics.OpenGL
             _id = GL.GenVertexArray();
         }
 
-        ~VertexArray()
-        {
-            GL.DeleteVertexArray(_id);
-        }
+        public void Bind() => Bind(false);
 
-        public void Bind()
+        public void Bind(bool bindBuffers)
         {
             GL.BindVertexArray(_id);
+            if (bindBuffers)
+            {
+                _vertexBuffer?.Bind();
+                _indexBuffer?.Bind();
+            }
         }
 
-        public void Unbind()
-        {
-            GL.BindVertexArray(0);
-        }
+        public void Unbind() => GL.BindVertexArray(0);
 
-        private VertexAttribPointerType GetPointerType(Type type)
+        private static VertexAttribPointerType GetPointerType(Type type)
         {
             return type switch
             {
@@ -70,6 +70,24 @@ namespace Pretend.Graphics.OpenGL
                 { } boolType when boolType == typeof(bool) => VertexAttribPointerType.Int,
                 _ => VertexAttribPointerType.Float
             };
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (_disposed) return;
+
+            Unbind();
+            GL.DeleteVertexArray(_id);
+            _vertexBuffer?.Dispose();
+            _indexBuffer?.Dispose();
+
+            _disposed = true;
         }
     }
 }

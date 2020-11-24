@@ -69,6 +69,15 @@ namespace Sandbox
             _position = _camera.Position;
         }
 
+        public void Detach()
+        {
+            _vertexArray.Dispose();
+            _texture.Dispose();
+            _shader.Dispose();
+        }
+
+        public bool Paused { get; }
+
         public void Update(float timeStep)
         {
             // Calculate location by speed
@@ -79,7 +88,10 @@ namespace Sandbox
             _position.Y += ySpeed * timeStep;
 
             _camera.Position = _position;
+        }
 
+        public void Render()
+        {
             _renderer.Begin(_camera);
 
             _texture.Bind();

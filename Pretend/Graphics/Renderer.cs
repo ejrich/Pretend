@@ -40,7 +40,7 @@ namespace Pretend.Graphics
             shader.Bind();
             shader.SetMat4("viewProjection", _viewProjection);
 
-            vertexArray.Bind();
+            vertexArray.Bind(true);
 
             _renderContext.Draw(vertexArray);
         }
