@@ -19,6 +19,7 @@ namespace Pretend
     public interface IFactory
     {
         T Create<T>();
+        T Create<T>(Type type);
     }
 
     public class Factory : IFactory
@@ -63,8 +64,8 @@ namespace Pretend
             _services.AddTransient<ICamera, OrthographicCamera>();
 
             // Graphics API
-            _services.AddTransient<IGraphicsContext, OpenGLContext>();
-            _services.AddTransient<IRenderContext, RenderContext>();
+            _services.AddSingleton<IGraphicsContext, OpenGLContext>();
+            _services.AddSingleton<IRenderContext, RenderContext>();
             _services.AddTransient<IVertexBuffer, VertexBuffer>();
             _services.AddTransient<IIndexBuffer, IndexBuffer>();
             _services.AddTransient<IVertexArray, VertexArray>();
@@ -121,6 +122,11 @@ namespace Pretend
         public T Create<T>()
         {
             return _serviceProvider.GetService<T>();
+        }
+
+        public T Create<T>(Type type)
+        {
+            return (T)_serviceProvider.GetService(type);
         }
 
         private static bool IsSingleton(Type type)

@@ -179,7 +179,7 @@ namespace Pretend.Tests.Graphics
             _mockVertexBuffer.Setup(_ => _.AddData(It.IsAny<Renderer2D.Renderable2DBuffer[]>()));
             _mockShader.Setup(_ => _.Bind());
             _mockShader.Setup(_ => _.SetMat4("viewProjection", It.IsAny<Matrix4>()));
-            _mockVertexArray.Setup(_ => _.Bind());
+            _mockVertexArray.Setup(_ => _.Bind(true));
             _mockVertexArray.SetupGet(_ => _.VertexBuffer).Returns(_mockVertexBuffer.Object);
         }
     }

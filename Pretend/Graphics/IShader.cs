@@ -1,8 +1,9 @@
+using System;
 using OpenTK.Mathematics;
 
 namespace Pretend.Graphics
 {
-    public interface IShader
+    public interface IShader : IDisposable
     {
         void Compile(string embeddedFile);
         void Compile(string vertexFile, string fragmentFile);

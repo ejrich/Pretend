@@ -11,7 +11,7 @@ namespace Pretend.Graphics
         public bool Normalized { get; set; }
     }
 
-    public interface IBuffer
+    public interface IBuffer : IDisposable
     {
         void Bind();
         void Unbind();

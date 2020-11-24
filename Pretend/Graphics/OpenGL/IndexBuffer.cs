@@ -1,3 +1,4 @@
+using System;
 using OpenTK.Graphics.OpenGL4;
 
 namespace Pretend.Graphics.OpenGL
@@ -5,16 +6,9 @@ namespace Pretend.Graphics.OpenGL
     public class IndexBuffer : IIndexBuffer
     {
         private readonly int _id;
+        private bool _disposed;
 
-        public IndexBuffer()
-        {
-            _id = GL.GenBuffer();
-        }
-
-        ~IndexBuffer()
-        {
-            GL.DeleteBuffer(_id);
-        }
+        public IndexBuffer() => _id = GL.GenBuffer();
 
         public int Count { get; private set; }
 
@@ -26,14 +20,24 @@ namespace Pretend.Graphics.OpenGL
             Count += indices.Length;
         }
 
-        public void Bind()
+        public void Bind() => GL.BindBuffer(BufferTarget.ElementArrayBuffer, _id);
+
+        public void Unbind() => GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
+
+        public void Dispose()
         {
-            GL.BindBuffer(BufferTarget.ElementArrayBuffer, _id);
+            Dispose(true);
+            GC.SuppressFinalize(this);
         }
 
-        public void Unbind()
+        protected virtual void Dispose(bool disposing)
         {
-            GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
+            if (_disposed) return;
+
+            Unbind();
+            GL.DeleteBuffer(_id);
+
+            _disposed = true;
         }
     }
 }

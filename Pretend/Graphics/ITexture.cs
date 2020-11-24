@@ -2,7 +2,7 @@ using System;
 
 namespace Pretend.Graphics
 {
-    public interface ITexture
+    public interface ITexture : IDisposable
     {
         void Bind(int slot = 0);
         int Width { get; }

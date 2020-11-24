@@ -66,10 +66,22 @@ namespace Sandbox
             _scene.AddComponent(entity, new PhysicsComponent {Fixed = true });
         }
 
+        public void Detach()
+        {
+            _texture.Dispose();
+            _texture2.Dispose();
+        }
+
+        public bool Paused { get; }
+
         public void Update(float timeStep)
         {
             _physicsContainer.Simulate(timeStep, _scene.EntityContainer);
             _scene.Update(timeStep);
+        }
+
+        public void Render()
+        {
             _scene.Render();
         }
 
