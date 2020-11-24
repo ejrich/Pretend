@@ -43,6 +43,18 @@ namespace Pretend.Tests.Layers
         }
 
         [TestMethod]
+        public void PushLayerT_AddsNewLayerOfTypeToList()
+        {
+            Assert.Fail("NYI");
+        }
+
+        [TestMethod]
+        public void SetLayerOrder_OrdersAndCreatesLayers()
+        {
+            Assert.Fail("NYI");
+        }
+
+        [TestMethod]
         public void Update_OnlyUpdatesUnPausedLayers()
         {
             var layer = new TestLayer { Paused = true };
@@ -64,6 +76,12 @@ namespace Pretend.Tests.Layers
             _target.Update(0);
 
             Assert.IsFalse(layer.UpdateCalled);
+        }
+
+        [TestMethod]
+        public void RemoveLayerT_RemovesFirstLayerOfType()
+        {
+            Assert.Fail("NYI");
         }
 
         private class TestLayer : ILayer
