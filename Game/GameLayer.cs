@@ -16,17 +16,21 @@ namespace Game
         private readonly IPhysicsContainer _physicsContainer;
         private readonly ISoundManager _soundManager;
         private readonly IGame _game;
+        private readonly ILayerContainer _layerContainer;
         private readonly GameSettings _gameSettings;
 
         public GameLayer(ICamera camera, IScene scene, IPhysicsContainer physicsContainer, ISoundManager soundManager,
-            IGame game, Settings gameSettings)
+            IGame game, ILayerContainer layerContainer, IEventDispatcher eventDispatcher, Settings gameSettings)
         {
             _camera = camera;
             _scene = scene;
             _physicsContainer = physicsContainer;
             _soundManager = soundManager;
             _game = game;
+            _layerContainer = layerContainer;
             _gameSettings = (GameSettings)gameSettings;
+
+            eventDispatcher.Register<GameResumeEvent>(_ => Resume());
         }
 
         public void Attach()
@@ -66,12 +70,31 @@ namespace Game
             _soundManager.Start(60, _scene.EntityContainer);
         }
 
+        public void Pause()
+        {
+            _physicsContainer.Stop();
+            Paused = true;
+        }
+
+        public void Resume()
+        {
+            if (_game.Running)
+                _physicsContainer.Start(144, _scene.EntityContainer);
+            Paused = false;
+        }
+
+        public bool Paused { get; private set; }
+
         public void Update(float timeStep)
         {
             // Update the game
             _game.Update(timeStep);
 
             _scene.Update(timeStep);
+        }
+
+        public void Render()
+        {
             _scene.Render();
         }
 
@@ -102,6 +125,10 @@ namespace Game
             {
                 case KeyCode.Enter:
                     if (!_game.Running) _game.Reset();
+                    break;
+                case KeyCode.Escape:
+                    _layerContainer.PushLayer<SettingsLayer>();
+                    Pause();
                     break;
             }
         }

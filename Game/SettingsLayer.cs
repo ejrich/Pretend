@@ -12,15 +12,18 @@ namespace Game
         private readonly ICamera _camera;
         private readonly IScene _scene;
         private readonly ISettingsManager<GameSettings> _settingsManager;
+        private readonly ILayerContainer _layerContainer;
+        private readonly IEventDispatcher _eventDispatcher;
         private readonly IGame _game;
 
-        private bool _visible;
-
-        public SettingsLayer(ICamera camera, IScene scene, ISettingsManager<GameSettings> settingsManager, IGame game)
+        public SettingsLayer(ICamera camera, IScene scene, ISettingsManager<GameSettings> settingsManager,
+            ILayerContainer layerContainer, IEventDispatcher eventDispatcher, IGame game)
         {
             _camera = camera;
             _scene = scene;
             _settingsManager = settingsManager;
+            _layerContainer = layerContainer;
+            _eventDispatcher = eventDispatcher;
             _game = game;
         }
 
@@ -30,6 +33,14 @@ namespace Game
 
             var cameraEntity = _scene.CreateEntity();
             _scene.AddComponent(cameraEntity, new CameraComponent { Camera = _camera, Active = true });
+            
+            var pausedNotification= _scene.CreateEntity();
+            _scene.AddComponent(pausedNotification, new PositionComponent { Y = 200, Z = 0.02f });
+            _scene.AddComponent(pausedNotification, new TextComponent
+            {
+                Text = "Paused", Font = "Assets/Roboto-Thin.ttf", Size = 60,
+                Color = new Vector4(1, 1, 1, _game.Running ? 1 : 0)
+            });
 
             var settingsBackground= _scene.CreateEntity();
             _scene.AddComponent(settingsBackground, new PositionComponent { X = 530, Y = 25, Z = 0.01f });
@@ -156,11 +167,15 @@ namespace Game
             _scene.AddComponent(resetButton, CreateButtonText("Reset"));
         }
 
+        public bool Paused { get; }
+
         public void Update(float timeStep)
         {
-            if (!_visible) return;
-
             _scene.Update(timeStep);
+        }
+
+        public void Render()
+        {
             _scene.Render();
         }
 
@@ -173,11 +188,13 @@ namespace Game
                     break;
                 case KeyPressedEvent keyPressed:
                     if (keyPressed.KeyCode == KeyCode.Escape)
-                        _visible = !_visible;
+                    {
+                        _layerContainer.RemoveLayer(this);
+                        _eventDispatcher.DispatchEvent(new GameResumeEvent());
+                    }
+                    keyPressed.Processed = true;
                     break;
             }
-
-            if (!_visible) return;
 
             _scene.HandleEvent(evnt);
         }
