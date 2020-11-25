@@ -98,9 +98,8 @@ namespace Sandbox
         
         public void Update(float timeStep)
         {
-            _position.Roll += 100 * timeStep;
-            if (_position.Roll >= 360)
-                _position.Roll = 0;
+            var rotation = (_position.Rotation.Z + 100 * timeStep) % 360;
+            _position.Rotation = new Vector3(0, 0, rotation);
         }
     }
 
@@ -212,8 +211,8 @@ namespace Sandbox
             var position = entity.GetComponent<PositionComponent>();
             var size = entity.GetComponent<SizeComponent>();
 
-            _min = new Vector2(position.X - size.Width / 2f, position.Y - size.Height / 2f);
-            _max = new Vector2(position.X + size.Width / 2f, position.Y + size.Height / 2f);
+            _min = new Vector2(position.Position.X - size.Width / 2f, position.Position.Y - size.Height / 2f);
+            _max = new Vector2(position.Position.X + size.Width / 2f, position.Position.Y + size.Height / 2f);
         }
 
         public void Update(float timeStep)

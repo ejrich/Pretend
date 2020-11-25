@@ -68,8 +68,8 @@ namespace Pretend.Physics
                     var position = entity.GetComponent<PositionComponent>();
                     if (physicsComponent.Fixed && !physicsComponent.Kinematic)
                     {
-                        newPositions.Add(entity, new Vector3(position.X, position.Y, position.Z));
-                        newOrientations.Add(entity, new Vector3(position.Pitch, position.Yaw, position.Roll));
+                        newPositions.Add(entity, position.Position);
+                        newOrientations.Add(entity, position.Rotation);
                     }
                     else
                     {
@@ -187,14 +187,14 @@ namespace Pretend.Physics
             var deltaP = physicsComponent.Velocity * timeStep + 0.5f * acceleration * timeStep * timeStep;
 
             // Calculate next position
-            var newPosition = new Vector3(position.X + deltaP.X, position.Y + deltaP.Y, position.Z + deltaP.Z);
+            var newPosition = position.Position + deltaP;
             
             // Calculate dr
             var deltaR = physicsComponent.AngularVelocity * timeStep;
             
             // Calculate next orientation
-            var newOrientation = new Vector3(ChangeAngle(position.Pitch, deltaR.X),
-                ChangeAngle(position.Yaw, deltaR.Y), ChangeAngle(position.Roll, deltaR.Z));
+            var newOrientation = new Vector3(ChangeAngle(position.Rotation.X, deltaR.X),
+                ChangeAngle(position.Rotation.Y, deltaR.Y), ChangeAngle(position.Rotation.Z, deltaR.Z));
 
             return (newPosition, newOrientation);
         }
@@ -223,12 +223,8 @@ namespace Pretend.Physics
         private static void ChangePosition(IEntity entity, Vector3 position, Vector3 orientation)
         {
             var positionComponent = entity.GetComponent<PositionComponent>();
-            positionComponent.X = position.X;
-            positionComponent.Y = position.Y;
-            positionComponent.Z = position.Z;
-            positionComponent.Pitch = orientation.X;
-            positionComponent.Yaw = orientation.Y;
-            positionComponent.Roll = orientation.Z;
+            positionComponent.Position = position;
+            positionComponent.Rotation = orientation;
         }
     }
 }

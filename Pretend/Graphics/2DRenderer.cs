@@ -8,9 +8,7 @@ namespace Pretend.Graphics
 {
     public class Renderable2DObject
     {
-        public float X { get; set; }
-        public float Y { get; set; }
-        public float Z { get; set; }
+        public Vector3 Position { get; set; }
         public uint Width { get; set; }
         public uint Height { get; set; }
         public Quaternion Rotation { get; set; } = Quaternion.Identity;
@@ -144,7 +142,7 @@ namespace Pretend.Graphics
             var transform =
                 Matrix4x4.CreateScale(renderObject.Width, renderObject.Height, 1) *
                 Matrix4x4.CreateFromQuaternion(renderObject.Rotation) *
-                Matrix4x4.CreateTranslation(renderObject.X, renderObject.Y, renderObject.Z);
+                Matrix4x4.CreateTranslation(renderObject.Position);
 
             if (_submissions.Count / VerticesInSubmission == MaxSubmissions)
                 Flush();

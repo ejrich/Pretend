@@ -67,11 +67,12 @@ namespace Pretend.Text
                 if (!charMap.TryGetValue(character, out var glyph))
                     continue;
 
+                var xPos = x + (float)glyph.Width / 2 + glyph.BearingX;
+                var yPos = textObject.Position.Y + (float)glyph.Height / 2 - glyph.Height + glyph.BearingY - yAdjust;
+                var zPos = textObject.Position.Z;
                 var renderObject = new Renderable2DObject
                 {
-                    X = x + (float) glyph.Width / 2 + glyph.BearingX,
-                    Y = textObject.Position.Y + (float) glyph.Height / 2 - glyph.Height + glyph.BearingY - yAdjust,
-                    Z = textObject.Position.Z,
+                    Position = new Vector3(xPos, yPos, zPos),
                     Width = glyph.Width + 1,
                     Height = glyph.Height,
                     Rotation = textObject.Orientation.ToQuaternian(),
@@ -113,26 +114,24 @@ namespace Pretend.Text
 
         private static void Rotate(Renderable2DObject renderObject)
         {
-            var transformedPosition = Vector3.Transform(new Vector3(renderObject.X, renderObject.Y, renderObject.Z),
+            var transformedPosition = Vector3.Transform(renderObject.Position,
                 Matrix4x4.CreateFromQuaternion(renderObject.Rotation));
-            renderObject.X = transformedPosition.X;
-            renderObject.Y = transformedPosition.Y;
-            renderObject.Z = transformedPosition.Z;
+            renderObject.Position = transformedPosition;
         }
 
         private static void AdjustLine(List<Renderable2DObject> line, TextAlignment alignment, float x0, float x1)
         {
             var xAdjustment = alignment switch
             {
-                TextAlignment.Left => 0,
-                TextAlignment.Center => (x1 - x0) / 2,
-                TextAlignment.Right => x1 - x0,
-                _ => 0
+                TextAlignment.Left => Vector3.Zero,
+                TextAlignment.Center => new Vector3((x1 - x0) / 2, 0, 0),
+                TextAlignment.Right => new Vector3(x1 - x0, 0, 0),
+                _ => Vector3.Zero
             };
 
             foreach (var renderObject in line)
             {
-                renderObject.X -= xAdjustment;
+                renderObject.Position -= xAdjustment;
                 Rotate(renderObject);
             }
             line.Clear();

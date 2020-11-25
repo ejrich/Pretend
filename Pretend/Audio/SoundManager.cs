@@ -76,7 +76,7 @@ namespace Pretend.Audio
                 var physics = activeListener.GetComponent<PhysicsComponent>();
                 _listener.Gain = listener.Gain;
                 if (position != null)
-                    _listener.Position = new Vector3(position.X, position.Y, position.Z);
+                    _listener.Position = position.Position;
                 if (physics != null)
                     _listener.Velocity = physics.Velocity;
             }
@@ -90,7 +90,7 @@ namespace Pretend.Audio
                 var physics = entity.GetComponent<PhysicsComponent>();
 
                 if (position != null)
-                    source.Source.Position = new Vector3(position.X, position.Y, position.Z);
+                    source.Source.Position = position.Position;
                 if (physics != null)
                     source.Source.Velocity = physics.Velocity;
 

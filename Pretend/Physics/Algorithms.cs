@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
-// using OpenTK.Mathematics;
 using Pretend.ECS;
 using Pretend.Mathematics;
 
@@ -27,14 +26,11 @@ namespace Pretend.Physics
 
         public static GJKResult GJK(IEntity a, IEntity b)
         {
-            var aPosition = a.GetComponent<PositionComponent>();
-            var aPos = new Vector3(aPosition.X, aPosition.Y, aPosition.Z);
-            var aOr = new Vector3(aPosition.Pitch, aPosition.Yaw, aPosition.Roll);
-            var bPosition = b.GetComponent<PositionComponent>();
-            var bPos = new Vector3(bPosition.X, bPosition.Y, bPosition.Z);
-            var bOr = new Vector3(bPosition.Pitch, bPosition.Yaw, bPosition.Roll);
+            var aPos = a.GetComponent<PositionComponent>();
+            var bPos = b.GetComponent<PositionComponent>();
 
-            return GJK(aPos, aOr, a.GetComponent<SizeComponent>(), bPos, bOr, b.GetComponent<SizeComponent>());
+            return GJK(aPos.Position, aPos.Rotation, a.GetComponent<SizeComponent>(),
+                bPos.Position, bPos.Rotation, b.GetComponent<SizeComponent>());
         }
 
         public static GJKResult GJK(Vector3 aPos, Vector3 aOrientation, SizeComponent aSize,

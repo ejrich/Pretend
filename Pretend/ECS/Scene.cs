@@ -93,11 +93,8 @@ namespace Pretend.ECS
                     switch (component)
                     {
                         case PositionComponent position:
-                            renderObject.X = position.X;
-                            renderObject.Y = position.Y;
-                            renderObject.Z = position.Z;
-                            renderObject.Rotation = Quaternion.CreateFromYawPitchRoll(position.Yaw.ToRadians(),
-                                position.Pitch.ToRadians(), position.Roll.ToRadians());
+                            renderObject.Position = position.Position;
+                            renderObject.Rotation = position.Rotation.ToQuaternian();
                             break;
                         case SizeComponent size:
                             renderObject.Width = size.Width;
@@ -139,7 +136,7 @@ namespace Pretend.ECS
 
             var position = entity.GetComponent<PositionComponent>();
             if (position != null)
-                textObject.Position += new Vector3(position.X, position.Y, position.Z);
+                textObject.Position += position.Position;
 
             _textRenderer.RenderText(textObject);
         }

@@ -45,7 +45,7 @@ namespace Sandbox
             source.Gain = 1f;
 
             entity = _scene.CreateEntity();
-            _scene.AddComponent(entity, new PositionComponent {X = -400, Y = -100});
+            _scene.AddComponent(entity, new PositionComponent {Position = new Vector3(-400, -100, 0)});
             _scene.AddComponent(entity, new SizeComponent {Width = 100, Height = 100});
             _scene.AddComponent(entity, new TextureComponent { Texture = texture});
             var physicsComponent = new PhysicsComponent();
@@ -55,22 +55,22 @@ namespace Sandbox
             _scene.AddComponent(entity, new ControlScript(physicsComponent, sourceComponent));
 
             entity = _scene.CreateEntity();
-            _scene.AddComponent(entity, new PositionComponent {Y = -360});
+            _scene.AddComponent(entity, new PositionComponent {Position = new Vector3(0, -360, 0)});
             _scene.AddComponent(entity, new SizeComponent {Width = 1280, Height = 10});
             _scene.AddComponent(entity, new PhysicsComponent {Fixed = true });
 
             entity = _scene.CreateEntity();
-            _scene.AddComponent(entity, new PositionComponent {Y = -200});
+            _scene.AddComponent(entity, new PositionComponent {Position = new Vector3(0, -200, 0)});
             _scene.AddComponent(entity, new SizeComponent {Width = 600, Height = 10});
             _scene.AddComponent(entity, new PhysicsComponent {Fixed = true });
 
             entity = _scene.CreateEntity();
-            _scene.AddComponent(entity, new PositionComponent {X = 420, Y = -95, Roll = 45});
+            _scene.AddComponent(entity, new PositionComponent {Position = new Vector3(420, -95, 0), Rotation = new Vector3(0, 0, 45)});
             _scene.AddComponent(entity, new SizeComponent {Width = 300, Height = 10});
             _scene.AddComponent(entity, new PhysicsComponent {Fixed = true });
 
             entity = _scene.CreateEntity();
-            _scene.AddComponent(entity, new PositionComponent {Y = -100});
+            _scene.AddComponent(entity, new PositionComponent {Position = new Vector3(0, -100, 0)});
             _scene.AddComponent(entity, new SizeComponent {Width = 10, Height = 300});
             _scene.AddComponent(entity, new PhysicsComponent {Fixed = true });
 

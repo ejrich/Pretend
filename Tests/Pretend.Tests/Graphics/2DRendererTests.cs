@@ -70,7 +70,7 @@ namespace Pretend.Tests.Graphics
             {
                 _target.Submit(new Renderable2DObject
                 {
-                    X = i, Width = Convert.ToUInt32(i), Height = Convert.ToUInt32(i)
+                    Position = new Vector3(i), Width = Convert.ToUInt32(i), Height = Convert.ToUInt32(i)
                 });
             }
 
@@ -94,7 +94,7 @@ namespace Pretend.Tests.Graphics
             {
                 _target.Submit(new Renderable2DObject
                 {
-                    X = i, Width = Convert.ToUInt32(i), Height = Convert.ToUInt32(i)
+                    Position = new Vector3(i), Width = Convert.ToUInt32(i), Height = Convert.ToUInt32(i)
                 });
             }
 
@@ -120,7 +120,7 @@ namespace Pretend.Tests.Graphics
             {
                 _target.Submit(new Renderable2DObject
                 {
-                    X = i, Width = Convert.ToUInt32(i), Height = Convert.ToUInt32(i),
+                    Position = new Vector3(i), Width = Convert.ToUInt32(i), Height = Convert.ToUInt32(i),
                     Texture = texture.Object
                 });
             }
@@ -146,7 +146,7 @@ namespace Pretend.Tests.Graphics
             {
                 _target.Submit(new Renderable2DObject
                 {
-                    X = i, Width = Convert.ToUInt32(i), Height = Convert.ToUInt32(i),
+                    Position = new Vector3(i),  Width = Convert.ToUInt32(i), Height = Convert.ToUInt32(i),
                     Texture = new Mock<ITexture2D>().Object
                 });
             }
