@@ -19,8 +19,8 @@ namespace Pretend.Windows
         private uint _maxFps;
         private float _maxTimestep;
 
-        private Vector<int> _resolution;
-        private Vector<int> _halfResolution;
+        private Vector2 _resolution;
+        private Vector2 _halfResolution;
 
         public SDLWindow(IEventDispatcher eventDispatcher, IGraphicsContext context)
         {
@@ -94,7 +94,7 @@ namespace Pretend.Windows
             SDL.SDL_Quit();
         }
 
-        public Vector<int> Resolution { get => _resolution; set => SDL.SDL_SetWindowSize(_window, value[0], value[1]); }
+        public Vector2 Resolution { get => _resolution; set => SDL.SDL_SetWindowSize(_window, (int)value.X, (int)value.Y); }
 
         public ushort MaxFps
         {
@@ -137,8 +137,8 @@ namespace Pretend.Windows
 
         private void SetResolution(int resolutionX, int resolutionY)
         {
-            _resolution = new Vector<int>(new []{ resolutionX, resolutionY });
-            _halfResolution = _resolution / new Vector<int>(new []{ 2, 2 });
+            _resolution = new Vector2(resolutionX, resolutionY);
+            _halfResolution = _resolution / 2;
         }
 
         private void HandleEvent(SDL.SDL_Event evnt)
@@ -171,7 +171,7 @@ namespace Pretend.Windows
                 case SDL.SDL_EventType.SDL_MOUSEBUTTONDOWN:
                     _eventDispatcher.DispatchEvent(new MouseButtonPressedEvent
                     {
-                        Button = (MouseButton) evnt.button.button, X = evnt.button.x - _halfResolution[0], Y = _halfResolution[1] - evnt.button.y
+                        Button = (MouseButton) evnt.button.button, X = evnt.button.x - (int)_halfResolution.X, Y = (int)_halfResolution.Y - evnt.button.y
                     });
                     break;
                 case SDL.SDL_EventType.SDL_MOUSEBUTTONUP:

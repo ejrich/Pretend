@@ -141,10 +141,10 @@ namespace Pretend.Graphics
         {
             if (renderObject.Width == 0 && renderObject.Height == 0) return;
 
-            var transform = Matrix4x4.Identity *
-                            Matrix4x4.CreateScale(renderObject.Width, renderObject.Height, 1) *
-                            Matrix4x4.CreateFromQuaternion(renderObject.Rotation) *
-                            Matrix4x4.CreateTranslation(renderObject.X, renderObject.Y, renderObject.Z);
+            var transform =
+                Matrix4x4.CreateScale(renderObject.Width, renderObject.Height, 1) *
+                Matrix4x4.CreateFromQuaternion(renderObject.Rotation) *
+                Matrix4x4.CreateTranslation(renderObject.X, renderObject.Y, renderObject.Z);
 
             if (_submissions.Count / VerticesInSubmission == MaxSubmissions)
                 Flush();

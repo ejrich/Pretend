@@ -1,8 +1,8 @@
 using System;
 using System.Linq;
+using System.Numerics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using OpenTK.Mathematics;
 using Pretend.Graphics;
 
 namespace Pretend.Tests.Graphics
@@ -178,7 +178,7 @@ namespace Pretend.Tests.Graphics
             _mockRenderContext.Setup(_ => _.Draw(_mockVertexArray.Object, It.IsAny<int>()));
             _mockVertexBuffer.Setup(_ => _.AddData(It.IsAny<Renderer2D.Renderable2DBuffer[]>()));
             _mockShader.Setup(_ => _.Bind());
-            _mockShader.Setup(_ => _.SetMat4("viewProjection", It.IsAny<Matrix4>()));
+            _mockShader.Setup(_ => _.SetMat4("viewProjection", It.IsAny<Matrix4x4>()));
             _mockVertexArray.Setup(_ => _.Bind(true));
             _mockVertexArray.SetupGet(_ => _.VertexBuffer).Returns(_mockVertexBuffer.Object);
         }

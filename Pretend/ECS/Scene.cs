@@ -2,7 +2,7 @@
 using System.Numerics;
 using Pretend.Events;
 using Pretend.Graphics;
-using Pretend.Math;
+using Pretend.Mathematics;
 using Pretend.Text;
 
 namespace Pretend.ECS

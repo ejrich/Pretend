@@ -16,9 +16,9 @@ namespace Pretend.ECS
         public float Y { get; set; }
         public float Z { get; set; }
         public Vector3 Position { get; set; }
-        public float Roll { get; set; }
         public float Pitch { get; set; }
         public float Yaw { get; set; }
+        public float Roll { get; set; }
         public Vector3 Rotation { get; set; }
     }
 

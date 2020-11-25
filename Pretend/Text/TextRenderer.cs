@@ -1,8 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Numerics;
 using FreeTypeSharp;
 using Pretend.Graphics;
-using Pretend.Math;
+using Pretend.Mathematics;
 
 namespace Pretend.Text
 {
@@ -49,9 +50,6 @@ namespace Pretend.Text
             var (charMap, texture) = LoadTextureAtlas(textObject.FontPath, textObject.Size);
  
             var x = textObject.Position.X;
-            var pitch= textObject.Position.X;
-            var roll = textObject.Position.Y;
-            var yaw = textObject.Position.Z;
             var yAdjust = (float)textObject.Size / 4;
 
             var renderObjects = new List<Renderable2DObject>();
@@ -76,7 +74,7 @@ namespace Pretend.Text
                     Z = textObject.Position.Z,
                     Width = glyph.Width + 1,
                     Height = glyph.Height,
-                    Rotation = Quaternion.CreateFromYawPitchRoll(yaw.ToRadians(), pitch.ToRadians(), roll.ToRadians()),
+                    Rotation = textObject.Orientation.ToQuaternian(),
                     Color = textObject.Color,
                     Texture = texture,
                     SubTextureOffsetX = glyph.XOffset,
@@ -115,7 +113,7 @@ namespace Pretend.Text
 
         private static void Rotate(Renderable2DObject renderObject)
         {
-            var transformedPosition = Vector4.Transform(new Vector4(renderObject.X, renderObject.Y, renderObject.Z, 0),
+            var transformedPosition = Vector3.Transform(new Vector3(renderObject.X, renderObject.Y, renderObject.Z),
                 Matrix4x4.CreateFromQuaternion(renderObject.Rotation));
             renderObject.X = transformedPosition.X;
             renderObject.Y = transformedPosition.Y;

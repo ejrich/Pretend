@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Numerics;
 using OpenTK.Audio.OpenAL;
-using Pretend.Math;
+using Pretend.Mathematics;
 
 namespace Pretend.Audio
 {

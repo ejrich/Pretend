@@ -1,9 +1,10 @@
-﻿using System.Numerics;
+﻿using System;
+using System.Numerics;
 using TKVector3 = OpenTK.Mathematics.Vector3;
 using TKVector4 = OpenTK.Mathematics.Vector4;
 using TKMatrix4 = OpenTK.Mathematics.Matrix4;
 
-namespace Pretend.Math
+namespace Pretend.Mathematics
 {
     public static class MathExtensions
     {
@@ -26,9 +27,15 @@ namespace Pretend.Math
                 matrix.M41, matrix.M42, matrix.M43, matrix.M44);
         }
 
+        public static Quaternion ToQuaternian(this Vector3 vector)
+        {
+            var radianVector = (float) Math.PI * vector / 180f;
+            return Quaternion.CreateFromYawPitchRoll(radianVector.Y, radianVector.X, radianVector.Z);
+        }
+
         public static float ToRadians(this float degrees)
         {
-            return (float) System.Math.PI * degrees / 180f;
+            return (float) Math.PI * degrees / 180f;
         }
     }
 }

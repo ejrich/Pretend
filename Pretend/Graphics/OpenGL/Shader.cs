@@ -6,7 +6,7 @@ using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using OpenTK.Graphics.OpenGL4;
-using Pretend.Math;
+using Pretend.Mathematics;
 
 namespace Pretend.Graphics.OpenGL
 {

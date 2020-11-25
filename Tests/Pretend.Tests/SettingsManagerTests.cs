@@ -1,7 +1,7 @@
 ﻿using System.IO;
+using System.Numerics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using OpenTK.Mathematics;
 using Pretend.Graphics;
 
 namespace Pretend.Tests
@@ -75,7 +75,7 @@ namespace Pretend.Tests
 
             _mockGraphicsContext.SetupSet(_ => _.Vsync = _target.Settings.Vsync);
             _mockWindow.SetupSet(_ => _.MaxFps = _target.Settings.MaxFps);
-            _mockWindow.SetupSet(_ => _.Resolution = new Vector2i(_target.Settings.ResolutionX, _target.Settings.ResolutionY));
+            _mockWindow.SetupSet(_ => _.Resolution = new Vector2(_target.Settings.ResolutionX, _target.Settings.ResolutionY));
             _mockWindow.SetupSet(_ => _.WindowMode = _target.Settings.WindowMode);
             _mockWindow.SetupSet(_ => _.MouseGrab = _target.Settings.MouseGrab);
 

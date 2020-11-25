@@ -1,4 +1,4 @@
-﻿using OpenTK.Mathematics;
+﻿using System.Numerics;
 using Pretend;
 using Pretend.Audio;
 using Pretend.ECS;
@@ -65,7 +65,7 @@ namespace Sandbox
             _scene.AddComponent(entity, new PhysicsComponent {Fixed = true });
 
             entity = _scene.CreateEntity();
-            _scene.AddComponent(entity, new PositionComponent {X = 420, Y = -95, Yaw = 45});
+            _scene.AddComponent(entity, new PositionComponent {X = 420, Y = -95, Roll = 45});
             _scene.AddComponent(entity, new SizeComponent {Width = 300, Height = 10});
             _scene.AddComponent(entity, new PhysicsComponent {Fixed = true });
 

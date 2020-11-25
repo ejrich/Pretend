@@ -1,5 +1,5 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using OpenTK.Mathematics;
+﻿using System.Numerics;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Pretend.ECS;
 using Pretend.Physics;
 
