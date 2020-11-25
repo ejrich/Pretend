@@ -1,7 +1,8 @@
 ﻿using System.Linq;
-using OpenTK.Mathematics;
+using System.Numerics;
 using Pretend.Events;
 using Pretend.Graphics;
+using Pretend.Math;
 using Pretend.Text;
 
 namespace Pretend.ECS
@@ -95,8 +96,8 @@ namespace Pretend.ECS
                             renderObject.X = position.X;
                             renderObject.Y = position.Y;
                             renderObject.Z = position.Z;
-                            renderObject.Rotation = new Quaternion(MathHelper.DegreesToRadians(position.Roll),
-                                MathHelper.DegreesToRadians(position.Pitch), MathHelper.DegreesToRadians(position.Yaw));
+                            renderObject.Rotation = Quaternion.CreateFromYawPitchRoll(position.Yaw.ToRadians(),
+                                position.Pitch.ToRadians(), position.Roll.ToRadians());
                             break;
                         case SizeComponent size:
                             renderObject.Width = size.Width;

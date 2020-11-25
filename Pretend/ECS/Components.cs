@@ -1,4 +1,4 @@
-﻿using OpenTK.Mathematics;
+﻿using System.Numerics;
 using Pretend.Audio;
 using Pretend.Events;
 using Pretend.Graphics;
@@ -15,9 +15,11 @@ namespace Pretend.ECS
         public float X { get; set; }
         public float Y { get; set; }
         public float Z { get; set; }
+        public Vector3 Position { get; set; }
         public float Roll { get; set; }
         public float Pitch { get; set; }
         public float Yaw { get; set; }
+        public Vector3 Rotation { get; set; }
     }
 
     public class SizeComponent : IComponent

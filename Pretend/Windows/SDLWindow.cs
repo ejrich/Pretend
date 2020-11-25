@@ -1,6 +1,6 @@
 using System;
+using System.Numerics;
 using System.Threading;
-using OpenTK.Mathematics;
 using Pretend.Events;
 using Pretend.Graphics;
 using SDL2;
@@ -19,8 +19,8 @@ namespace Pretend.Windows
         private uint _maxFps;
         private float _maxTimestep;
 
-        private Vector2i _resolution;
-        private Vector2i _halfResolution;
+        private Vector<int> _resolution;
+        private Vector<int> _halfResolution;
 
         public SDLWindow(IEventDispatcher eventDispatcher, IGraphicsContext context)
         {
@@ -44,7 +44,7 @@ namespace Pretend.Windows
             _context.Vsync = settings.Vsync;
             MaxFps = settings.MaxFps;
             MouseGrab = settings.MouseGrab;
-            SetResolution(new Vector2i(settings.ResolutionX, settings.ResolutionY));
+            SetResolution(settings.ResolutionX, settings.ResolutionY);
         }
 
         public float GetTimestep()
@@ -94,7 +94,7 @@ namespace Pretend.Windows
             SDL.SDL_Quit();
         }
 
-        public Vector2i Resolution { get => _resolution; set => SDL.SDL_SetWindowSize(_window, value.X, value.Y); }
+        public Vector<int> Resolution { get => _resolution; set => SDL.SDL_SetWindowSize(_window, value[0], value[1]); }
 
         public ushort MaxFps
         {
@@ -135,10 +135,10 @@ namespace Pretend.Windows
             return flags;
         }
 
-        private void SetResolution(Vector2i resolution)
+        private void SetResolution(int resolutionX, int resolutionY)
         {
-            _resolution = resolution;
-            _halfResolution = resolution / 2;
+            _resolution = new Vector<int>(new []{ resolutionX, resolutionY });
+            _halfResolution = _resolution / new Vector<int>(new []{ 2, 2 });
         }
 
         private void HandleEvent(SDL.SDL_Event evnt)
@@ -155,7 +155,7 @@ namespace Pretend.Windows
                     {
                         case SDL.SDL_WindowEventID.SDL_WINDOWEVENT_RESIZED:
                         case SDL.SDL_WindowEventID.SDL_WINDOWEVENT_SIZE_CHANGED:
-                            SetResolution(new Vector2i(windowEvent.data1, windowEvent.data2));
+                            SetResolution(windowEvent.data1, windowEvent.data2);
                             _eventDispatcher.DispatchEvent(new WindowResizeEvent { Width = windowEvent.data1, Height = windowEvent.data2 });
                             break;
                     }
@@ -171,7 +171,7 @@ namespace Pretend.Windows
                 case SDL.SDL_EventType.SDL_MOUSEBUTTONDOWN:
                     _eventDispatcher.DispatchEvent(new MouseButtonPressedEvent
                     {
-                        Button = (MouseButton) evnt.button.button, X = evnt.button.x - _halfResolution.X, Y = _halfResolution.Y - evnt.button.y
+                        Button = (MouseButton) evnt.button.button, X = evnt.button.x - _halfResolution[0], Y = _halfResolution[1] - evnt.button.y
                     });
                     break;
                 case SDL.SDL_EventType.SDL_MOUSEBUTTONUP:

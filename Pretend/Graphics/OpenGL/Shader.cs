@@ -1,11 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Numerics;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using OpenTK.Graphics.OpenGL4;
-using OpenTK.Mathematics;
+using Pretend.Math;
 
 namespace Pretend.Graphics.OpenGL
 {
@@ -153,13 +154,15 @@ namespace Pretend.Graphics.OpenGL
         public void SetVec4(string name, Vector4 value)
         {
             Bind();
-            GL.Uniform4(_uniforms[name], value);
+            var vector = value.ToTKVector4();
+            GL.Uniform4(_uniforms[name], vector);
         }
 
-        public void SetMat4(string name, Matrix4 value)
+        public void SetMat4(string name, Matrix4x4 value)
         {
             Bind();
-            GL.UniformMatrix4(_uniforms[name], true, ref value);
+            var matrix = value.ToTkMatrix4();
+            GL.UniformMatrix4(_uniforms[name], true, ref matrix);
         }
 
         public void Dispose()

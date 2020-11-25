@@ -1,5 +1,5 @@
 using System;
-using OpenTK.Mathematics;
+using System.Numerics;
 
 namespace Pretend.Graphics
 {
@@ -14,6 +14,6 @@ namespace Pretend.Graphics
         void SetFloat(string name, float value);
         void SetIntArray(string name, int[] value);
         void SetVec4(string name, Vector4 value);
-        void SetMat4(string name, Matrix4 value);
+        void SetMat4(string name, Matrix4x4 value);
     }
 }

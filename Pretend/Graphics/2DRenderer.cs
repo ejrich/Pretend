@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using System.Runtime.InteropServices;
-using OpenTK.Mathematics;
 
 namespace Pretend.Graphics
 {
@@ -40,7 +40,7 @@ namespace Pretend.Graphics
             public Renderable2DBuffer(Vector4 position, Vector2 textureLocation, Vector4 color,
                 int texture, bool singleChannel)
             {
-                Position = position.Xyz;
+                Position = new Vector3(position.X, position.Y, position.Z);
                 TextureLocation = textureLocation;
                 Color = color;
                 Texture = texture;
@@ -61,7 +61,7 @@ namespace Pretend.Graphics
         private bool _initialized;
         private Vector4[] _vertices;
         private Vector2[] _textureCoordinates;
-        private Matrix4 _viewProjection;
+        private Matrix4x4 _viewProjection;
         private IVertexArray _vertexArray;
         private IShader _objectShader;
 
@@ -141,10 +141,10 @@ namespace Pretend.Graphics
         {
             if (renderObject.Width == 0 && renderObject.Height == 0) return;
 
-            var transform = Matrix4.Identity *
-                            Matrix4.CreateScale(renderObject.Width, renderObject.Height, 1) *
-                            Matrix4.CreateFromQuaternion(renderObject.Rotation) *
-                            Matrix4.CreateTranslation(renderObject.X, renderObject.Y, renderObject.Z);
+            var transform = Matrix4x4.Identity *
+                            Matrix4x4.CreateScale(renderObject.Width, renderObject.Height, 1) *
+                            Matrix4x4.CreateFromQuaternion(renderObject.Rotation) *
+                            Matrix4x4.CreateTranslation(renderObject.X, renderObject.Y, renderObject.Z);
 
             if (_submissions.Count / VerticesInSubmission == MaxSubmissions)
                 Flush();
@@ -160,7 +160,7 @@ namespace Pretend.Graphics
                     textureCoord.X = ((textureCoord.X * renderObject.Width) + renderObject.SubTextureOffsetX) / renderObject.Texture.Width;
                     textureCoord.Y = ((textureCoord.Y * renderObject.Height) + renderObject.SubTextureOffsetY) / renderObject.Texture.Height;
                 }
-                _submissions.Add(new Renderable2DBuffer(_vertices[vertex] * transform, textureCoord,
+                _submissions.Add(new Renderable2DBuffer(Vector4.Transform(_vertices[vertex], transform), textureCoord,
                     renderObject.Color, GetTextureIndex(renderObject.Texture), renderObject.SingleChannel));
             }
         }
