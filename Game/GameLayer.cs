@@ -1,4 +1,4 @@
-using OpenTK.Mathematics;
+using System.Numerics;
 using Pretend;
 using Pretend.Audio;
 using Pretend.ECS;
@@ -45,7 +45,7 @@ namespace Game
             var playerSource = _soundManager.CreateSource();
 
             var playerEntity = _scene.CreateEntity();
-            _scene.AddComponent(playerEntity, new PositionComponent { Y = 450 });
+            _scene.AddComponent(playerEntity, new PositionComponent { Position = new Vector3(0, 450, 0) });
             _scene.AddComponent(playerEntity, new SizeComponent { Width = 30, Height = 30 });
             _scene.AddComponent(playerEntity, new ColorComponent { Color = new Vector4(1, 0, 0, 1) });
             _scene.AddComponent(playerEntity, new PhysicsComponent());
@@ -53,7 +53,7 @@ namespace Game
             _scene.AddComponent(playerEntity, new PlayerScript(playerEntity));
 
             var floorEntity = _scene.CreateEntity();
-            _scene.AddComponent(floorEntity, new PositionComponent { Y = -25 });
+            _scene.AddComponent(floorEntity, new PositionComponent { Position = new Vector3(0, -25, 0) });
             _scene.AddComponent(floorEntity, new SizeComponent { Width = 1280, Height = 20 });
             _scene.AddComponent(floorEntity, new PhysicsComponent { Fixed = true });
 

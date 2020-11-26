@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using OpenTK.Mathematics;
+using System.Numerics;
 using Pretend;
 using Pretend.ECS;
 using Pretend.Physics;
@@ -76,7 +76,7 @@ namespace Game
         {
             var obstacle = _scene.CreateEntity();
             _obstacles.Add(obstacle);
-            _scene.AddComponent(obstacle, new PositionComponent { X = x });
+            _scene.AddComponent(obstacle, new PositionComponent { Position = new Vector3(x, 0, 0) });
             _scene.AddComponent(obstacle, new SizeComponent { Width = 40, Height = 40 });
             _scene.AddComponent(obstacle, new PhysicsComponent { Fixed = true, Kinematic = true, Velocity = new Vector3(-200, 0, 0) });
         }
@@ -106,7 +106,7 @@ namespace Game
             // Recalculate obstacle positions and determine the floor height
             foreach (var obstacle in _obstacles)
             {
-                var obstaclePosition = obstacle.GetComponent<PositionComponent>();
+                var obstaclePosition = obstacle.GetComponent<PositionComponent>().Position;
                 if (obstaclePosition.X < -35 || obstaclePosition.X > 35) continue;
 
                 // Stop the game if there is a collision with an obstacle
@@ -127,7 +127,7 @@ namespace Game
 
             // Filter the passed obstacles and determine whether to add a new one
             var furthestObstacle = _obstacles.FirstOrDefault();
-            if (furthestObstacle?.GetComponent<PositionComponent>().X < -640)
+            if (furthestObstacle?.GetComponent<PositionComponent>().Position.X < -640)
                 DeleteObstacle(furthestObstacle);
 
             if (timeStep > 0 && _random.Next(Convert.ToInt32(1 / timeStep)) == 1)
@@ -136,8 +136,7 @@ namespace Game
 
         public void Reset()
         {
-            _playerPosition.X = 0;
-            _playerPosition.Y = 450;
+            _playerPosition.Position = new Vector3(0, 450, 0);
             Running = true;
             ResetObstacles();
             _physicsContainer.Start(144, _scene.EntityContainer);

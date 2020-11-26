@@ -1,5 +1,5 @@
 ﻿using System;
-using OpenTK.Mathematics;
+using System.Numerics;
 using Pretend;
 using Pretend.ECS;
 using Pretend.Events;
@@ -47,8 +47,8 @@ namespace Game
         private readonly Action<ISettingsManager<GameSettings>> _set;
         private readonly Func<ISettingsManager<GameSettings>, bool> _active;
         private readonly ColorComponent _color;
-        private readonly Vector2i _min;
-        private readonly Vector2i _max;
+        private readonly Vector2 _min;
+        private readonly Vector2 _max;
 
         private static readonly Vector4 SelectedColor = new Vector4(0, 1, 1, 1);
 
@@ -60,11 +60,11 @@ namespace Game
             _active = active;
             _color = entity.GetComponent<ColorComponent>();
 
-            var position = entity.GetComponent<PositionComponent>();
+            var position = entity.GetComponent<PositionComponent>().Position;
             var size = entity.GetComponent<SizeComponent>();
 
-            _min = new Vector2i((int)position.X - (int)size.Width / 2, (int)position.Y - (int)size.Height / 2);
-            _max = new Vector2i((int)position.X + (int)size.Width / 2, (int)position.Y + (int)size.Height / 2);
+            _min = new Vector2(position.X - size.Width / 2f, position.Y - size.Height / 2f);
+            _max = new Vector2(position.X + size.Width / 2f, position.Y + size.Height / 2f);
         }
 
         public void Update(float timeStep)
