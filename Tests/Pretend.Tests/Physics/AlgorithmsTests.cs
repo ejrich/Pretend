@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
+using System.Numerics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using OpenTK.Mathematics;
 using Pretend.ECS;
 using Pretend.Physics;
 
@@ -92,11 +92,11 @@ namespace Pretend.Tests.Physics
             var bSize = new SizeComponent { Width = 10, Height = 10 };
 
             var gjkResult = Algorithms.GJK(aPos, aOrientation, aSize, bPos, bOrientation, bSize);
-            var (x, y, z) = Algorithms.EPA(gjkResult);
+            var epaResult = Algorithms.EPA(gjkResult);
 
-            Assert.AreEqual(0, x);
-            Assert.AreEqual(-2, y);
-            Assert.AreEqual(0, z);
+            Assert.AreEqual(0, epaResult.X);
+            Assert.AreEqual(-2, epaResult.Y);
+            Assert.AreEqual(0, epaResult.Z);
         }
 
         [TestMethod]
@@ -116,11 +116,11 @@ namespace Pretend.Tests.Physics
             };
 
             var gjkResult = Algorithms.GJK(aPos, aVertices, bPos, bVertices);
-            var (x, y, z) = Algorithms.EPA(gjkResult);
+            var epaResult = Algorithms.EPA(gjkResult);
 
-            Assert.AreEqual(0, x);
-            Assert.AreEqual(-2, y);
-            Assert.AreEqual(0, z);
+            Assert.AreEqual(0, epaResult.X);
+            Assert.AreEqual(-2, epaResult.Y);
+            Assert.AreEqual(0, epaResult.Z);
         }
     }
 }

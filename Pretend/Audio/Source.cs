@@ -1,6 +1,7 @@
 ﻿using System;
+using System.Numerics;
 using OpenTK.Audio.OpenAL;
-using OpenTK.Mathematics;
+using Pretend.Mathematics;
 
 namespace Pretend.Audio
 {
@@ -23,8 +24,23 @@ namespace Pretend.Audio
         public Source() => AL.GenSource(out _id);
 
         public float Gain { set => AL.Source(_id, ALSourcef.Gain, value); }
-        public Vector3 Position { set => AL.Source(_id, ALSource3f.Position, ref value); }
-        public Vector3 Velocity { set => AL.Source(_id, ALSource3f.Velocity, ref value); }
+        public Vector3 Position
+        {
+            set
+            {
+                var position = value.ToTKVector3();
+                AL.Source(_id, ALSource3f.Position, ref position);
+            }
+        }
+
+        public Vector3 Velocity
+        {
+            set
+            {
+                var velocity = value.ToTKVector3();
+                AL.Source(_id, ALSource3f.Velocity, ref velocity);
+            }
+        }
 
         public void Play(ISoundBuffer buffer, bool loop = false)
         {

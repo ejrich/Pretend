@@ -34,7 +34,8 @@ namespace Pretend.Windows
         public (int x, int y) GetMousePosition()
         {
             SDL.SDL_GetMouseState(out var x, out var y);
-            var (w, h) = _window.Resolution;
+            var w = (int)_window.Resolution.X;
+            var h = (int)_window.Resolution.Y;
 
             return (x - w / 2, h / 2 - y);
         }

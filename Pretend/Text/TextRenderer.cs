@@ -1,7 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Numerics;
 using FreeTypeSharp;
-using OpenTK.Mathematics;
 using Pretend.Graphics;
+using Pretend.Mathematics;
 
 namespace Pretend.Text
 {
@@ -47,8 +49,7 @@ namespace Pretend.Text
 
             var (charMap, texture) = LoadTextureAtlas(textObject.FontPath, textObject.Size);
  
-            var (x, y, z) = textObject.Position;
-            var (pitch, roll, yaw) = textObject.Orientation;
+            var x = textObject.Position.X;
             var yAdjust = (float)textObject.Size / 4;
 
             var renderObjects = new List<Renderable2DObject>();
@@ -66,15 +67,15 @@ namespace Pretend.Text
                 if (!charMap.TryGetValue(character, out var glyph))
                     continue;
 
+                var xPos = x + (float)glyph.Width / 2 + glyph.BearingX;
+                var yPos = textObject.Position.Y + (float)glyph.Height / 2 - glyph.Height + glyph.BearingY - yAdjust;
+                var zPos = textObject.Position.Z;
                 var renderObject = new Renderable2DObject
                 {
-                    X = x + (float) glyph.Width / 2 + glyph.BearingX,
-                    Y = y + (float) glyph.Height / 2 - glyph.Height + glyph.BearingY - yAdjust,
-                    Z = z,
+                    Position = new Vector3(xPos, yPos, zPos),
                     Width = glyph.Width + 1,
                     Height = glyph.Height,
-                    Rotation = new Quaternion(MathHelper.DegreesToRadians(pitch),
-                        MathHelper.DegreesToRadians(roll), MathHelper.DegreesToRadians(yaw)),
+                    Rotation = textObject.Orientation.ToQuaternian(),
                     Color = textObject.Color,
                     Texture = texture,
                     SubTextureOffsetX = glyph.XOffset,
@@ -113,26 +114,24 @@ namespace Pretend.Text
 
         private static void Rotate(Renderable2DObject renderObject)
         {
-            var (x, y, z) = new Vector3(renderObject.X, renderObject.Y, renderObject.Z) *
-                Matrix3.CreateFromQuaternion(renderObject.Rotation);
-            renderObject.X = x;
-            renderObject.Y = y;
-            renderObject.Z = z;
+            var transformedPosition = Vector3.Transform(renderObject.Position,
+                Matrix4x4.CreateFromQuaternion(renderObject.Rotation));
+            renderObject.Position = transformedPosition;
         }
 
         private static void AdjustLine(List<Renderable2DObject> line, TextAlignment alignment, float x0, float x1)
         {
             var xAdjustment = alignment switch
             {
-                TextAlignment.Left => 0,
-                TextAlignment.Center => (x1 - x0) / 2,
-                TextAlignment.Right => x1 - x0,
-                _ => 0
+                TextAlignment.Left => Vector3.Zero,
+                TextAlignment.Center => new Vector3((x1 - x0) / 2, 0, 0),
+                TextAlignment.Right => new Vector3(x1 - x0, 0, 0),
+                _ => Vector3.Zero
             };
 
             foreach (var renderObject in line)
             {
-                renderObject.X -= xAdjustment;
+                renderObject.Position -= xAdjustment;
                 Rotate(renderObject);
             }
             line.Clear();

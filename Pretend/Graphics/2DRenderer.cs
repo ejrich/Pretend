@@ -1,16 +1,14 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using System.Runtime.InteropServices;
-using OpenTK.Mathematics;
 
 namespace Pretend.Graphics
 {
     public class Renderable2DObject
     {
-        public float X { get; set; }
-        public float Y { get; set; }
-        public float Z { get; set; }
+        public Vector3 Position { get; set; }
         public uint Width { get; set; }
         public uint Height { get; set; }
         public Quaternion Rotation { get; set; } = Quaternion.Identity;
@@ -37,10 +35,10 @@ namespace Pretend.Graphics
             [FieldOffset(36)] private readonly int Texture;
             [FieldOffset(40)] private readonly int SingleChannel;
 
-            public Renderable2DBuffer(Vector4 position, Vector2 textureLocation, Vector4 color,
+            public Renderable2DBuffer(Vector3 position, Vector2 textureLocation, Vector4 color,
                 int texture, bool singleChannel)
             {
-                Position = position.Xyz;
+                Position = position;
                 TextureLocation = textureLocation;
                 Color = color;
                 Texture = texture;
@@ -59,9 +57,9 @@ namespace Pretend.Graphics
         private readonly IDictionary<ITexture2D, int> _textures = new Dictionary<ITexture2D, int>();
 
         private bool _initialized;
-        private Vector4[] _vertices;
+        private Vector3[] _vertices;
         private Vector2[] _textureCoordinates;
-        private Matrix4 _viewProjection;
+        private Matrix4x4 _viewProjection;
         private IVertexArray _vertexArray;
         private IShader _objectShader;
 
@@ -79,8 +77,8 @@ namespace Pretend.Graphics
 
             _vertices = new[]
             {
-                new Vector4(0.5f, 0.5f, 0, 1), new Vector4(0.5f, -0.5f, 0, 1),
-                new Vector4(-0.5f, -0.5f, 0, 1), new Vector4(-0.5f, 0.5f, 0, 1)
+                new Vector3(0.5f, 0.5f, 0), new Vector3(0.5f, -0.5f, 0),
+                new Vector3(-0.5f, -0.5f, 0), new Vector3(-0.5f, 0.5f, 0)
             };
             _textureCoordinates = new[] {new Vector2(1, 0), new Vector2(1, 1), new Vector2(0, 1), new Vector2(0, 0)};
 
@@ -141,10 +139,10 @@ namespace Pretend.Graphics
         {
             if (renderObject.Width == 0 && renderObject.Height == 0) return;
 
-            var transform = Matrix4.Identity *
-                            Matrix4.CreateScale(renderObject.Width, renderObject.Height, 1) *
-                            Matrix4.CreateFromQuaternion(renderObject.Rotation) *
-                            Matrix4.CreateTranslation(renderObject.X, renderObject.Y, renderObject.Z);
+            var transform =
+                Matrix4x4.CreateScale(renderObject.Width, renderObject.Height, 1) *
+                Matrix4x4.CreateFromQuaternion(renderObject.Rotation) *
+                Matrix4x4.CreateTranslation(renderObject.Position);
 
             if (_submissions.Count / VerticesInSubmission == MaxSubmissions)
                 Flush();
@@ -160,7 +158,7 @@ namespace Pretend.Graphics
                     textureCoord.X = ((textureCoord.X * renderObject.Width) + renderObject.SubTextureOffsetX) / renderObject.Texture.Width;
                     textureCoord.Y = ((textureCoord.Y * renderObject.Height) + renderObject.SubTextureOffsetY) / renderObject.Texture.Height;
                 }
-                _submissions.Add(new Renderable2DBuffer(_vertices[vertex] * transform, textureCoord,
+                _submissions.Add(new Renderable2DBuffer(Vector3.Transform(_vertices[vertex], transform), textureCoord,
                     renderObject.Color, GetTextureIndex(renderObject.Texture), renderObject.SingleChannel));
             }
         }

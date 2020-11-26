@@ -2,10 +2,11 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Numerics;
 using System.Threading;
 using System.Threading.Tasks;
-using OpenTK.Mathematics;
 using Pretend.ECS;
+using Pretend.Mathematics;
 
 namespace Pretend.Physics
 {
@@ -67,8 +68,8 @@ namespace Pretend.Physics
                     var position = entity.GetComponent<PositionComponent>();
                     if (physicsComponent.Fixed && !physicsComponent.Kinematic)
                     {
-                        newPositions.Add(entity, new Vector3(position.X, position.Y, position.Z));
-                        newOrientations.Add(entity, new Vector3(position.Pitch, position.Roll, position.Yaw));
+                        newPositions.Add(entity, position.Position);
+                        newOrientations.Add(entity, position.Rotation);
                     }
                     else
                     {
@@ -124,8 +125,8 @@ namespace Pretend.Physics
             if (ePhysicsComponent.Fixed) return (position, orientation);
 
             var oPhysicsComponent = other.GetComponent<PhysicsComponent>();
-            var interpolatedPosition = new Vector3(position);
-            var interpolatedOrientation = new Vector3(orientation);
+            var interpolatedPosition = new Vector3(position.X, position.Y, position.Z);
+            var interpolatedOrientation = new Vector3(orientation.X, orientation.Y, orientation.Z);
 
             // Simulate fixed collisions
             if (oPhysicsComponent.Fixed && oPhysicsComponent.Solid)
@@ -142,9 +143,10 @@ namespace Pretend.Physics
                     dOrientation.Z != 0 ? 0 : ePhysicsComponent.AngularVelocity.Z);
 
                 // Correct the position based on the penetration vector
-                var correctedResult = new Vector3(CorrectEPAResult(epaResult.X, epaResult.Yz, Gravity.Yz),
-                    CorrectEPAResult(epaResult.Y, epaResult.Xz, Gravity.Xz),
-                    CorrectEPAResult(epaResult.Z, epaResult.Xy, Gravity.Xy));
+                var correctedResult = new Vector3(
+                    CorrectEPAResult(epaResult.X, epaResult.Y, epaResult.Z, Gravity.Y, Gravity.Z),
+                    CorrectEPAResult(epaResult.Y, epaResult.X, epaResult.Z, Gravity.X, Gravity.Z),
+                    CorrectEPAResult(epaResult.Z, epaResult.X, epaResult.Y, Gravity.X, Gravity.Y));
                 interpolatedPosition -= correctedResult;
                 ePhysicsComponent.Velocity = new Vector3(InterpolateVelocity(ePhysicsComponent.Velocity.X, correctedResult.X, Gravity.X),
                     InterpolateVelocity(ePhysicsComponent.Velocity.Y, correctedResult.Y, Gravity.Y),
@@ -155,9 +157,9 @@ namespace Pretend.Physics
             return (interpolatedPosition, interpolatedOrientation);
         }
 
-        private static float CorrectEPAResult(float a, Vector2 bc, Vector2 gbc)
+        private static float CorrectEPAResult(float a, float b, float c, float gb, float gc)
         {
-            return a == 0 || (bc[0] != 0 && gbc[0] != 0) || (bc[1] != 0 && gbc[1] != 0) ? 0 : a;
+            return a == 0 || (b != 0 && gb != 0) || (c != 0 && gc != 0) ? 0 : a;
         }
 
         private static float InterpolateVelocity(float o, float p, float g)
@@ -169,7 +171,7 @@ namespace Pretend.Physics
         private static float InterpolateOrientation(float previous, float a, float b)
         {
             var theta = previous % 90;
-            var newAngle = b == 0 ? 0 : (float) MathHelper.RadiansToDegrees(Math.Atan(a / b));
+            var newAngle = b == 0 ? 0 : ((float) Math.Atan(a / b)).ToRadians();
             return newAngle == 0 ? theta - newAngle > 45 ? 90 - theta - newAngle : newAngle - theta : 0;
         }
 
@@ -182,16 +184,17 @@ namespace Pretend.Physics
             physicsComponent.Velocity += deltaV;
 
             // Calculate delta p
-            var (x, y, z) = physicsComponent.Velocity * timeStep + 0.5f * acceleration * timeStep * timeStep;
+            var deltaP = physicsComponent.Velocity * timeStep + 0.5f * acceleration * timeStep * timeStep;
 
             // Calculate next position
-            var newPosition = new Vector3(position.X + x, position.Y + y, position.Z + z);
+            var newPosition = position.Position + deltaP;
             
             // Calculate dr
-            var (p, r, yaw) = physicsComponent.AngularVelocity * timeStep;
+            var deltaR = physicsComponent.AngularVelocity * timeStep;
             
             // Calculate next orientation
-            var newOrientation = new Vector3(ChangeAngle(position.Pitch, p), ChangeAngle(position.Roll, r), ChangeAngle(position.Yaw, yaw));
+            var newOrientation = new Vector3(ChangeAngle(position.Rotation.X, deltaR.X),
+                ChangeAngle(position.Rotation.Y, deltaR.Y), ChangeAngle(position.Rotation.Z, deltaR.Z));
 
             return (newPosition, newOrientation);
         }
@@ -220,13 +223,8 @@ namespace Pretend.Physics
         private static void ChangePosition(IEntity entity, Vector3 position, Vector3 orientation)
         {
             var positionComponent = entity.GetComponent<PositionComponent>();
-            var (x, y, z) = position;
-            positionComponent.X = x;
-            positionComponent.Y = y;
-            positionComponent.Z = z;
-            positionComponent.Pitch = orientation.X;
-            positionComponent.Roll = orientation.Y;
-            positionComponent.Yaw = orientation.Z;
+            positionComponent.Position = position;
+            positionComponent.Rotation = orientation;
         }
     }
 }
