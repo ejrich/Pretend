@@ -1,4 +1,4 @@
-using OpenTK.Mathematics;
+using System.Numerics;
 
 namespace Pretend.Graphics
 {
@@ -13,7 +13,7 @@ namespace Pretend.Graphics
     public class Renderer : IRenderer
     {
         private readonly IRenderContext _renderContext;
-        private Matrix4 _viewProjection;
+        private Matrix4x4 _viewProjection;
 
         public Renderer(IRenderContext renderContext)
         {

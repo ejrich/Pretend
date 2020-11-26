@@ -1,8 +1,8 @@
 ﻿using System;
 using System.IO;
+using System.Numerics;
 using System.Text.Json;
 using System.Threading.Tasks;
-using OpenTK.Mathematics;
 using Pretend.Graphics;
 
 namespace Pretend
@@ -29,7 +29,7 @@ namespace Pretend
         private readonly IWindow _window;
         private readonly IGraphicsContext _graphicsContext;
 
-        internal const string SettingsFile = "settings.json";
+        internal static readonly string SettingsFile = Path.Combine(AppDomain.CurrentDomain.BaseDirectory ,"settings.json");
 
         public SettingsManager(IWindow window, IGraphicsContext graphicsContext)
         {
@@ -46,14 +46,14 @@ namespace Pretend
                 ReadSettings();
             }
         }
-        
+
         public T Settings { get; private set; }
 
         public void Apply(Action<T> apply = null)
         {
             _graphicsContext.Vsync = Settings.Vsync;
             _window.MaxFps = Settings.MaxFps;
-            _window.Resolution = new Vector2i(Settings.ResolutionX, Settings.ResolutionY);
+            _window.Resolution = new Vector2(Settings.ResolutionX, Settings.ResolutionY);
             _window.WindowMode = Settings.WindowMode;
             _window.MouseGrab = Settings.MouseGrab;
 

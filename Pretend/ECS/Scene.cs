@@ -1,7 +1,8 @@
 ﻿using System.Linq;
-using OpenTK.Mathematics;
+using System.Numerics;
 using Pretend.Events;
 using Pretend.Graphics;
+using Pretend.Mathematics;
 using Pretend.Text;
 
 namespace Pretend.ECS
@@ -92,11 +93,8 @@ namespace Pretend.ECS
                     switch (component)
                     {
                         case PositionComponent position:
-                            renderObject.X = position.X;
-                            renderObject.Y = position.Y;
-                            renderObject.Z = position.Z;
-                            renderObject.Rotation = new Quaternion(MathHelper.DegreesToRadians(position.Roll),
-                                MathHelper.DegreesToRadians(position.Pitch), MathHelper.DegreesToRadians(position.Yaw));
+                            renderObject.Position = position.Position;
+                            renderObject.Rotation = position.Rotation.ToQuaternian();
                             break;
                         case SizeComponent size:
                             renderObject.Width = size.Width;
@@ -138,7 +136,7 @@ namespace Pretend.ECS
 
             var position = entity.GetComponent<PositionComponent>();
             if (position != null)
-                textObject.Position += new Vector3(position.X, position.Y, position.Z);
+                textObject.Position += position.Position;
 
             _textRenderer.RenderText(textObject);
         }

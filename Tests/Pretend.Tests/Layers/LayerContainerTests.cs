@@ -43,6 +43,39 @@ namespace Pretend.Tests.Layers
         }
 
         [TestMethod]
+        public void PushLayerT_AddsNewLayerOfTypeToList()
+        {
+            var layer = new TestLayer();
+            _mockFactory.Setup(_ => _.Create<TestLayer>()).Returns(layer);
+            _target.PushLayer<TestLayer>();
+
+            _target.Update(0);
+
+            Assert.IsTrue(layer.UpdateCalled);
+            Assert.IsTrue(layer.RenderCalled);
+        }
+
+        [TestMethod]
+        public void SetLayerOrder_OrdersAndCreatesLayers()
+        {
+            var layer1 = new TestLayer();
+            var layer2 = new TestLayer2();
+            _mockFactory.Setup(_ => _.Create<ILayer>(typeof(TestLayer))).Returns(layer1);
+            _mockFactory.Setup(_ => _.Create<ILayer>(typeof(TestLayer2))).Returns(layer2);
+
+            _target.SetLayerOrder(typeof(TestLayer), typeof(TestLayer2));
+            // Assign new layers
+            _target.Update(0);
+            // Run update on new layers
+            _target.Update(0);
+
+            Assert.IsTrue(layer1.UpdateCalled);
+            Assert.IsTrue(layer1.RenderCalled);
+            Assert.IsTrue(layer2.UpdateCalled);
+            Assert.IsTrue(layer2.RenderCalled);
+        }
+
+        [TestMethod]
         public void Update_OnlyUpdatesUnPausedLayers()
         {
             var layer = new TestLayer { Paused = true };
@@ -66,6 +99,18 @@ namespace Pretend.Tests.Layers
             Assert.IsFalse(layer.UpdateCalled);
         }
 
+        [TestMethod]
+        public void RemoveLayerT_RemovesFirstLayerOfType()
+        {
+            var layer = new TestLayer();
+            _target.PushLayer(layer);
+            _target.RemoveLayer<TestLayer>();
+
+            _target.Update(0);
+
+            Assert.IsFalse(layer.UpdateCalled);
+        }
+
         private class TestLayer : ILayer
         {
             public bool UpdateCalled { get; private set; }
@@ -74,6 +119,10 @@ namespace Pretend.Tests.Layers
             public void Update(float timeStep) => UpdateCalled = true;
             public void Render() => RenderCalled = true;
             public void HandleEvent(IEvent evnt) {}
+        }
+        
+        private class TestLayer2 : TestLayer
+        {
         }
 
         public class TestEvent : IEvent

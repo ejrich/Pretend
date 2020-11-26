@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using OpenTK.Mathematics;
+using System.Numerics;
 using Pretend.ECS;
+using Pretend.Mathematics;
 
 namespace Pretend.Physics
 {
@@ -16,23 +17,20 @@ namespace Pretend.Physics
 
     public static class Algorithms
     {
-        private static readonly Vector4[] Vertices = {
-            new Vector4(0.5f, 0.5f, 0, 1), new Vector4(0.5f, -0.5f, 0, 1),
-            new Vector4(-0.5f, -0.5f, 0, 1), new Vector4(-0.5f, 0.5f, 0, 1)
+        private static readonly Vector3[] Vertices = {
+            new Vector3(0.5f, 0.5f, 0), new Vector3(0.5f, -0.5f, 0),
+            new Vector3(-0.5f, -0.5f, 0), new Vector3(-0.5f, 0.5f, 0)
         };
 
         private const double DistanceFilter = 1e-4;
 
         public static GJKResult GJK(IEntity a, IEntity b)
         {
-            var aPosition = a.GetComponent<PositionComponent>();
-            var aPos = new Vector3(aPosition.X, aPosition.Y, aPosition.Z);
-            var aOr = new Vector3(aPosition.Pitch, aPosition.Roll, aPosition.Yaw);
-            var bPosition = b.GetComponent<PositionComponent>();
-            var bPos = new Vector3(bPosition.X, bPosition.Y, bPosition.Z);
-            var bOr = new Vector3(bPosition.Pitch, bPosition.Roll, bPosition.Yaw);
+            var aPos = a.GetComponent<PositionComponent>();
+            var bPos = b.GetComponent<PositionComponent>();
 
-            return GJK(aPos, aOr, a.GetComponent<SizeComponent>(), bPos, bOr, b.GetComponent<SizeComponent>());
+            return GJK(aPos.Position, aPos.Rotation, a.GetComponent<SizeComponent>(),
+                bPos.Position, bPos.Rotation, b.GetComponent<SizeComponent>());
         }
 
         public static GJKResult GJK(Vector3 aPos, Vector3 aOrientation, SizeComponent aSize,
@@ -81,12 +79,12 @@ namespace Pretend.Physics
 
         private static List<Vector3> GetVertices(Vector3 pos, Vector3 orientation, SizeComponent size)
         {
-            var transform = Matrix4.Identity *
-                Matrix4.CreateScale(size.Width, size.Height, 1) *
-                Matrix4.CreateFromQuaternion(new Quaternion(orientation * ((float) Math.PI / 180f))) *
-                Matrix4.CreateTranslation(pos);
+            var transform =
+                Matrix4x4.CreateScale(size.Width, size.Height, 1) *
+                Matrix4x4.CreateFromQuaternion(orientation.ToQuaternian()) *
+                Matrix4x4.CreateTranslation(pos);
 
-            return Vertices.Select(vertex => (vertex * transform).Xyz).ToList();
+            return Vertices.Select(vertex => Vector3.Transform(vertex, transform)).ToList();
         }
 
         private static Vector3 Support(List<Vector3> aVertices, List<Vector3> bVertices, Vector3 direction)
@@ -136,7 +134,7 @@ namespace Pretend.Physics
             if (SameDirection(ab, ao))
             {
                 newDirection = TripleProduct(ab, ao, ab);
-                if (newDirection.LengthSquared == 0)
+                if (newDirection.LengthSquared() == 0)
                     newDirection = Vector3.Cross(ab, Vector3.One);
             }
             else
@@ -294,8 +292,9 @@ namespace Pretend.Physics
             for (var i = 0; i < simplex.Count; i++)
             {
                 var j = i + 1 >= simplex.Count ? 0 : i + 1;
-                var (x, y, _) = simplex[j] - simplex[i];
-                var normal = (clockWise ? new Vector3(y, -x, 0) : new Vector3(-y, x, 0)).Normalized();
+                var simplexEdge = simplex[j] - simplex[i];
+                var normal = Vector3.Normalize(clockWise ?
+                    new Vector3(simplexEdge.Y, -simplexEdge.X, 0) : new Vector3(-simplexEdge.Y, simplexEdge.X, 0));
 
                 var distance = Vector3.Dot(normal, simplex[i]);
                 if (distance >= edge.Distance) continue;
@@ -404,7 +403,7 @@ namespace Pretend.Physics
             public Face(Vector3 a, Vector3 b, Vector3 c)
             {
                 Vertices = new List<Vector3> { a, b, c };
-                Normal = Vector3.Cross(b - a, c - a).Normalized();
+                Normal = Vector3.Normalize(Vector3.Cross(b - a, c - a));
                 Distance = Vector3.Dot(a, Normal);
             }
 

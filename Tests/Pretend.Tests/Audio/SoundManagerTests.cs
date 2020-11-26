@@ -1,6 +1,6 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using System.Numerics;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using OpenTK.Mathematics;
 using Pretend.Audio;
 using Pretend.ECS;
 
@@ -54,7 +54,7 @@ namespace Pretend.Tests.Audio
 
             var listener = _entityContainer.CreateEntity();
             _entityContainer.AddComponent(listener, new ListenerComponent { Active = true });
-            _entityContainer.AddComponent(listener, new PositionComponent { X = 3, Y = 4, Z = 5 });
+            _entityContainer.AddComponent(listener, new PositionComponent { Position = new Vector3(3, 4, 5) });
             _entityContainer.AddComponent(listener, new PhysicsComponent { Velocity = new Vector3(1, 2, 3) });
 
             _target.PlaySounds(_entityContainer);
@@ -89,7 +89,7 @@ namespace Pretend.Tests.Audio
 
             var sourceEntity = _entityContainer.CreateEntity();
             _entityContainer.AddComponent(sourceEntity, new SourceComponent { Source = source.Object, SoundBuffer = buffer.Object, Play = true });
-            _entityContainer.AddComponent(sourceEntity, new PositionComponent { X = 3, Y = 4, Z = 5 });
+            _entityContainer.AddComponent(sourceEntity, new PositionComponent { Position = new Vector3(3, 4, 5) });
             _entityContainer.AddComponent(sourceEntity, new PhysicsComponent { Velocity = new Vector3(1, 2, 3) });
 
             _target.PlaySounds(_entityContainer);

@@ -1,23 +1,23 @@
-using OpenTK.Mathematics;
+using System.Numerics;
 
 namespace Pretend.Graphics
 {
     public class OrthographicCamera : ICamera
     {
-        private Matrix4 _view;
-        private Matrix4 _projection;
+        private Matrix4x4 _view;
+        private Matrix4x4 _projection;
         private Vector3 _position;
 
         public OrthographicCamera(Settings settings)
         {
-            Matrix4.CreateOrthographic(settings.ResolutionX, settings.ResolutionY, -1f, 1f, out _projection);
-            _view = Matrix4.Identity;
+            _projection = Matrix4x4.CreateOrthographic(settings.ResolutionX, settings.ResolutionY, -1f, 1f);
+            _view = Matrix4x4.Identity;
             _position = new Vector3();
 
             CalculateViewProjection();
         }
 
-        public Matrix4 ViewProjection { get; private set; }
+        public Matrix4x4 ViewProjection { get; private set; }
 
         public Vector3 Position
         {
@@ -25,8 +25,8 @@ namespace Pretend.Graphics
             set
             {
                 _position = value;
-                var transform = Matrix4.Identity * Matrix4.CreateTranslation(_position);
-                Matrix4.Invert(in transform, out _view);
+                var transform = Matrix4x4.Identity * Matrix4x4.CreateTranslation(_position);
+                Matrix4x4.Invert(transform, out _view);
 
                 CalculateViewProjection();
             }
@@ -34,7 +34,7 @@ namespace Pretend.Graphics
 
         public void Resize(int width, int height)
         {
-            Matrix4.CreateOrthographic(width, height, -1f, 1f, out _projection);
+            _projection = Matrix4x4.CreateOrthographic(width, height, -1f, 1f);
             CalculateViewProjection();
         }
 

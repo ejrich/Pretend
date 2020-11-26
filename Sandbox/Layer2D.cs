@@ -1,4 +1,4 @@
-using OpenTK.Mathematics;
+using System.Numerics;
 using Pretend;
 using Pretend.ECS;
 using Pretend.Events;
@@ -42,12 +42,12 @@ namespace Sandbox
             _scene.AddComponent(entity, new CameraScript(_camera));
 
             entity = _scene.CreateEntity();
-            _scene.AddComponent(entity, new PositionComponent {X = -100, Y = 400});
+            _scene.AddComponent(entity, new PositionComponent {Position = new Vector3(-100, 400, 0)});
             _scene.AddComponent(entity, new SizeComponent {Width = 300, Height = 300});
             _scene.AddComponent(entity, new ColorComponent {Color = new Vector4(0.5f, 0.5f, 0.5f, 1f)});
 
             entity = _scene.CreateEntity();
-            var positionComponent = new PositionComponent {X = 400, Y = -100};
+            var positionComponent = new PositionComponent {Position = new Vector3(400, -100, 0)};
             _scene.AddComponent(entity, positionComponent);
             _scene.AddComponent(entity, new SizeComponent {Width = 400, Height = 300});
             _scene.AddComponent(entity, new ColorComponent {Color = new Vector4(1, 0, 1, 1)});
@@ -55,15 +55,15 @@ namespace Sandbox
             _scene.AddComponent(entity, new DiceScript(positionComponent));
 
             entity = _scene.CreateEntity();
-            _scene.AddComponent(entity, new PositionComponent {X = -400, Y = -100});
+            _scene.AddComponent(entity, new PositionComponent {Position = new Vector3(-400, -100, 0) });
             _scene.AddComponent(entity, new SizeComponent {Width = 300, Height = 300});
             _scene.AddComponent(entity, new TextureComponent {Texture = _texture2});
             _scene.AddComponent(entity, new PhysicsComponent {Velocity = new Vector3(300, 500, 0)});
 
             entity = _scene.CreateEntity();
-            _scene.AddComponent(entity, new PositionComponent {Y = -360});
+            _scene.AddComponent(entity, new PositionComponent {Position = new Vector3(0, -360, 0)});
             _scene.AddComponent(entity, new SizeComponent {Width = 1280, Height = 10});
-            _scene.AddComponent(entity, new PhysicsComponent {Fixed = true });
+            _scene.AddComponent(entity, new PhysicsComponent {Fixed = true});
         }
 
         public void Detach()
