@@ -17,6 +17,11 @@ namespace Pretend.Graphics.OpenGL
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
         }
 
+        public void ClearDepth()
+        {
+            GL.Clear(ClearBufferMask.DepthBufferBit);
+        }
+
         public void BackgroundColor(float r, float g, float b, float a)
         {
             GL.ClearColor(r, g, b, a);

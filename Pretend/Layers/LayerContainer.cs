@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Pretend.Events;
+using Pretend.Graphics;
 
 namespace Pretend.Layers
 {
@@ -19,12 +20,14 @@ namespace Pretend.Layers
     public class LayerContainer : ILayerContainer
     {
         private readonly IFactory _factory;
+        private readonly IRenderContext _renderContext;
         private List<ILayer> _layers = new List<ILayer>();
         private List<ILayer> _newLayers;
 
-        public LayerContainer(IEventDispatcher eventDispatcher, IFactory factory)
+        public LayerContainer(IEventDispatcher eventDispatcher, IFactory factory, IRenderContext renderContext)
         {
             _factory = factory;
+            _renderContext = renderContext;
             eventDispatcher.Register(HandleEvent);
         }
 
@@ -75,6 +78,7 @@ namespace Pretend.Layers
                 if (!layer.Paused)
                     layer.Update(timeStep);
                 layer.Render();
+                _renderContext.ClearDepth();
             }
 
             if (_newLayers == null)
