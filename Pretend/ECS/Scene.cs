@@ -11,7 +11,7 @@ namespace Pretend.ECS
         void Init();
         IEntity CreateEntity();
         void DeleteEntity(IEntity entity);
-        void AddComponent<T>(IEntity entity, T component) where T : IComponent;
+        T AddComponent<T>(IEntity entity, T component) where T : IComponent;
         void HandleEvent(IEvent evnt);
         void Update(float timeStep);
         void Render();
@@ -50,15 +50,16 @@ namespace Pretend.ECS
             EntityContainer.DeleteEntity(entity);
         }
 
-        public void AddComponent<T>(IEntity entity, T component) where T : IComponent
+        public T AddComponent<T>(IEntity entity, T component) where T : IComponent
         {
             if (component is IScriptComponent scriptComponent)
             {
                 scriptComponent.Attach();
                 EntityContainer.AddComponent(entity, scriptComponent);
-                return;
+                return component;
             }
             EntityContainer.AddComponent(entity, component);
+            return component;
         }
 
         public void HandleEvent(IEvent evnt)

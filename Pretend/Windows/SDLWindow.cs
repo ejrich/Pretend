@@ -175,7 +175,10 @@ namespace Pretend.Windows
                     });
                     break;
                 case SDL.SDL_EventType.SDL_MOUSEBUTTONUP:
-                    _eventDispatcher.DispatchEvent(new MouseButtonReleasedEvent { Button = (MouseButton) evnt.button.button });
+                    _eventDispatcher.DispatchEvent(new MouseButtonReleasedEvent
+                    {
+                        Button = (MouseButton) evnt.button.button, X = evnt.button.x - (int)_halfResolution.X, Y = (int)_halfResolution.Y - evnt.button.y
+                    });
                     break;
 
                 // Key Events

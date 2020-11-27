@@ -26,5 +26,7 @@ namespace Pretend.Events
     {
         public bool Processed { get; set; }
         public MouseButton Button { get; set; }
+        public int X { get; set; }
+        public int Y { get; set; }
     }
 }

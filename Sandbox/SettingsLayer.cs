@@ -4,6 +4,7 @@ using Pretend.ECS;
 using Pretend.Events;
 using Pretend.Graphics;
 using Pretend.Layers;
+using Pretend.UI;
 
 namespace Sandbox
 {
@@ -14,6 +15,9 @@ namespace Sandbox
         private readonly ISettingsManager<Settings> _settingsManager;
         private readonly ILayerContainer _layerContainer;
 
+        private static readonly Vector4 SelectedColor = new Vector4(0, 1, 1, 1);
+
+        private Settings _settings => _settingsManager.Settings;
         private bool _visible;
 
         public SettingsLayer(ICamera camera, IScene scene, ISettingsManager<Settings> settingsManager,
@@ -32,19 +36,31 @@ namespace Sandbox
             var cameraEntity = _scene.CreateEntity();
             _scene.AddComponent(cameraEntity, new CameraComponent { Camera = _camera, Active = true });
 
-            var fullscreenButton= _scene.CreateEntity();
-            _scene.AddComponent(fullscreenButton, new PositionComponent { Position = new Vector3(530, 150, 0) });
-            _scene.AddComponent(fullscreenButton, new SizeComponent { Width = 200, Height = 40 });
-            _scene.AddComponent(fullscreenButton, new ColorComponent());
-            _scene.AddComponent(fullscreenButton, new SettingsScript(_settingsManager,
-                _ =>
+            var fullscreenButton = _scene.CreateEntity();
+            var button = new Button();
+            button.Init(_scene, fullscreenButton, new ButtonSettings
+            {
+                Text = "Fullscreen", Font = "Assets/Roboto-Medium.ttf", FontSize = 30,
+                FontColor = new Vector4(0, 0, 0, 1), Position = new Vector3(530, 150, 0),
+                Size = new Vector2(200, 40)
+            });
+            button.OnRelease = _ =>
+            {
+                if (_settings.WindowMode.HasFlag(WindowMode.Fullscreen))
+                    _settings.WindowMode &= ~WindowMode.Fullscreen;
+                else
+                    _settings.WindowMode |= WindowMode.Fullscreen;
+            };
+            button.Update = _ =>
+            {
+                if (_settings.WindowMode.HasFlag(WindowMode.Fullscreen))
                 {
-                    if (_.Settings.WindowMode.HasFlag(WindowMode.Fullscreen))
-                        _.Settings.WindowMode &= ~WindowMode.Fullscreen;
-                    else
-                        _.Settings.WindowMode |= WindowMode.Fullscreen;
-                }, _ => _.Settings.WindowMode.HasFlag(WindowMode.Fullscreen), fullscreenButton));
-            _scene.AddComponent(fullscreenButton, CreateButtonText("Fullscreen"));
+                    if (_._color.Color == Vector4.One)
+                        _._color.Color = SelectedColor;
+                }
+                else if (_._color.Color == SelectedColor)
+                    _._color.Color = Vector4.One;
+            };
 
             var borderlessButton= _scene.CreateEntity();
             _scene.AddComponent(borderlessButton, new PositionComponent { Position = new Vector3(530, 100, 0) });
