@@ -117,7 +117,6 @@ namespace Pretend.UI
         private SizeComponent _size;
         private ColorComponent _color;
         private TextComponent _text;
-        private ButtonScript _script;
 
         public Action OnClick { private get; set; }
         public Action OnRelease { private get; set; }
@@ -138,7 +137,7 @@ namespace Pretend.UI
                 RelativePosition = new Vector3(0, -2.5f, 0.01f), // TODO, Probably have to calculate Y
                 Color = settings.FontColor
             });
-            _script = scene.AddComponent(entity, new ButtonScript(_position, _size, this, settings));
+            scene.AddComponent(entity, new ButtonScript(_position, _size, this, settings));
         }
 
         private void Update(ButtonSettings settings)
@@ -153,7 +152,7 @@ namespace Pretend.UI
             _text.Color = settings.FontColor;
             settings.Changed = false;
         }
-        
+
         private class ButtonScript : IScriptComponent
         {
             private readonly Button _button;
@@ -235,6 +234,9 @@ namespace Pretend.UI
                         _button.OnMouseLeave?.Invoke();
                         _onButton = false;
                     }
+
+                    if (_clicked)
+                        _clicked = false;
                     return;
                 }
 
