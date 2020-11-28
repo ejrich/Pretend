@@ -47,6 +47,8 @@ namespace Sandbox
                     Settings.WindowMode |= WindowMode.Fullscreen;
             };
             fullscreenButton.OnUpdate = SetActive(() => Settings.WindowMode.HasFlag(WindowMode.Fullscreen));
+            fullscreenButton.OnMouseOver = () => Console.WriteLine("Mouse Over Fullscreen Button");
+            fullscreenButton.OnMouseLeave = () => Console.WriteLine("Mouse Left Fullscreen Button");
 
             var borderlessButton = _factory.Create<IButton>();
             borderlessButton.Init(_scene, CreateButtonSettings("Borderless", y: 100));

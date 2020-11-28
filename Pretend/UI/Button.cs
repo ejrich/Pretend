@@ -161,6 +161,7 @@ namespace Pretend.UI
             private readonly Vector2 _min;
             private readonly Vector2 _max;
             private bool _clicked;
+            private bool _onButton;
 
             public ButtonScript(PositionComponent position, SizeComponent size, Button button, ButtonSettings settings)
             {
@@ -189,6 +190,9 @@ namespace Pretend.UI
                         break;
                     case MouseButtonReleasedEvent mouseReleased:
                         HandleMouseRelease(mouseReleased);
+                        break;
+                    case MouseMovedEvent mouseMoved:
+                        HandleMouseMove(mouseMoved);
                         break;
                 }
             }
@@ -220,6 +224,24 @@ namespace Pretend.UI
                     mouseReleased.Processed = true;
                 }
                 _clicked = false;
+            }
+
+            private void HandleMouseMove(MouseMovedEvent mouseMoved)
+            {
+                if (MouseOutsideButton(mouseMoved.X, mouseMoved.Y))
+                {
+                    if (_onButton)
+                    {
+                        _button.OnMouseLeave?.Invoke();
+                        _onButton = false;
+                    }
+                    return;
+                }
+
+                if (!_onButton)
+                    _button.OnMouseOver?.Invoke();
+
+                _onButton = true;
             }
 
             private bool MouseOutsideButton(float x, float y)

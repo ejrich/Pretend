@@ -3,8 +3,8 @@ namespace Pretend.Events
     public class MouseMovedEvent : IEvent
     {
         public bool Processed { get; set; }
-        public double X { get; set; }
-        public double Y { get; set; }
+        public int X { get; set; }
+        public int Y { get; set; }
     }
 
     public class MouseScrollEvent : IEvent

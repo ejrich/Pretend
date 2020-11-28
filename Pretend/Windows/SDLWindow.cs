@@ -163,7 +163,10 @@ namespace Pretend.Windows
 
                 // Mouse Events
                 case SDL.SDL_EventType.SDL_MOUSEMOTION:
-                    _eventDispatcher.DispatchEvent(new MouseMovedEvent { X = evnt.motion.x, Y = evnt.motion.y });
+                    _eventDispatcher.DispatchEvent(new MouseMovedEvent
+                    {
+                        X = evnt.motion.x - (int)_halfResolution.X, Y = (int)_halfResolution.Y - evnt.motion.y
+                    });
                     break;
                 case SDL.SDL_EventType.SDL_MOUSEWHEEL:
                     _eventDispatcher.DispatchEvent(new MouseScrollEvent { XOffset = evnt.wheel.x, YOffset = evnt.wheel.y });
