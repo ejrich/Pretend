@@ -109,11 +109,11 @@ namespace Pretend.Windows
         {
             set
             {
-                var fullscreen = (value & WindowMode.Fullscreen) != 0;
-                SDL.SDL_SetWindowFullscreen(_window, fullscreen ? (uint)SDL.SDL_WindowFlags.SDL_WINDOW_FULLSCREEN : 0);
-
                 var borderless = (value & WindowMode.Borderless) != 0;
                 SDL.SDL_SetWindowBordered(_window, borderless ? SDL.SDL_bool.SDL_FALSE : SDL.SDL_bool.SDL_TRUE);
+
+                var fullscreen = (value & WindowMode.Fullscreen) != 0;
+                SDL.SDL_SetWindowFullscreen(_window, fullscreen ? (uint)SDL.SDL_WindowFlags.SDL_WINDOW_FULLSCREEN : 0);
             }
         }
 

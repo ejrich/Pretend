@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿using System;
+using System.Numerics;
 using Pretend;
 using Pretend.ECS;
 using Pretend.Events;
@@ -14,19 +15,19 @@ namespace Sandbox
         private readonly IScene _scene;
         private readonly ISettingsManager<Settings> _settingsManager;
         private readonly ILayerContainer _layerContainer;
+        private readonly IFactory _factory;
 
-        private static readonly Vector4 SelectedColor = new Vector4(0, 1, 1, 1);
-
-        private Settings _settings => _settingsManager.Settings;
+        private Settings Settings => _settingsManager.Settings;
         private bool _visible;
 
         public SettingsLayer(ICamera camera, IScene scene, ISettingsManager<Settings> settingsManager,
-            ILayerContainer layerContainer)
+            ILayerContainer layerContainer, IFactory factory)
         {
             _camera = camera;
             _scene = scene;
             _settingsManager = settingsManager;
             _layerContainer = layerContainer;
+            _factory = factory;
         }
 
         public void Attach()
@@ -36,123 +37,71 @@ namespace Sandbox
             var cameraEntity = _scene.CreateEntity();
             _scene.AddComponent(cameraEntity, new CameraComponent { Camera = _camera, Active = true });
 
-            var fullscreenButton = _scene.CreateEntity();
-            var button = new Button();
-            button.Init(_scene, fullscreenButton, new ButtonSettings
+            var fullscreenButton = _factory.Create<IButton>();
+            fullscreenButton.Init(_scene, CreateButtonSettings("Fullscreen", y: 150));
+            fullscreenButton.OnRelease = () =>
             {
-                Text = "Fullscreen", Font = "Assets/Roboto-Medium.ttf", FontSize = 30,
-                FontColor = new Vector4(0, 0, 0, 1), Position = new Vector3(530, 150, 0),
-                Size = new Vector2(200, 40)
-            });
-            button.OnRelease = _ =>
-            {
-                if (_settings.WindowMode.HasFlag(WindowMode.Fullscreen))
-                    _settings.WindowMode &= ~WindowMode.Fullscreen;
+                if (Settings.WindowMode.HasFlag(WindowMode.Fullscreen))
+                    Settings.WindowMode &= ~WindowMode.Fullscreen;
                 else
-                    _settings.WindowMode |= WindowMode.Fullscreen;
+                    Settings.WindowMode |= WindowMode.Fullscreen;
             };
-            button.Update = _ =>
+            fullscreenButton.OnUpdate = SetActive(() => Settings.WindowMode.HasFlag(WindowMode.Fullscreen));
+
+            var borderlessButton = _factory.Create<IButton>();
+            borderlessButton.Init(_scene, CreateButtonSettings("Borderless", y: 100));
+            borderlessButton.OnRelease = () =>
             {
-                if (_settings.WindowMode.HasFlag(WindowMode.Fullscreen))
-                {
-                    if (_._color.Color == Vector4.One)
-                        _._color.Color = SelectedColor;
-                }
-                else if (_._color.Color == SelectedColor)
-                    _._color.Color = Vector4.One;
+                if (Settings.WindowMode.HasFlag(WindowMode.Borderless))
+                    Settings.WindowMode &= ~WindowMode.Borderless;
+                else
+                    Settings.WindowMode |= WindowMode.Borderless;
             };
+            borderlessButton.OnUpdate = SetActive(() => Settings.WindowMode.HasFlag(WindowMode.Borderless));
 
-            var borderlessButton= _scene.CreateEntity();
-            _scene.AddComponent(borderlessButton, new PositionComponent { Position = new Vector3(530, 100, 0) });
-            _scene.AddComponent(borderlessButton, new SizeComponent { Width = 200, Height = 40 });
-            _scene.AddComponent(borderlessButton, new ColorComponent());
-            _scene.AddComponent(borderlessButton, new SettingsScript(_settingsManager,
-                _ =>
-                {
-                    if (_.Settings.WindowMode.HasFlag(WindowMode.Borderless))
-                        _.Settings.WindowMode &= ~WindowMode.Borderless;
-                    else
-                        _.Settings.WindowMode |= WindowMode.Borderless;
-                }, _ => _.Settings.WindowMode.HasFlag(WindowMode.Borderless), borderlessButton));
-            _scene.AddComponent(borderlessButton, CreateButtonText("Borderless"));
+            var vsyncButton = _factory.Create<IButton>();
+            vsyncButton.Init(_scene, CreateButtonSettings("Vsync", y: 50));
+            vsyncButton.OnRelease = () => Settings.Vsync = !Settings.Vsync;
+            vsyncButton.OnUpdate = SetActive(() => Settings.Vsync);
 
-            var vsyncButton= _scene.CreateEntity();
-            _scene.AddComponent(vsyncButton, new PositionComponent { Position = new Vector3(530, 50, 0) });
-            _scene.AddComponent(vsyncButton, new SizeComponent { Width = 200, Height = 40 });
-            _scene.AddComponent(vsyncButton, new ColorComponent());
-            _scene.AddComponent(vsyncButton, new SettingsScript(_settingsManager,
-                _ => _.Settings.Vsync = !_.Settings.Vsync, _ => _.Settings.Vsync, vsyncButton));
-            _scene.AddComponent(vsyncButton, CreateButtonText("Vsync"));
+            var zeroFpsButton = _factory.Create<IButton>();
+            zeroFpsButton.Init(_scene, CreateButtonSettings("0", x: 460, width: 60));
+            zeroFpsButton.OnRelease = () => Settings.MaxFps = 0;
+            zeroFpsButton.OnUpdate = SetActive(() => Settings.MaxFps == 0);
 
-            var zeroFpsButton= _scene.CreateEntity();
-            _scene.AddComponent(zeroFpsButton, new PositionComponent { Position = new Vector3(460, 0, 0) });
-            _scene.AddComponent(zeroFpsButton, new SizeComponent { Width = 60, Height = 40 });
-            _scene.AddComponent(zeroFpsButton, new ColorComponent());
-            _scene.AddComponent(zeroFpsButton, new SettingsScript(_settingsManager,
-                _ => _.Settings.MaxFps = 0, _ => _.Settings.MaxFps == 0, zeroFpsButton));
-            _scene.AddComponent(zeroFpsButton, CreateButtonText("0"));
+            var sixtyFpsButton = _factory.Create<IButton>();
+            sixtyFpsButton.Init(_scene, CreateButtonSettings("60", width: 60));
+            sixtyFpsButton.OnRelease = () => Settings.MaxFps = 60;
+            sixtyFpsButton.OnUpdate = SetActive(() => Settings.MaxFps == 60);
 
-            var sixtyFpsButton= _scene.CreateEntity();
-            _scene.AddComponent(sixtyFpsButton, new PositionComponent { Position = new Vector3(530, 0, 0) });
-            _scene.AddComponent(sixtyFpsButton, new SizeComponent { Width = 60, Height = 40 });
-            _scene.AddComponent(sixtyFpsButton, new ColorComponent());
-            _scene.AddComponent(sixtyFpsButton, new SettingsScript(_settingsManager,
-                _ => _.Settings.MaxFps = 60, _ => _.Settings.MaxFps == 60, sixtyFpsButton));
-            _scene.AddComponent(sixtyFpsButton, CreateButtonText("60"));
+            var highFpsButton = _factory.Create<IButton>();
+            highFpsButton.Init(_scene, CreateButtonSettings("144", x: 600, width: 60));
+            highFpsButton.OnRelease = () => Settings.MaxFps = 144;
+            highFpsButton.OnUpdate = SetActive(() => Settings.MaxFps == 144);
 
-            var highFpsButton= _scene.CreateEntity();
-            _scene.AddComponent(highFpsButton, new PositionComponent { Position = new Vector3(600, 0, 0) });
-            _scene.AddComponent(highFpsButton, new SizeComponent { Width = 60, Height = 40 });
-            _scene.AddComponent(highFpsButton, new ColorComponent());
-            _scene.AddComponent(highFpsButton, new SettingsScript(_settingsManager,
-                _ => _.Settings.MaxFps = 144, _ => _.Settings.MaxFps == 144, highFpsButton));
-            _scene.AddComponent(highFpsButton, CreateButtonText("144"));
+            var resolution1Button = _factory.Create<IButton>();
+            resolution1Button.Init(_scene, CreateButtonSettings("1280x720", 20, 479, -50, 98));
+            resolution1Button.OnRelease = () => { Settings.ResolutionX = 1280; Settings.ResolutionY = 720; };
+            resolution1Button.OnUpdate = SetActive(() => Settings.ResolutionX == 1280 && Settings.ResolutionY == 720);
 
-            var resolution1Button= _scene.CreateEntity();
-            _scene.AddComponent(resolution1Button, new PositionComponent { Position = new Vector3(479, -50, 0) });
-            _scene.AddComponent(resolution1Button, new SizeComponent { Width = 98, Height = 40 });
-            _scene.AddComponent(resolution1Button, new ColorComponent());
-            _scene.AddComponent(resolution1Button, new SettingsScript(_settingsManager,
-                _ =>
-                {
-                    _.Settings.ResolutionX = 1280;
-                    _.Settings.ResolutionY = 720;
-                }, _ => _.Settings.ResolutionX == 1280 && _.Settings.ResolutionY == 720, resolution1Button));
-            _scene.AddComponent(resolution1Button, CreateButtonText("1280x720", 20));
+            var resolution2Button = _factory.Create<IButton>();
+            resolution2Button.Init(_scene, CreateButtonSettings("1920x1080", 20, 581, -50, 98));
+            resolution2Button.OnRelease = () => { Settings.ResolutionX = 1920; Settings.ResolutionY = 1080; };
+            resolution2Button.OnUpdate = SetActive(() => Settings.ResolutionX == 1920 && Settings.ResolutionY == 1080);
 
-            var resolution2Button= _scene.CreateEntity();
-            _scene.AddComponent(resolution2Button, new PositionComponent { Position = new Vector3(581, -50, 0) });
-            _scene.AddComponent(resolution2Button, new SizeComponent { Width = 98, Height = 40 });
-            _scene.AddComponent(resolution2Button, new ColorComponent());
-            _scene.AddComponent(resolution2Button, new SettingsScript(_settingsManager,
-                _ =>
-                {
-                    _.Settings.ResolutionX = 1920;
-                    _.Settings.ResolutionY = 1080;
-                }, _ => _.Settings.ResolutionX == 1920 && _.Settings.ResolutionY == 1080, resolution2Button));
-            _scene.AddComponent(resolution2Button, CreateButtonText("1920x1080", 20));
+            var applyButton = _factory.Create<IButton>();
+            applyButton.Init(_scene, CreateButtonSettings("Apply", y: -100));
+            applyButton.OnRelease = () => _settingsManager.Apply();
 
-            var applyButton= _scene.CreateEntity();
-            _scene.AddComponent(applyButton, new PositionComponent { Position = new Vector3(530, -100, 0) });
-            _scene.AddComponent(applyButton, new SizeComponent { Width = 200, Height = 40 });
-            _scene.AddComponent(applyButton, new ColorComponent());
-            _scene.AddComponent(applyButton, new SettingsScript(_settingsManager, _ => _.Apply(), _ => false, applyButton));
-            _scene.AddComponent(applyButton, CreateButtonText("Apply"));
-
-            var resetButton= _scene.CreateEntity();
-            _scene.AddComponent(resetButton, new PositionComponent { Position = new Vector3(530, -150, 0) });
-            _scene.AddComponent(resetButton, new SizeComponent { Width = 200, Height = 40 });
-            _scene.AddComponent(resetButton, new ColorComponent());
-            _scene.AddComponent(resetButton, new SettingsScript(_settingsManager, _ => _.Reset(), _ => false, resetButton));
-            _scene.AddComponent(resetButton, CreateButtonText("Reset"));
+            var resetButton = _factory.Create<IButton>();
+            resetButton.Init(_scene, CreateButtonSettings("Reset", y: -150));
+            resetButton.OnRelease = () => _settingsManager.Reset();
         }
 
-        public bool Paused { get; }
+        public bool Paused => !_visible;
 
         public void Update(float timeStep)
         {
-            if (!_visible) return;
-
             _scene.Update(timeStep);
         }
 
@@ -197,15 +146,32 @@ namespace Sandbox
             _scene.HandleEvent(evnt);
         }
 
-        private static TextComponent CreateButtonText(string label, uint size = 30)
+        private static ButtonSettings CreateButtonSettings(string label, uint size = 30, int x = 530, int y = 0, int width = 200, int height = 40)
         {
-            return new TextComponent
+            return new ButtonSettings
             {
                 Text = label,
                 Font = "Assets/Roboto-Medium.ttf",
-                Size = size,
-                RelativePosition = new Vector3(0, -2.5f, 0.01f),
-                Color = new Vector4(0, 0, 0, 1)
+                FontSize = size,
+                FontColor = new Vector4(0, 0, 0, 1),
+                Position = new Vector3(x, y, 0),
+                Size = new Vector2(width, height)
+            };
+        }
+
+        private static readonly Vector4 SelectedColor = new Vector4(0, 1, 1, 1);
+
+        private static Action<ButtonSettings> SetActive(Func<bool> active)
+        {
+            return buttonSettings =>
+            {
+                if (active())
+                {
+                    if (buttonSettings.Color == Vector4.One)
+                        buttonSettings.Color = SelectedColor;
+                }
+                else if (buttonSettings.Color == SelectedColor)
+                    buttonSettings.Color = Vector4.One;
             };
         }
     }

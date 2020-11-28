@@ -12,6 +12,7 @@ using Pretend.Graphics.OpenGL;
 using Pretend.Layers;
 using Pretend.Physics;
 using Pretend.Text;
+using Pretend.UI;
 using Pretend.Windows;
 
 namespace Pretend
@@ -82,6 +83,9 @@ namespace Pretend
             // Text API
             _services.AddSingleton<ITextRenderer, TextRenderer>();
             _services.AddSingleton<IFont, Font>();
+
+            // UI Library
+            _services.AddTransient<IButton, Button>();
 
             // Application
             _services.AddTransient(typeof(IApplication), typeof(TApp));

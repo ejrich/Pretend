@@ -8,33 +8,127 @@ namespace Pretend.UI
 {
     public class ButtonSettings
     {
-        public string Text { get; set; }
-        public string Font { get; set; }
-        public uint FontSize { get; set; }
-        public Vector4 FontColor { get; set; } = Vector4.One;
-        public Vector4 Color { get; set; } = Vector4.One;
-        public ITexture2D Texture { get; set; }
-        public Vector3 Position { get; set; }
-        public Vector2 Size { get; set; }
+        private string _text;
+        private string _font;
+        private uint _fontSize;
+        private Vector4 _fontColor = Vector4.One;
+        private Vector4 _color = Vector4.One;
+        private ITexture2D _texture;
+        private Vector3 _position;
+        private Vector2 _size;
+
+        public string Text
+        {
+            get => _text;
+            set
+            {
+                _text = value;
+                Changed = true;
+            }
+        }
+
+        public string Font
+        {
+            get => _font;
+            set
+            {
+                _font = value;
+                Changed = true;
+            }
+        }
+
+        public uint FontSize
+        {
+            get => _fontSize;
+            set
+            {
+                _fontSize = value;
+                Changed = true;
+            }
+        }
+
+        public Vector4 FontColor
+        {
+            get => _fontColor;
+            set
+            {
+                _fontColor = value;
+                Changed = true;
+            }
+        }
+
+        public Vector4 Color
+        {
+            get => _color;
+            set
+            {
+                _color = value;
+                Changed = true;
+            }
+        }
+
+        public ITexture2D Texture
+        {
+            get => _texture;
+            set
+            {
+                _texture = value;
+                Changed = true;
+            }
+        }
+
+        public Vector3 Position
+        {
+            get => _position;
+            set
+            {
+                _position = value;
+                Changed = true;
+            }
+        }
+
+        public Vector2 Size
+        {
+            get => _size;
+            set
+            {
+                _size = value;
+                Changed = true;
+            }
+        }
+
+        public bool Changed { get; internal set; }
     }
 
-    public class Button
+    public interface IButton
     {
-        // TODO: These don't have to be public
-        public PositionComponent _position;
-        public SizeComponent _size;
-        public ColorComponent _color;
-        public TextComponent _text;
+        public Action OnClick { set; }
+        public Action OnRelease { set; }
+        public Action OnMouseOver { set; }
+        public Action OnMouseLeave { set; }
+        public Action<ButtonSettings> OnUpdate { set; }
+
+        public void Init(IScene scene, ButtonSettings settings);
+    }
+
+    public class Button : IButton
+    {
+        private PositionComponent _position;
+        private SizeComponent _size;
+        private ColorComponent _color;
+        private TextComponent _text;
         private ButtonScript _script;
 
-        public Action<Button> OnClick { private get; set; }
-        public Action<Button> OnRelease { private get; set; }
-        public Action<Button> OnMouseOver { private get; set; }
-        public Action<Button> OnMouseLeave { private get; set; }
-        public Action<Button> Update { private get; set; }
+        public Action OnClick { private get; set; }
+        public Action OnRelease { private get; set; }
+        public Action OnMouseOver { private get; set; }
+        public Action OnMouseLeave { private get; set; }
+        public Action<ButtonSettings> OnUpdate { private get; set; }
 
-        public void Init(IScene scene, IEntity entity, ButtonSettings settings)
+        public void Init(IScene scene, ButtonSettings settings)
         {
+            var entity = scene.CreateEntity();
+
             _position = scene.AddComponent(entity, new PositionComponent { Position = settings.Position });
             _size = scene.AddComponent(entity, new SizeComponent { Width = (uint)settings.Size.X, Height = (uint)settings.Size.Y });
             _color = scene.AddComponent(entity, new ColorComponent { Color = settings.Color });
@@ -44,19 +138,34 @@ namespace Pretend.UI
                 RelativePosition = new Vector3(0, -2.5f, 0.01f), // TODO, Probably have to calculate Y
                 Color = settings.FontColor
             });
-            _script = scene.AddComponent(entity, new ButtonScript(_position, _size, this));
+            _script = scene.AddComponent(entity, new ButtonScript(_position, _size, this, settings));
+        }
+
+        private void Update(ButtonSettings settings)
+        {
+            _position.Position = settings.Position;
+            _size.Width = (uint)settings.Size.X;
+            _size.Height = (uint)settings.Size.Y;
+            _color.Color = settings.Color;
+            _text.Text = settings.Text;
+            _text.Font = settings.Font;
+            _text.Size = settings.FontSize;
+            _text.Color = settings.FontColor;
+            settings.Changed = false;
         }
         
         private class ButtonScript : IScriptComponent
         {
             private readonly Button _button;
+            private readonly ButtonSettings _settings;
             private readonly Vector2 _min;
             private readonly Vector2 _max;
             private bool _clicked;
 
-            public ButtonScript(PositionComponent position, SizeComponent size, Button button)
+            public ButtonScript(PositionComponent position, SizeComponent size, Button button, ButtonSettings settings)
             {
                 _button = button;
+                _settings = settings;
 
                 _min = new Vector2(position.Position.X - size.Width / 2f, position.Position.Y - size.Height / 2f);
                 _max = new Vector2(position.Position.X + size.Width / 2f, position.Position.Y + size.Height / 2f);
@@ -64,7 +173,11 @@ namespace Pretend.UI
 
             public void Update(float timeStep)
             {
-                _button.Update?.Invoke(_button);
+                if (_button.OnUpdate == null) return;
+
+                _button.OnUpdate.Invoke(_settings);
+                if (_settings.Changed)
+                    _button.Update(_settings);
             }
 
             public void HandleEvent(IEvent evnt)
@@ -82,19 +195,20 @@ namespace Pretend.UI
 
             private void HandleMousePress(MouseButtonPressedEvent mousePressed)
             {
-                if (_min.X > mousePressed.X || _max.X < mousePressed.X ||
-                    _min.Y > mousePressed.Y || _max.Y < mousePressed.Y)
+                if (MouseOutsideButton(mousePressed.X, mousePressed.Y))
+                {
+                    _clicked = false;
                     return;
+                }
 
                 _clicked = true;
-                _button.OnClick?.Invoke(_button);
+                _button.OnClick?.Invoke();
                 mousePressed.Processed = true;
             }
 
             private void HandleMouseRelease(MouseButtonReleasedEvent mouseReleased)
             {
-                if (_min.X > mouseReleased.X || _max.X < mouseReleased.X ||
-                    _min.Y > mouseReleased.Y || _max.Y < mouseReleased.Y)
+                if (MouseOutsideButton(mouseReleased.X, mouseReleased.Y))
                 {
                     _clicked = false;
                     return;
@@ -102,10 +216,15 @@ namespace Pretend.UI
 
                 if (_clicked)
                 {
-                    _button.OnRelease?.Invoke(_button);
+                    _button.OnRelease?.Invoke();
                     mouseReleased.Processed = true;
                 }
                 _clicked = false;
+            }
+
+            private bool MouseOutsideButton(float x, float y)
+            {
+                return _min.X > x || _max.X < x || _min.Y > y || _max.Y < y;
             }
         }
     }
