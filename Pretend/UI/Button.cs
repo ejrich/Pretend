@@ -116,6 +116,7 @@ namespace Pretend.UI
         private PositionComponent _position;
         private SizeComponent _size;
         private ColorComponent _color;
+        private TextureComponent _texture;
         private TextComponent _text;
 
         public Action OnClick { private get; set; }
@@ -131,6 +132,7 @@ namespace Pretend.UI
             _position = scene.AddComponent(entity, new PositionComponent { Position = settings.Position });
             _size = scene.AddComponent(entity, new SizeComponent { Width = (uint)settings.Size.X, Height = (uint)settings.Size.Y });
             _color = scene.AddComponent(entity, new ColorComponent { Color = settings.Color });
+            _texture = scene.AddComponent(entity, new TextureComponent { Texture = settings.Texture });
             _text = scene.AddComponent(entity, new TextComponent
             {
                 Text = settings.Text, Font = settings.Font, Size = settings.FontSize,
@@ -146,6 +148,7 @@ namespace Pretend.UI
             _size.Width = (uint)settings.Size.X;
             _size.Height = (uint)settings.Size.Y;
             _color.Color = settings.Color;
+            _texture.Texture = settings.Texture;
             _text.Text = settings.Text;
             _text.Font = settings.Font;
             _text.Size = settings.FontSize;
@@ -244,6 +247,7 @@ namespace Pretend.UI
                     _button.OnMouseOver?.Invoke();
 
                 _onButton = true;
+                mouseMoved.Processed = true;
             }
 
             private bool MouseOutsideButton(float x, float y)

@@ -86,6 +86,7 @@ namespace Pretend
 
             // UI Library
             _services.AddTransient<IButton, Button>();
+            _services.AddTransient<UI.IInput, Input>();
 
             // Application
             _services.AddTransient(typeof(IApplication), typeof(TApp));

@@ -98,6 +98,9 @@ namespace Sandbox
             var resetButton = _factory.Create<IButton>();
             resetButton.Init(_scene, CreateButtonSettings("Reset", y: -150));
             resetButton.OnRelease = () => _settingsManager.Reset();
+
+            var input = _factory.Create<Pretend.UI.IInput>();
+            input.Init(_scene, new InputSettings { Size = new Vector2(200, 40) });
         }
 
         public bool Paused => !_visible;

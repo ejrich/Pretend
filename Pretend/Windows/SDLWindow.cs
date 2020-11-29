@@ -186,7 +186,10 @@ namespace Pretend.Windows
 
                 // Key Events
                 case SDL.SDL_EventType.SDL_KEYDOWN:
-                    _eventDispatcher.DispatchEvent(new KeyPressedEvent { KeyCode = (KeyCode) evnt.key.keysym.sym });
+                    _eventDispatcher.DispatchEvent(new KeyPressedEvent
+                    {
+                        KeyCode = (KeyCode) evnt.key.keysym.sym, KeyMod = (KeyMod) evnt.key.keysym.mod
+                    });
                     break;
                 case SDL.SDL_EventType.SDL_KEYUP:
                     _eventDispatcher.DispatchEvent(new KeyReleasedEvent { KeyCode = (KeyCode) evnt.key.keysym.sym });

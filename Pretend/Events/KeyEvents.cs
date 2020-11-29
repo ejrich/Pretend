@@ -4,6 +4,7 @@ namespace Pretend.Events
     {
         public bool Processed { get; set; }
         public KeyCode KeyCode { get; set; }
+        public KeyMod KeyMod { get; set; }
     }
 
     public class KeyReleasedEvent : IEvent

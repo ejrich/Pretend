@@ -66,6 +66,7 @@ namespace Pretend.ECS
         {
             foreach (var script in EntityContainer.GetComponents<IScriptComponent>())
             {
+                if (evnt.Processed) return;
                 script.HandleEvent(evnt);
             }
         }
