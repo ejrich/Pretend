@@ -3,6 +3,7 @@ using System.Numerics;
 using Pretend.ECS;
 using Pretend.Events;
 using Pretend.Graphics;
+using Pretend.Text;
 
 namespace Pretend.UI
 {
@@ -143,7 +144,7 @@ namespace Pretend.UI
             {
                 Text = settings.InitialValue, Font = settings.Font, Size = settings.FontSize,
                 RelativePosition = new Vector3(0, -2.5f, 0.01f), // TODO, Probably have to calculate Y
-                Color = settings.FontColor
+                Alignment = TextAlignment.Left, Color = settings.FontColor
             });
             scene.AddComponent(entity, new InputScript(_position, _size, this, settings));
         }
@@ -155,6 +156,7 @@ namespace Pretend.UI
             _size.Width = (uint)settings.Size.X;
             _size.Height = (uint)settings.Size.Y;
             _color.Color = settings.Color;
+            _texture.Texture = settings.Texture;
             _text.Text = settings.InitialValue;
             _text.Font = settings.Font;
             _text.Size = settings.FontSize;
