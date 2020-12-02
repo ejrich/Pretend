@@ -144,7 +144,7 @@ namespace Pretend.UI
             {
                 Text = settings.InitialValue, Font = settings.Font, Size = settings.FontSize,
                 RelativePosition = new Vector3(0, -2.5f, 0.01f), // TODO, Probably have to calculate Y
-                Alignment = TextAlignment.Left, Color = settings.FontColor
+                Color = settings.FontColor
             });
             scene.AddComponent(entity, new InputScript(_position, _size, this, settings));
         }
@@ -167,7 +167,6 @@ namespace Pretend.UI
         private void UpdateInputValue(char character)
         {
             Value += character;
-            Console.WriteLine(Value);
             _text.Text = Value;
         }
 
