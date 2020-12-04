@@ -166,7 +166,10 @@ namespace Pretend.UI
 
         private void UpdateInputValue(char character)
         {
-            Value += character;
+            if (character == '\b')
+                Value = Value.Substring(0, Value.Length == 0 ? 0 : Value.Length - 1);
+            else
+                Value += character;
             _text.Text = Value;
         }
 
@@ -230,10 +233,12 @@ namespace Pretend.UI
                 // Handle reserved chars
                 if (keyPressed.KeyCode == KeyCode.Backspace || keyPressed.KeyCode == KeyCode.Space)
                     _input.UpdateInputValue((char)keyPressed.KeyCode);
-
-                var character = keyPressed.KeyCode.GetChar(keyPressed.KeyMod);
-                if (character != '\0')
-                    _input.UpdateInputValue(character);
+                else
+                {
+                    var character = keyPressed.KeyCode.GetChar(keyPressed.KeyMod);
+                    if (character != '\0')
+                        _input.UpdateInputValue(character);
+                }
 
                 keyPressed.Processed = true;
             }
